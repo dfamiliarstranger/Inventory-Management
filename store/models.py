@@ -117,7 +117,7 @@ def update_inventory(add_stock_item):
 
 ###################     Production Models     #####################
 class Production(models.Model):
-    product = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True, blank=True, limit_choices_to={'name': 'Preform'})
+    product = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True ) 
     shortages = models.IntegerField()
     excesses = models.IntegerField()
     damages = models.IntegerField()
@@ -126,3 +126,4 @@ class Production(models.Model):
     bottle_size = models.IntegerField()
     bottle_color = models.CharField(max_length=10, null=True, blank=True)
     bottle_units = models.IntegerField()
+    created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)

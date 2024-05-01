@@ -1,0 +1,41 @@
+{% extends "base/root.html" %}
+{% block body %}
+<div class="container mt-5">
+    <h3>Stock Items</h3>
+    <table class="table table-striped table-hover table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Color</th>
+                <th>Product Types</th>
+                <th>Quantity </th> 
+            </tr>
+            
+        </thead>
+        <tbody>
+           
+            {% for stock_item in stock_item %}
+            <tr>
+                <td>{{stock_item.name}}</td>
+                <td>{{stock_item.color}}</td>
+                <td>
+                    {% if stock_item.preform_type %}
+                    {{ stock_item.preform_type.name }}
+                    {% elif stock_item.product_type %}
+                    {{ stock_item.product_type }}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                <td>{{stock_item.quantity}}</td>
+               
+               
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+{% endblock %}

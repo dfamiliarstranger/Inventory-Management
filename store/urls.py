@@ -28,8 +28,10 @@ urlpatterns = [
         # Add Stock Items
 
         path('add_stock/', views.add_stock_item, name="add_stock"),
-        path('stock/', views.stock_detail, name="stock"),
+        path('stock/', views.purchase_history, name="stock"),
+        path('stock_list/', views.stock_detail, name="stock_list"),
 
         # Production
-        path('production/', views.production, name="production")
+        path('production/', views.production, name="production"),
+        path('production_record/', views.production_record, name="record")
 ]

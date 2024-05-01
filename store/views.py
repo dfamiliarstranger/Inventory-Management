@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Cap, Preform, Preform_type, Supplier, Customer, StockItem, update_inventory, Production
+from .models import Cap, Preform, Preform_type, Supplier, Customer, StockItem, update_inventory, Production, Stock
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout 
 from .forms import CapForm, PreformForm, CustomerForm, SupplierForm, StockItemForm, ProductionForm
@@ -184,22 +184,33 @@ def add_stock_item(request):
 
 
 @login_required
-def stock_detail(request):
+def purchase_history(request):
     stock = StockItem.objects.all()
-    return render(request, 'store/add_stock/details.html', {'stocks': stock, })
+    return render(request, 'store/add_stock/details.html', {'stocks': stock })
+
+@login_required
+def stock_detail(request):
+    stock_item = Stock.objects.all()
+    return render(request, 'stock/index.html', {'stock_item': stock_item })
 
 
 #####################                     PRODUCTION                          ######################
 @login_required
 def production(request):
-    # preform_production = Production.objects.filter(product='Preform')
-    # if request.method == "POST":
-    #     form = ProductionForm(request.POST)
-    #     if form.is_valid():
-    #        form.save()
-    #        return redirect('product')
-    #     else:
-    #         return redirect('create_product')
-    # else:
-    #     form = ProductionForm()
-    return render(request, 'production//index.html', { })
+    stock = Stock.objects.filter(name='Preform')
+    if request.method == "POST":
+        form = ProductionForm(request.POST)
+        if form.is_valid():
+           form.save()
+           return redirect('record')
+        else:
+            return redirect('production')
+    else:
+        form = ProductionForm()
+    return render(request, 'production//index.html', {'stock': stock})
+
+
+@login_required
+def production_record(request):
+    record = Production.objects.all()
+    return render(request, 'production//summary.html', {'record': record })
