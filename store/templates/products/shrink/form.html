@@ -1,0 +1,56 @@
+{% extends "base/root.html" %}
+{% block body %}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="mb-3">
+                <h3>Shrinkwrapper Product Form</h3>
+            </div>
+            <form method="POST" action="{% url 'create_shrink' %}" class="shadow p-3">   
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="name">product name</label>
+                    <input type="name" class="form-control" id="name" placeholder="name" value="Shrinkwrapper" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label for="product_type">Product Type</label>
+                    <select class="form-control" id="product_type" name="product_type" required>
+                        <option value="" selected>Select</option> <!-- Default option -->
+                        <option value="virgin tube">virgin tube</option>
+                        <option value="virgin flat">virgin flat</option>
+                        <option value="preprocessed tube">preprocessed tube</option>
+                        <option value="preprocessed flat">preprocessed flat</option>
+                        
+                        <!-- Add more color options as needed -->
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+   function updateQuantityPerBag() {
+        // Get the selected size value
+        var size = parseInt(document.getElementById('size').value);
+        // Calculate the quantity per bag based on the selected size
+        var quantityPerBag = size === 28 ? 4000 : (size === 30 ? 6000 : 0);
+        // Update the value of the quantity per bag input field
+        document.getElementById('quantity_per_bag').value = quantityPerBag;
+    }
+
+    // Initialize quantity per bag based on default size
+    updateQuantityPerBag();
+
+    // Add event listener to the size input field
+    document.getElementById('size').addEventListener('change', updateQuantityPerBag);
+</script>
+</script>
+
+{% endblock %}

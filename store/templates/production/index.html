@@ -1,0 +1,73 @@
+  {% extends "base/root.html" %}
+  {% block body %}
+  <div class="container mt-5">
+    <form action="/submit_daily_production_record" method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+    
+        <div class="form-group">
+            <label for="quantity">Quantity (per bag):</label>
+            <input type="number" id="quantity" name="quantity" class="form-control" required>
+            <div class="invalid-feedback">
+                Please provide quantity per bag.
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label for="preform_leftover">Preform leftover per bag:</label>
+            <input type="number" id="preform_leftover" name="preform_leftover" class="form-control" required>
+            <div class="invalid-feedback">
+                Please provide preform leftover per bag.
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label for="amount_shortages">Amount of shortages (per bag):</label>
+            <input type="number" id="amount_shortages" name="amount_shortages" class="form-control">
+        </div>
+    
+        <div class="form-group">
+            <label for="amount_excess">Amount of excess (per bag):</label>
+            <input type="number" id="amount_excess" name="amount_excess" class="form-control">
+        </div>
+    
+        <div class="form-group">
+            <label for="bottle_size">Bottle size:</label>
+            <input type="text" id="bottle_size" name="bottle_size" class="form-control" required>
+            <div class="invalid-feedback">
+                Please provide bottle size.
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label for="bottle_color">Bottle color:</label>
+            <input type="text" id="bottle_color" name="bottle_color" class="form-control" required>
+            <div class="invalid-feedback">
+                Please provide bottle color.
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label for="bottle_quantity">Bottle quantity:</label>
+            <input type="number" id="bottle_quantity" name="bottle_quantity" class="form-control" required>
+            <div class="invalid-feedback">
+                Please provide bottle quantity.
+            </div>
+        </div>
+    
+        <div class="form-group">
+            <label for="bottle_waste">Bottle waste:</label>
+            <input type="number" id="bottle_waste" name="bottle_waste" class="form-control" required>
+            <div class="invalid-feedback">
+                Please provide bottle waste.
+            </div>
+        </div>
+    
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    
+  </div>
+  
+  
+  
+  {% endblock %}  

@@ -1,0 +1,27 @@
+{% extends "base/root.html" %}
+{% block body %}
+  <div class="container">
+    <h2 class="text-center fw-bolder font-monospace"> PRODUCT: CAP</h2>
+    <a href="{% url 'create_cap' %}" class="btn btn-secondary">Add Item</a></td>
+    <table class="table table-striped table-hover table-bordered mt-4">
+        <thead class="table-dark">
+        <tr>
+            <th scope="col">Size</th>
+            <th scope="col">units per bag</th>
+        </tr>
+        </thead>
+        <tbody>
+        
+            {% for cap in caps %}
+                <tr>       
+                            <td>{{cap.size}}</td>
+                                    <td>{{cap.quantity_per_bag}}</td>
+                </tr>
+                
+            {% endfor %}
+        
+        </tbody> 
+    </table>
+  </div>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base/root.html" %}
+{% block body %}
+  <div class="container">
+    <h2 class="text-center fw-bolder font-monospace"> PRODUCT: SHRINKWRAPPER</h2>
+    <a href="{% url 'create_shrink' %}" class="btn btn-secondary">Add Item</a></td>
+    <table class="table table-striped table-hover table-bordered mt-4">
+        <thead class="table-dark">
+        <tr>
+            <th scope="col">Product Types</th>
+           
+        </thead>
+        <tbody>
+        
+            {% for shrink_wrapper in shrink_wrappers %}
+                <tr>
+                    <td> {{shrink_wrapper.product_type}}</a></td>       
+                           
+                </tr>
+            {% endfor %}
+        
+        </tbody> 
+    </table>
+  </div>
+
+{% endblock %}
