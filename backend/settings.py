@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -148,8 +149,8 @@ STATICFILES_DIRS = [
 
 # Directory where collected static files will be stored
 # Ensure this directory exists and is different from STATICFILES_DIRS
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # or any other directory name you prefer
-
+STATIC_ROOT = BASE_DIR / "staticfiles"  # or any other directory name you prefer
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 LOGIN_REDIRECT_URL = 'home'  # or any other URL where you want to redirect after login
