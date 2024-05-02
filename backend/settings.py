@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure-$2i!cu)n+@h1n#^+%8tby=xkhvd_1s4d7@jk017w7p88_v)rzh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = [
+    'inventory-management-2s5q.onrender.com',  # Add your Render hostname here
+    '*.onrender.com',  # Allow all subdomains of onrender.com
+    ''
+]
 
 
 # Application definition
