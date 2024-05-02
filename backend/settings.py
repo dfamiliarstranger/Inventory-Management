@@ -136,14 +136,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
+
 STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
+    os.path.join(BASE_DIR, 'static'),  # Add additional directories here if needed
 ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Define the directory where static files are collected
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 LOGIN_REDIRECT_URL = 'home'  # or any other URL where you want to redirect after login
 LOGIN_URL = 'user_login'  # URL name of your login page
