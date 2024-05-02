@@ -141,11 +141,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/static/'
 
+# Directories where Django will look for additional static files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'staticfiles'),  # Add additional directories here if needed
+    os.path.join(BASE_DIR, 'static/'),  # Add additional directories here if needed
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# Directory where collected static files will be stored
+# Ensure this directory exists and is different from STATICFILES_DIRS
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # or any other directory name you prefer
+
 
 
 LOGIN_REDIRECT_URL = 'home'  # or any other URL where you want to redirect after login
