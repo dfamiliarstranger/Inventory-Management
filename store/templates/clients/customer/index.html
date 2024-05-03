@@ -1,4 +1,4 @@
-{% extends "base/root.html" %}
+{% extends "base/base.html" %}
 {% block body %}
   <div class="container">
     <h2 class="text-center fw-bolder font-monospace"> Customer's Record</h2>
@@ -26,6 +26,7 @@
         
         </tbody> 
     </table>
+    <a href="{% url 'create_customer'%}" class="btn btn-primary">Add Client</a>
   </div>
 
 {% endblock %}

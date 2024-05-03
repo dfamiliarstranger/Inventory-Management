@@ -1,4 +1,4 @@
-{% extends "base/root.html" %}
+{% extends "base/base.html" %}
 {% block body %}
 
 <div class="container mt-5">
@@ -32,10 +32,12 @@
 
                 <div class="mb-3">
                     <button type="submit" class="btn btn-primary">Add Supplier</button>
+                    <a href="{% url 'supplier'%}" class="btn btn-primary">Supplier List</a>
                 </div>
             </form>
         </div>
     </div>
+    
 </div>
 
 
