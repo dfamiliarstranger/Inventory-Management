@@ -181,18 +181,18 @@ def purchase_history(request):
 @login_required
 def stock_detail(request):
     # Get all stock items
-    stock_items = Stock.objects.all()
-
-    # Iterate through each stock item
-    for stock_item in stock_items:
-        # If the stock quantity is zero, delete the stock record
-        if stock_item.quantity == 0:
-            stock_item.delete()
-
-    # Retrieve the updated stock items after deletion
     updated_stock_items = Stock.objects.all()
 
-    return render(request, 'stock/index.html', {'stock_items': updated_stock_items })
+    # Iterate through each stock item
+    for updated_stock_item in updated_stock_items:
+        # If the stock quantity is zero, delete the stock record
+        if updated_stock_item.quantity == 0:
+            updated_stock_item.delete()
+
+    # Retrieve the updated stock items after deletion
+    stock_items = Stock.objects.all()
+
+    return render(request, 'stock/index.html', {'stock_item': stock_items})
 
 
 #####################                     PRODUCTION                          ######################
