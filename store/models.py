@@ -59,7 +59,7 @@ class Stock(models.Model):
     cap_type = models.ForeignKey(Cap, on_delete=models.CASCADE, null=True, blank=True)
     product_type = models.CharField(max_length=20, null=True, blank=True)
     preform_type = models.ForeignKey(Preform_type, on_delete=models.CASCADE, null=True, blank=True)
-    quantity = models.CharField(max_length=10)
+    quantity = models.IntegerField()
 
     def __str__(self):
         return f"{self.name} - {self.color} - {self.product_type}"
@@ -118,12 +118,24 @@ def update_inventory(add_stock_item):
 ###################     Production Models     #####################
 class Production(models.Model):
     product = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True ) 
-    shortages = models.IntegerField()
-    excesses = models.IntegerField()
-    damages = models.IntegerField()
-    waste_bottle = models.IntegerField()
+    product_quantity = models.IntegerField(null=True, blank=True)
+    shortages = models.IntegerField(null=True, blank=True)
+    excesses = models.IntegerField(null=True, blank=True)
+    damages = models.IntegerField(null=True, blank=True)
+    waste_bottle = models.IntegerField(null=True, blank=True)
     good_bottle = models.IntegerField()
     bottle_size = models.IntegerField()
     bottle_color = models.CharField(max_length=10, null=True, blank=True)
-    bottle_units = models.IntegerField()
     created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
+
+
+class Sales(models.Model):
+    product = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True )  
+    quantity = models.IntegerField()
+    price = models.IntegerField()
+    total = models.DecimalField(max_digits=20,decimal_places=2)
+    created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.product}"

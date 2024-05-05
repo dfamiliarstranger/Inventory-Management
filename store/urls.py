@@ -35,7 +35,11 @@ urlpatterns = [
 
         # Production
         path('production/', views.production, name="production"),
-        path('production_record/', views.production_record, name="record")
+        path('production_record/', views.production_record, name="record"),
+
+        #Sales
+        path('sales_form/', views.sales_form, name="sales_form"),
+        path('sales_record/', views.sales_record, name="sales_record"),
 ]
 
 if settings.DEBUG:

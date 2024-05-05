@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
-from .models import Cap, Preform, Preform_type, Supplier, Customer, StockItem, update_inventory, Production, Stock
+from .models import Cap, Preform, Preform_type, Supplier, Customer, StockItem, update_inventory, Production, Stock, Sales
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout 
+from django.contrib import messages
 from .forms import CapForm, PreformForm, CustomerForm, SupplierForm, StockItemForm, ProductionForm
 from django.utils import timezone
 from django.http import HttpResponse
-
+from django.db import transaction
+from django.db.models import F
 ###############     Create your views here    ###############
 
 @login_required
@@ -113,23 +115,6 @@ def create_customer(request):
 
                     ################    Stock Item    #######################
 @login_required
-# def add_stock_item(request):
-#     stock_form = StockItemForm()
-#     preform_type = Preform_type.objects.all()
-#     cap = Cap.objects.all()
-#     supplier = Supplier.objects.all()
-#     if request.method == 'POST':
-        
-#         form = StockItemForm(request.POST)
-#         print(request.POST)
-#         if form.is_valid():
-#            form.save()
-#            return redirect('stock')
-#         else:
-#             print(form.errors)
-#             return redirect('add_stock')
-#     else:
-#        return render(request, 'store/add_stock/index.html', {'stock_form': stock_form, 'preform_types':preform_type, 'caps':cap, 'suppliers':supplier})
 def add_stock_item(request):
     stock_form = StockItemForm()
     preform_type = Preform_type.objects.all()
@@ -140,15 +125,15 @@ def add_stock_item(request):
         form = StockItemForm(request.POST)
         if form.is_valid():
             # Extracting data from the form
-            name = request.POST.get('name', '')  # Assuming product_type is a select field in the form
-            color = request.POST.get('color', '')  # Assuming color is a char field in the form
-            quantity = request.POST.get('quantity', '')  # Assuming quantity is a char field in the form
-            supplier_id = request.POST.get('supplier', '')  # Assuming supplier is a select field in the form
-            cap_type_id = request.POST.get('cap_type', '')  # Assuming cap_type is a select field in the form
-            preform_type_id = request.POST.get('preform_type', '')  # Assuming preform_type is a select field in the form
-            product_type = request.POST.get('product_type', '')  # Assuming preform_type is a select field in the form
-            price = request.POST.get('price', '')  # Assuming price is a decimal field in the form
-            total = request.POST.get('total', '')  # Assuming price is a decimal field in the form
+            name = request.POST.get('name', '') 
+            color = request.POST.get('color', '')  
+            quantity = request.POST.get('quantity', '')  
+            supplier_id = request.POST.get('supplier', '')  
+            cap_type_id = request.POST.get('cap_type', '')  
+            preform_type_id = request.POST.get('preform_type', '')  
+            product_type = request.POST.get('product_type', '')  
+            price = request.POST.get('price', '')  
+            total = request.POST.get('total', '') 
             
             # Validation
             if not (name and total and quantity and supplier_id and price):
@@ -188,29 +173,182 @@ def purchase_history(request):
     stock = StockItem.objects.all()
     return render(request, 'store/add_stock/details.html', {'stocks': stock })
 
+# @login_required
+# def stock_detail(request):
+#     stock_item = Stock.objects.all()
+#     return render(request, 'stock/index.html', {'stock_item': stock_item })
+
 @login_required
 def stock_detail(request):
-    stock_item = Stock.objects.all()
-    return render(request, 'stock/index.html', {'stock_item': stock_item })
+    # Get all stock items
+    stock_items = Stock.objects.all()
+
+    # Iterate through each stock item
+    for stock_item in stock_items:
+        # If the stock quantity is zero, delete the stock record
+        if stock_item.quantity == 0:
+            stock_item.delete()
+
+    # Retrieve the updated stock items after deletion
+    updated_stock_items = Stock.objects.all()
+
+    return render(request, 'stock/index.html', {'stock_items': updated_stock_items })
 
 
 #####################                     PRODUCTION                          ######################
+
+
+# @login_required
+# def production(request):
+#     stock = Stock.objects.filter(name='Preform')
+#     if request.method == "POST":
+#         form = ProductionForm(request.POST)
+#         if form.is_valid():
+#            form.save()
+#            return redirect('record')
+#         else:
+#             return redirect('production')
+#     else:
+#         form = ProductionForm()
+#     return render(request, 'production/index.html', {'stock': stock})
+
+
 @login_required
 def production(request):
-    stock = Stock.objects.filter(name='Preform')
-    if request.method == "POST":
-        form = ProductionForm(request.POST)
-        if form.is_valid():
-           form.save()
-           return redirect('record')
-        else:
-            return redirect('production')
-    else:
-        form = ProductionForm()
-    return render(request, 'production//index.html', {'stock': stock})
+    if request.method == 'POST':
+        # Get form data
+        product_id = request.POST.get('product')
+        product_quantity = request.POST.get('preform_quantity')
+        shortages = request.POST.get('shortages')
+        excesses = request.POST.get('excesses')
+        damages = request.POST.get('damages')
+        waste_bottle = request.POST.get('waste_bottle')
+        good_bottle = request.POST.get('good_bottle')
+        bottle_size = request.POST.get('bottle_size')
+        bottle_color = request.POST.get('color')
 
+        # Perform input validation
+        if not product_id or not product_quantity or not bottle_color or not good_bottle:
+            messages.error(request, 'Please fill all required fields.')
+            return redirect('production')
+
+        # Perform business logic checks
+        try:
+            product_quantity = int(product_quantity)
+            waste_bottle = int(waste_bottle)
+            good_bottle = int(good_bottle)
+            bottle_size = int(bottle_size)
+        except ValueError:
+            messages.error(request, 'Quantity fields must be integers.')
+            return redirect('production')
+
+        product = Stock.objects.get(pk=product_id)
+
+        # Check if there's enough preform quantity
+        if product.quantity < product_quantity:
+            messages.error(request, 'Insufficient stock quantity.')
+            return redirect('production')
+        
+        try:
+            # Start a database transaction
+            with transaction.atomic():
+                # Deduct product quantity used from stock
+                product.quantity -= product_quantity
+                product.save()
+
+                # Create Production object
+                production_instance = Production.objects.create(
+                    product=product,
+                    product_quantity=product_quantity,
+                    shortages=shortages,
+                    excesses=excesses,
+                    damages=damages,
+                    waste_bottle=waste_bottle,
+                    good_bottle=good_bottle,
+                    bottle_size=bottle_size,
+                    bottle_color=bottle_color
+                )
+
+                # Create Bottle Stock
+                bottle_stock, created = Stock.objects.get_or_create(
+                    name='Bottle',
+                    color=bottle_color,
+                    product_type='Bottle',
+                    quantity=good_bottle
+                )
+
+                messages.success(request, 'Production record created successfully.')
+                return redirect('record')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('production')
+
+    else:
+        stock = Stock.objects.all()
+        return render(request, 'production/index.html', {'stock': stock})
 
 @login_required
 def production_record(request):
     record = Production.objects.all()
     return render(request, 'production//summary.html', {'record': record })
+
+@login_required
+def sales_record(request):
+    sales = Sales.objects.all()
+    return render(request, 'sales/index.html', {'sale': sales })
+
+@login_required
+def sales_form(request):
+    if request.method == 'POST':
+        # Get form data
+        product_id = request.POST.get('product_id')
+        customer_id = request.POST.get('customer_id')
+        quantity = request.POST.get('quantity')
+        price = request.POST.get('price')
+
+        # Perform input validation
+        if not product_id or not customer_id or not quantity or not price:
+            messages.error(request, 'Please fill all fields.')
+            return redirect('sales_form')
+
+        # Perform business logic checks
+        try:
+            quantity = int(quantity)
+            price = int(price)
+        except ValueError:
+            messages.error(request, 'Quantity and price must be integers.')
+            return redirect('sales_form')
+
+        product = Stock.objects.get(pk=product_id)
+    
+
+        # Convert product.quantity to integer before comparison
+        if int(product.quantity) < int(quantity):
+            messages.error(request, 'Insufficient stock quantity.')
+            return redirect('sales_form')
+
+        # Calculate total
+        total = quantity * price
+
+        # Create Sales object
+        sale = Sales.objects.create(
+            product=product,
+            customer_id=customer_id,
+            quantity=quantity,
+            price=price,
+            total=total
+        )
+
+        # Update stock quantity
+        product.quantity -= quantity
+        product.save()
+
+        messages.success(request, 'Sale completed successfully.')
+        return redirect('sales_record')
+
+    else:
+        
+        stock = Stock.objects.all()
+        customer = Customer.objects.all()
+        sales = Sales.objects.all()
+        return render(request, 'sales/forms.html', {'sales': sales, 'stock':stock, 'customer':customer })

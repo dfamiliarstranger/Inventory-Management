@@ -23,8 +23,12 @@
 			background-color: rgb(53, 57, 61); /* Slightly lighter grey on hover */
 			color: #0D6EFD;
 		}
+		ol,
+		ul {
+		padding-left: 0rem !important;
+		}
 	</style>
-	<title>Triple T </title>
+	<title> Triple T </title>
 </head>
 <body>
 
@@ -39,14 +43,14 @@
 		</a>
 		<ul class="side-menu top">
 			<li class="active">
-				<a href="#">
+				<a href="{% url 'home' %}">
 					<i class='bx bxs-dashboard' ></i>
 					<span class="text">Dashboard</span>
 				</a>
 			</li>
 			<li>
 				<a href="{% url 'stock_list' %}">
-					<i class='bx bxs-shopping-bag-alt' ></i>
+					<i class='bx bxs-shopping-bag-alt store' ></i>
 					<span class="text">My Store</span>
 				</a>
 			</li>
@@ -57,7 +61,7 @@
 				</a>
 			</li>
 			<li>
-				<a href="#">
+				<a href="{% url 'sales_form' %}">
 					<i class='bx bxs-doughnut-chart' ></i>
 					<span class="text">Sales</span>
 				</a>
@@ -89,7 +93,7 @@
 				</a>
 			</li>
 			<li>
-				<a href="#" class="logout">
+				<a href="{% url 'user_logout' %}" class="logout">
 					<i class='bx bxs-log-out-circle' ></i>
 					<span class="text">Logout</span>
 				</a>
