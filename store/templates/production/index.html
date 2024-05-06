@@ -1,11 +1,24 @@
-{% extends "base/base.html" %}
-
-  {% block body %}
-  <div class="col-md-6 offset-md-3">
-    <h2>Production Record</h2>
-    <form action="{% url 'production' %}" method="POST" class="shadow p-3">
-        {% csrf_token %}
-
+{% extends "production/base.html" %}
+{% block body %}
+<div class="head-title">
+    <div class="left">
+        <h1>Production</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Dashboard</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'record' %}">Production</a>
+          </li>
+        </ul>
+    </div>
+    <a href="#" class="btn-download">
+      <i class='bx bxs-cloud-download' ></i>
+      <span class="text">Download PDF</span>
+    </a>
+</div>
+  <div class="col-md-6">
         {% if messages %}
                 {% for message in messages %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -13,7 +26,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endfor %}
-            {% endif %}
+        {% endif %}
+
+    <form action="{% url 'production' %}" method="POST" class="shadow p-3">
+        {% csrf_token %}
 
         <div class="form-group">
             <label for="product" class="form-label">Stock</label>

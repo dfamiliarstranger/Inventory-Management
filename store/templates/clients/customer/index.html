@@ -1,32 +1,82 @@
-{% extends "base/base.html" %}
+{% extends "clients/base.html" %}
 {% block body %}
-  <div class="container">
-    <h2 class="text-center fw-bolder font-monospace"> Customer's Record</h2>
-    <a href="{% url 'create_customer' %}" class="btn btn-secondary">Add Customer</a></td>
-    <table class="table table-striped table-hover table-bordered mt-4">
-        <thead class="table-dark">
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Address</th>
-            <th scope="col">Phone number</th>
-            <th scope="col">Email</th>
-        </tr>
+<div class="head-title">
+    <div class="left">
+      <h1>Clients</h1>
+      <ul class="breadcrumb">
+        <li>
+            <a  href="#">Dashboard</a>
+        </li>
+        <li><i class='bx bx-chevron-right' ></i></li>
+        <li>
+            <a class="active" href="{% url 'customer' %}">Clients</a>
+        </li>
+      </ul>
+    </div>
+    <a href="#" class="btn-download">
+      <i class='bx bxs-cloud-download' ></i>
+      <span class="text">Download PDF</span>
+    </a>
+  </div>
+  <ul class="box-info">
+    <a href="{% url 'create_customer' %}">
+        <li>
+          <i class='bx bxs-dollar-circle' ></i>
+          <span class="text">
+            <h3>Add Customer</h3>
+          </span>
+        </li>
+      </a>
+      
+    <a href="{% url 'create_supplier' %}">
+      <li>
+        <i class='bx bxs-dollar-circle' ></i>
+        <span class="text">
+          <h3>Add Supplier</h3>
+      
+        </span>
+      </li>
+    </a>
+    
+    <a href="{% url 'supplier' %}">
+      <li>
+        <i class='bx bxs-dollar-circle' ></i>
+        <span class="text">
+          <h3>Supplier Records</h3>
+        </span>
+      </li>
+    </a>
+  </ul>
+
+  
+  <div class="table-data">
+    <div class="order">
+      <div class="head">
+        <h3>Customer Records</h3>
+        <i class='bx bx-search' ></i>
+        <i class='bx bx-filter' ></i>
+      </div>
+      <table >
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone Number</th>
+            <th>Email</th>
+          </tr>
         </thead>
         <tbody>
-        
             {% for customer in customers %}
-                <tr>       
-                            <td>{{customer.name}}</td>
-                                <td>{{customer.address}}</td>
-                                    <td>{{customer.phone_number}}</td>
-                                        <td>{{customer.email}}</td>
-                </tr>
-                
+            <tr>       
+                        <td>{{customer.name}}</td>
+                                <td>{{customer.phone_number}}</td>
+                                    <td>{{customer.email}}</td>
+            </tr>
+            
             {% endfor %}
-        
-        </tbody> 
-    </table>
-    <a href="{% url 'create_customer'%}" class="btn btn-primary">Add Client</a>
+        </tbody>
+      </table>
+    </div>
+    
   </div>
 
 {% endblock %}

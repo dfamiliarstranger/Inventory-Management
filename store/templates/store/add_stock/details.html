@@ -1,68 +1,68 @@
-{% extends "base/base.html" %}
+{% extends "stock/base.html" %}
 {% block body %}
-<div class="container mt-5">
-    <h3>Stock Items</h3>
-    <table class="table table-striped table-hover table-bordered mt-4">
+<div class="head-title">
+    <div class="left">
+      <h1>My Store</h1>
+      <ul class="breadcrumb">
+        <li>
+            <a  href="{% url 'stock' %}">Purchase history</a>
+        </li>
+        <li><i class='bx bx-chevron-right' ></i></li>
+        <li>
+            <a class="active" href="{% url 'stock_list' %}">Store</a>
+        </li>
+      </ul>
+    </div>
+    <a href="#" class="btn-download">
+      <i class='bx bxs-cloud-download' ></i>
+      <span class="text">Download PDF</span>
+    </a>
+  </div>
+  <div class="table-data">
+    <div class="order">
+      <div class="head">
+        <h3>Purchase Summary</h3>
+        <i class='bx bx-search' ></i>
+        <i class='bx bx-filter' ></i>
+      </div>
+      <table class="table table-striped">
         <thead>
-            <tr>
-                <th>Name</th>
-                <th>Supplier</th>
-                <th>Quantity (Bag)</th>
-                <th>Quantity (pieces)</th>
-                <th>Price</th>
-                <th>Size</th>
-                <th>Total</th>
-                <th>Date</th>
-                <th>color</th>
-                <th>Product Types</th>
-            </tr>
-            
+          <tr>
+            <th>Date</th>
+            <th>Product</th>
+            <th>Supplier</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>color</th>
+            <th>Product Types</th>
+          </tr>
         </thead>
         <tbody>
-            <!-- Replace the example data with your actual data from the database -->
-            {% for stock in stocks %}
+            {% for stock in stock %}
             <tr>
-                <td>{{stock.name}}</td>
-                <td>{{stock.supplier}}</td>
-                <td>{{stock.quantity}}</td>
-                <td>
-                    {% if stock.cap_type %}
-                    {{ stock.cap_type.quantity_per_bag }}
-                    {% elif stock.preform_type %}
-                    {{ stock.preform_type.quantity_per_bag }}
-                    {% else %}
-                    N/A
-                    {% endif %}
-                </td>
-                <td>{{stock.price}}</td>
-                <td>
-                    {% if stock.cap_type %}
-                    {{ stock.cap_type.size }}
-                    {% elif stock.preform_type %}
-                    {{ stock.preform_type.size }}
-                    {% else %}
-                    N/A
-                    {% endif %}
-                </td>
-                <td>{{stock.total}}</td>
-                <td>{{stock.created_at}}</td>
-                <td>{{stock.color}}</td>
+                <td><p>{{stock.created_at}}</p></td>
+                <td><p>{{stock.name}}</p></td>
+                <td><p>{{stock.supplier}}</p></td>
+                <td><p>{{stock.quantity}}</p></td>
+               
+                <td><p>{{stock.price}}</p></td>
+                
+                <td><p>{{stock.total}}</p></td>
+                <td><p>{{stock.color}}</p></td>
                 <td>
                     {% if stock.preform_type %}
-                    {{ stock.preform_type.name }}
+                    <p>{{ stock.preform_type.name }}</p>
                     {% elif stock.product_type %}
-                    {{ stock.product_type }}
+                    <p>{{ stock.product_type }}</p>
                     {% else %}
-                    N/A
+                    <p>{{ stock.cap_type.size }}</p>
                     {% endif %}</td>
-                <!-- These cells are for the sub-table data within "Product Types" -->
             </tr>
-            <!-- Add more rows for additional stock items if needed -->
             {% endfor %}
+         
         </tbody>
-    </table>
-</div>
-
-
+      </table>
+    </div>
 
 {% endblock %}

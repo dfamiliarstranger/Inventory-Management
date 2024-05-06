@@ -1,12 +1,27 @@
-{% extends "base/base.html" %}
-
+{% extends "sales/base.html" %}
 {% block body %}
+<div class="head-title">
+    <div class="left">
+        <h1>Record Sales</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Dashboard</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'sales_record' %}">Record Sales</a>
+          </li>
+        </ul>
+    </div>
+    <a href="#" class="btn-download">
+      <i class='bx bxs-cloud-download' ></i>
+      <span class="text">Download PDF</span>
+    </a>
+</div>
 <div class="container mt-5">
     <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="mb-3">
-                <h3>Sales</h3>
-            </div>
+        <div class="col-md-6 ">
+           
 
             <div id="forms" class="mb-3">
 

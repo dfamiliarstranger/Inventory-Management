@@ -171,12 +171,7 @@ def add_stock_item(request):
 @login_required
 def purchase_history(request):
     stock = StockItem.objects.all()
-    return render(request, 'store/add_stock/details.html', {'stocks': stock })
-
-# @login_required
-# def stock_detail(request):
-#     stock_item = Stock.objects.all()
-#     return render(request, 'stock/index.html', {'stock_item': stock_item })
+    return render(request, 'store/add_stock/details.html', {'stock': stock })
 
 @login_required
 def stock_detail(request):
@@ -196,22 +191,6 @@ def stock_detail(request):
 
 
 #####################                     PRODUCTION                          ######################
-
-
-# @login_required
-# def production(request):
-#     stock = Stock.objects.filter(name='Preform')
-#     if request.method == "POST":
-#         form = ProductionForm(request.POST)
-#         if form.is_valid():
-#            form.save()
-#            return redirect('record')
-#         else:
-#             return redirect('production')
-#     else:
-#         form = ProductionForm()
-#     return render(request, 'production/index.html', {'stock': stock})
-
 
 @login_required
 def production(request):
@@ -295,7 +274,8 @@ def production_record(request):
 @login_required
 def sales_record(request):
     sales = Sales.objects.all()
-    return render(request, 'sales/index.html', {'sale': sales })
+    return render(request, 'sales/index.html', {'sales': sales })
+
 
 @login_required
 def sales_form(request):

@@ -1,206 +1,217 @@
-{% extends "base/base.html" %}
-
+{% extends "stock/base.html" %}
 {% block body %}
+<div class="main head-title">
+  <div class="left">
+    <h1>Add Stock</h1>
+    <ul class="breadcrumb">
+      <li>
+        <a href="#">Add Stock</a>
+      </li>
+      <li><i class='bx bx-chevron-right' ></i></li>
+      <li>
+        <a class="active" href="{% url 'stock_list' %}">Store</a>
+      </li>
+    </ul>
+  </div>
+  <a href="#" class="btn-download">
+    <i class='bx bxs-cloud-download' ></i>
+    <span class="text">Download PDF</span>
+  </a>
+</div>
+
 <div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="mb-3">
-                <h3>Add Purchase</h3>
-            </div>
-            
-            <div class="mb-3 container">
-            <button onclick="showForm('preform')" class="btn btn-primary" id="preformButton">Preform</button>
-            <button onclick="showForm('cap')" class="btn btn-primary" id="capButton">Cap</button>
-            <button onclick="showForm('shrinkwrapper')" class="btn btn-primary" id="shrinkwrapperButton">Shrinkwrapper</button>
-            </div>
 
-            <div id="forms" class="mb-3">
-    
-              <!-- #################       Pre Form   ################# -->
+  <button onclick="showForm('preform')" class="btn btn-primary" id="preformButton">Preform</button>
+  <button onclick="showForm('cap')" class="btn btn-primary" id="capButton">Cap</button>
+  <button onclick="showForm('shrinkwrapper')" class="btn btn-primary" id="shrinkwrapperButton">Shrinkwrapper</button>
+  </div>
 
-                <form id="preform" method="POST" action="{% url 'add_stock' %}" class="shadow p-3 form-display">
-                    {% csrf_token %}
+  <div id="forms" class="col-md-6 mb-3 mt-5">
 
-                    <div class="form-group">
-                      <label for="supplier" class="form-label">Supplier</label>
-                      <select name="supplier" class="form-select" id="Supplier" required>
-                        <option value="" selected>Select</option> <!-- Default option -->
-                        {% for supplier in suppliers %}
-                        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-                        {% endfor %}
-                      </select>
-                  </div>
+    <!-- #################       Pre Form   ################# -->
 
-                  <div class="mb-3">
-                      <label for="name" class="form-label">Product Name</label>
-                      <input type="text" class="form-control" name="name" id="name" placeholder="Product Name" value="Preform" readonly>
-                  </div>
+      <form id="preform" method="POST" action="{% url 'add_stock' %}" class="shadow p-3 form-display">
+          {% csrf_token %}
 
-                  <div class="form-group">
-                      <label for="preform_type" class="form-label">Product Type</label>
-                      <select name="preform_type" class="form-select" id="preform_type">
-                        <option value="" selected>Select</option> <!-- Default option -->
-                        {% for preform_type in preform_types %}
-                        <option value="{{ preform_type.id }}">{{ preform_type }}</option>
-                        {% endfor %}
-                      </select>
-                  </div>
+          <div class="form-group">
+            <label for="supplier" class="text form-label">Supplier</label>
+            <select name="supplier" class="form-select" id="Supplier" required>
+              <option value="" selected>Select</option> <!-- Default option -->
+              {% for supplier in suppliers %}
+              <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+              {% endfor %}
+            </select>
+        </div>
 
-                  <div class="mb-3">
-                    <label for="color" class="form-label">Color</label>
-                    <select class="form-select" id="color" name="color" required>
-                        <option value="" selected>Select</option> <!-- Default option -->
-                        <option value="red">Red</option>
-                        <option value="blue">Blue</option>
-                        <option value="green">Green</option>
-                        <option value="black">Black</option>
-                        <option value="white">White</option>
-                        <!-- Add more color options as needed -->
-                    </select>
-                  </div>
+        <div class="mb-3">
+            <label for="name" class="text form-label">Product Name</label>
+            <input type="text" class="form-control" name="name" id="name" placeholder="Product Name" value="Preform" readonly>
+        </div>
 
-                  <div class="mb-3">
-                    <label for="quantity" class="form-label">Quantity</label>
-                    <input type="text" class="form-control" name="quantity" id="preform-quantity" placeholder="Product quantity">
-                  </div>
+        <div class="form-group">
+            <label for="preform_type" class="form-label">Product Type</label>
+            <select name="preform_type" class="form-select" id="preform_type">
+              <option value="" selected>Select</option> <!-- Default option -->
+              {% for preform_type in preform_types %}
+              <option value="{{ preform_type.id }}">{{ preform_type }}</option>
+              {% endfor %}
+            </select>
+        </div>
 
-                  <div class="mb-3">
-                    <label for="price" class="form-label">Price</label>
-                    <input type="text" class="form-control" name="price" id="preform-price" placeholder="Price">
-                  </div>
+        <div class="mb-3">
+          <label for="color" class="form-label">Color</label>
+          <select class="form-select" id="color" name="color" required>
+              <option value="" selected>Select</option> <!-- Default option -->
+              <option value="red">Red</option>
+              <option value="blue">Blue</option>
+              <option value="green">Green</option>
+              <option value="black">Black</option>
+              <option value="white">White</option>
+              <!-- Add more color options as needed -->
+          </select>
+        </div>
 
-                  <div class="mb-3">
-                    <label for="total" class="form-label">Total</label>
-                    <input type="text" class="form-control" name="total" id="preform-total" placeholder="total" readonly> 
-                  </div>
+        <div class="mb-3">
+          <label for="quantity" class="form-label">Quantity</label>
+          <input type="text" class="form-control" name="quantity" id="preform-quantity" placeholder="Product quantity">
+        </div>
 
-                  <div class="mb-3">
-                    <button type="submit" class="btn btn-primary">Add Item</button>
-                </div>
+        <div class="mb-3">
+          <label for="price" class="form-label">Price</label>
+          <input type="text" class="form-control" name="price" id="preform-price" placeholder="Price">
+        </div>
 
-              </form>
+        <div class="mb-3">
+          <label for="total" class="form-label">Total</label>
+          <input type="text" class="form-control" name="total" id="preform-total" placeholder="total" readonly> 
+        </div>
+
+        <div class="mb-3">
+          <button type="submit" class="btn btn-primary">Add Item</button>
+      </div>
+
+    </form>
 
 <!-- #################       Cap Form   ################# #################       Cap Form   ################# -->
-                <form id="cap" method="POST" action="{% url 'add_stock' %}" class="shadow p-3 form-display" style="display:none;">
-                    {% csrf_token %}
-                  
-                    <div class="form-group">
-                      <label for="supplier" class="form-label">Supplier</label>
-                      <select name="supplier" class="form-select" id="supplier" required>
-                        <option value="" selected>Select</option> <!-- Default option -->
-                        {% for supplier in suppliers %}
-                        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-                        {% endfor %}
-                      </select>
-                  </div>
-
-                  <div class="mb-3">
-                      <label for="name" class="form-label">Product Name</label>
-                      <input type="text" class="form-control" id="name" name="name" placeholder="Product Name" value="Cap" readonly>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="product_type" class="form-label">Product Type</label>
-                    <select name="cap_type" class="form-select" id="cap_type"  required>
-                      <option value="" selected>Select</option> <!-- Default option -->
-                      {% for cap in caps %}
-                      <option value="{{ cap.id }}">{{ cap.size }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="color" class="form-label">Color</label>
-                    <select class="form-select" id="color" name="color" required>
-                        <option value="" selected>Select</option> <!-- Default option -->
-                        <option value="red">Red</option>
-                        <option value="blue">Blue</option>
-                        <option value="green">Green</option>
-                        <option value="black">Black</option>
-                        <option value="white">White</option>
-                        <!-- Add more color options as needed -->
-                    </select>
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="quantity" class="form-label">Quantity</label>
-                    <input type="text" class="form-control" id="cap-quantity" name="quantity" placeholder="Product quantity">
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="price" class="form-label">Price</label>
-                    <input type="text" class="form-control" id="cap-price" name="price" placeholder="Price">
-                  </div>
-
-                  <div class="mb-3">
-                    <label for="total" class="form-label">Total</label>
-                    <input type="text" class="form-control" id="cap-total" name="total" placeholder="total" readonly>
-                  </div>
-
-                  <div class="mb-3">
-                    <button type="submit" class="btn btn-primary">Add Item</button>
-                </div>
-
-                    
-                </form>
-
-  <!-- #### Shrinkwrapper Form  ####  #### Shrinkwrapper Form  #### #### Shrinkwrapper Form  #### -->
-                <form id="shrinkwrapper" method="POST" action="{% url 'add_stock' %}" class="shadow p-3 form-display" style="display:none;">
-                    {% csrf_token %}
-                    <div class="form-group">
-                      <label for="supplier" class="form-label">Supplier</label>
-                      <select name="supplier" class="form-select" id="supplier" required>
-                        <option value="" selected>Select</option> <!-- Default option -->
-                        {% for supplier in suppliers %}
-                        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
-                        {% endfor %}
-                      </select>
-                  </div>
-
-                  <div class="mb-3">
-                      <label for="name" class="form-label">Product Name</label>
-                      <input type="text" class="form-control" name="name" id="name" placeholder="Product Name" value="Shrinkwrapper" readonly>
-                  </div>
-  
-                 
-                  <div class="mb-3">  
-                    <label for="Type" class="form-label">Product Type</label>
-                    <select class="form-select" id="product_type" name="product_type" required>
-                        <option value="" selected>Select</option> <!-- Default option -->
-                        <option value="Preprocessed Tube">Preprocessed Tube</option>
-                        <option value="preprocessed Flat">preprocessed Flat</option>
-                        <option value="Virgin Tube">Virgin Tube</option>
-                        <option value="Virgin Flat">Virgin Flat</option>
-                        
-                    </select>
-                  </div>
-                  
-
-                  <div class="mb-3">
-                      <label for="quantity" class="form-label">Quantity</label>
-                      <input type="text" class="form-control" name="quantity" id="shrinkwrapper-quantity" placeholder="Product quantity">
-                  </div>
-  
-                  <div class="mb-3">
-                      <label for="price" class="form-label">Price</label>
-                      <input type="text" class="form-control" name="price" id="shrinkwrapper-price" placeholder="Price">
-                  </div>
-  
-                    <div class="mb-3">
-                      <label for="total" class="form-label">Total</label>
-                      <input type="text" class="form-control" name="total" id="shrinkwrapper-total" placeholder="shrinkwrapper" readonly>
-                    </div>
-  
-                    <div class="mb-3">
-                      <button type="submit" class="btn btn-primary">Add Item</button>
-                  </div>
-  
-                    <!-- fields as already defined -->
-                </form>
-            </div>
+      <form id="cap" method="POST" action="{% url 'add_stock' %}" class="shadow p-3 form-display" style="display:none;">
+          {% csrf_token %}
+        
+          <div class="form-group">
+            <label for="supplier" class="form-label">Supplier</label>
+            <select name="supplier" class="form-select" id="supplier" required>
+              <option value="" selected>Select</option> <!-- Default option -->
+              {% for supplier in suppliers %}
+              <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+              {% endfor %}
+            </select>
         </div>
-    </div>
-</div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Product Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Product Name" value="Cap" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="product_type" class="form-label">Product Type</label>
+          <select name="cap_type" class="form-select" id="cap_type"  required>
+            <option value="" selected>Select</option> <!-- Default option -->
+            {% for cap in caps %}
+            <option value="{{ cap.id }}">{{ cap.size }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="color" class="form-label">Color</label>
+          <select class="form-select" id="color" name="color" required>
+              <option value="" selected>Select</option> <!-- Default option -->
+              <option value="red">Red</option>
+              <option value="blue">Blue</option>
+              <option value="green">Green</option>
+              <option value="black">Black</option>
+              <option value="white">White</option>
+              <!-- Add more color options as needed -->
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="quantity" class="form-label">Quantity</label>
+          <input type="text" class="form-control" id="cap-quantity" name="quantity" placeholder="Product quantity">
+        </div>
+
+        <div class="mb-3">
+          <label for="price" class="form-label">Price</label>
+          <input type="text" class="form-control" id="cap-price" name="price" placeholder="Price">
+        </div>
+
+        <div class="mb-3">
+          <label for="total" class="form-label">Total</label>
+          <input type="text" class="form-control" id="cap-total" name="total" placeholder="total" readonly>
+        </div>
+
+        <div class="mb-3">
+          <button type="submit" class="btn btn-primary">Add Item</button>
+      </div>
+
+          
+      </form>
+
+<!-- #### Shrinkwrapper Form  ####  #### Shrinkwrapper Form  #### #### Shrinkwrapper Form  #### -->
+      <form id="shrinkwrapper" method="POST" action="{% url 'add_stock' %}" class="shadow p-3 form-display" style="display:none;">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="supplier" class="form-label">Supplier</label>
+            <select name="supplier" class="form-select" id="supplier" required>
+              <option value="" selected>Select</option> <!-- Default option -->
+              {% for supplier in suppliers %}
+              <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+              {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Product Name</label>
+            <input type="text" class="form-control" name="name" id="name" placeholder="Product Name" value="Shrinkwrapper" readonly>
+        </div>
+
+       
+        <div class="mb-3">  
+          <label for="Type" class="form-label">Product Type</label>
+          <select class="form-select" id="product_type" name="product_type" required>
+              <option value="" selected>Select</option> <!-- Default option -->
+              <option value="Preprocessed Tube">Preprocessed Tube</option>
+              <option value="preprocessed Flat">preprocessed Flat</option>
+              <option value="Virgin Tube">Virgin Tube</option>
+              <option value="Virgin Flat">Virgin Flat</option>
+              
+          </select>
+        </div>
+        
+
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="text" class="form-control" name="quantity" id="shrinkwrapper-quantity" placeholder="Product quantity">
+        </div>
+
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="text" class="form-control" name="price" id="shrinkwrapper-price" placeholder="Price">
+        </div>
+
+          <div class="mb-3">
+            <label for="total" class="form-label">Total</label>
+            <input type="text" class="form-control" name="total" id="shrinkwrapper-total" placeholder="shrinkwrapper" readonly>
+          </div>
+
+          <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Add Item</button>
+        </div>
+
+          <!-- fields as already defined -->
+      </form>
+  </div>
+
+           
 
 <script>
 function showForm(formId) {

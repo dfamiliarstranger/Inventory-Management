@@ -42,7 +42,7 @@
 
 		</a>
 		<ul class="side-menu top">
-			<li class="active">
+			<li>
 				<a href="{% url 'home' %}">
 					<i class='bx bxs-dashboard' ></i>
 					<span class="text">Dashboard</span>
@@ -54,13 +54,13 @@
 					<span class="text">My Store</span>
 				</a>
 			</li>
-			<li>
+			<li class="active">
 				<a class="nav-link" href="{% url 'record' %}">
 					<i class='bx bxs-doughnut-chart' ></i>
 					<span class="text">Production</span>
 				</a>
 			</li>
-			<li>
+			<li >
 				<a href="{% url 'sales_record' %}">
 					<i class='bx bxs-doughnut-chart' ></i>
 					<span class="text">Sales</span>
@@ -117,11 +117,11 @@
 			</a>
 		</nav>
 		<!-- NAVBAR -->
-		<main>
-		{% block body %}
+	<main>
+        {% block body %}
                         
 		{% endblock%}
-		</main>
+	</main>
 	</section>
 	<!-- CONTENT -->
 	
