@@ -26,22 +26,22 @@
     <li>
       <i class='bx bxs-calendar-check' ></i>
       <span class="text">
-        <h3>1020</h3>
-        <p>Preform</p>
+        <h3>Stock</h3>
+        <p></p>
       </span>
     </li>
     <li>
       <i class='bx bxs-group' ></i>
       <span class="text">
-        <h3>2834</h3>
-        <p>Caps</p>
+        <h3>Sales</h3>
+        <p></p>
       </span>
     </li>
     <li>
       <i class='bx bxs-dollar-circle' ></i>
       <span class="text">
-        <h3>$2543</h3>
-        <p>Bottles</p>
+        <h3>Product</h3>
+        <p></p>
       </span>
     </li>
   </ul>
@@ -50,89 +50,59 @@
   <div class="table-data">
     <div class="order">
       <div class="head">
-        <h3>Recent Orders</h3>
+        <h3>Inventory Items</h3>
         <i class='bx bx-search' ></i>
         <i class='bx bx-filter' ></i>
       </div>
-      <table>
+      <table class="table table-striped">
         <thead>
           <tr>
-            <th>User</th>
-            <th>Date Order</th>
-            <th>Status</th>
+            <th>Name</th>
+            <th>Color</th>
+            <th>Product Types</th>
+            <th>Quantity </th> 
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>
-              <img src="img/people.png">
-              <p>John Doe</p>
-            </td>
-            <td>01-10-2021</td>
-            <td><span class="status completed">Completed</span></td>
-          </tr>
-          <tr>
-            <td>
-              <img src="img/people.png">
-              <p>John Doe</p>
-            </td>
-            <td>01-10-2021</td>
-            <td><span class="status pending">Pending</span></td>
-          </tr>
-          <tr>
-            <td>
-              <img src="img/people.png">
-              <p>John Doe</p>
-            </td>
-            <td>01-10-2021</td>
-            <td><span class="status process">Process</span></td>
-          </tr>
-          <tr>
-            <td>
-              <img src="img/people.png">
-              <p>John Doe</p>
-            </td>
-            <td>01-10-2021</td>
-            <td><span class="status pending">Pending</span></td>
-          </tr>
-          <tr>
-            <td>
-              <img src="img/people.png">
-              <p>John Doe</p>
-            </td>
-            <td>01-10-2021</td>
-            <td><span class="status completed">Completed</span></td>
-          </tr>
+            {% for stock_item in stock_item %}
+            <tr>
+                <td>
+                  <p>{{stock_item.name}}</p>
+                </td>
+                <td><p>{{stock_item.color}}</p></td>
+                <td>
+                    {% if stock_item.preform_type %}
+                    {{ stock_item.preform_type.name }}
+                    {% elif stock_item.product_type %}
+                    {{ stock_item.product_type }}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                <td>{{stock_item.quantity}}</td>
+              </tr>
+            {% endfor %}
+         
         </tbody>
       </table>
-    </div>
+</div>
+
+
     <div class="todo">
       <div class="head">
-        <h3>Todos</h3>
+        <h3>Chats</h3>
         <i class='bx bx-plus' ></i>
         <i class='bx bx-filter' ></i>
       </div>
       <ul class="todo-list">
-        <li class="completed">
-          <p>Todo List</p>
-          <i class='bx bx-dots-vertical-rounded' ></i>
-        </li>
-        <li class="completed">
-          <p>Todo List</p>
-          <i class='bx bx-dots-vertical-rounded' ></i>
-        </li>
-        <li class="not-completed">
-          <p>Todo List</p>
-          <i class='bx bx-dots-vertical-rounded' ></i>
-        </li>
-        <li class="completed">
-          <p>Todo List</p>
-          <i class='bx bx-dots-vertical-rounded' ></i>
-        </li>
-        <li class="not-completed">
-          <p>Todo List</p>
-          <i class='bx bx-dots-vertical-rounded' ></i>
-        </li>
+        {% for notification in notifications %}
+        <a href="#">
+          <li class="completed">
+            <p>{{ notification.message }}</p>
+            <i class='bx bx-dots-vertical-rounded' ></i>
+          </li>
+        </a>
+        {% endfor %}
       </ul>
     </div>
   </div>

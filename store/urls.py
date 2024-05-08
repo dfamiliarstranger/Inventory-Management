@@ -40,6 +40,15 @@ urlpatterns = [
         #Sales
         path('sales_form/', views.sales_form, name="sales_form"),
         path('sales_record/', views.sales_record, name="sales_record"),
+
+        #Notification
+        path('notify/', views.show_notification, name="notify"),
+
+        #Invoice
+        path('invoice/', views.invoice, name="invoice"),
+        path('print_invoice/', views.print_invoice, name='print_invoice'),
+
+     
 ]
 
 if settings.DEBUG:

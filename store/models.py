@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.db import transaction
@@ -24,7 +25,7 @@ class Preform_type(models.Model):
     quantity_per_bag = models.IntegerField()
 
     def __str__(self):
-        return f"{self.name}, Size: {self.size}"
+        return f"{self.name} {self.size}"
         
 
 class Preform(models.Model):
@@ -60,6 +61,7 @@ class Stock(models.Model):
     product_type = models.CharField(max_length=20, null=True, blank=True)
     preform_type = models.ForeignKey(Preform_type, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.IntegerField()
+    notification_sent = models.BooleanField(default=False) 
 
     def __str__(self):
         return f"{self.name} - {self.color} - {self.product_type}"
@@ -67,11 +69,11 @@ class Stock(models.Model):
 ###################     Store Models     #####################
 class StockItem(models.Model):
     name = models.CharField(max_length=20, null=True)
-    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True ) 
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True) 
     quantity = models.CharField(max_length=5)
     price = models.IntegerField()
     total = models.DecimalField(max_digits=20,decimal_places=2)
-    created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    created_at = models.DateField(null=True, blank=True)
     cap_type = models.ForeignKey(Cap, on_delete=models.CASCADE, null=True, blank=True)
     color = models.CharField(max_length=10, null=True, blank=True)
     product_type = models.CharField(max_length=20, null=True, blank=True)
@@ -126,7 +128,7 @@ class Production(models.Model):
     good_bottle = models.IntegerField()
     bottle_size = models.IntegerField()
     bottle_color = models.CharField(max_length=10, null=True, blank=True)
-    created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    created_at = models.DateField(null=True, blank=True)
 
 
 class Sales(models.Model):
@@ -135,7 +137,14 @@ class Sales(models.Model):
     quantity = models.IntegerField()
     price = models.IntegerField()
     total = models.DecimalField(max_digits=20,decimal_places=2)
-    created_at = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    created_at = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.product}"
+    
+
+class Notification(models.Model):
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)

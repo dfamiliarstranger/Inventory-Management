@@ -1,0 +1,100 @@
+{% extends "notification/base.html" %}
+{% load static %}
+{% block body %}
+<div class="head-title">
+    <div class="left">
+      <h1>Invoice</h1>
+      <ul class="breadcrumb">
+        <li>
+            <a  href="#">Dashboard</a>
+        </li>
+        <li><i class='bx bx-chevron-right' ></i></li>
+        <li>
+            <a class="active" href="{% url 'invoice' %}">Invoice</a>
+        </li>
+      </ul>
+    </div>
+    <a href="{% url 'invoice' %}" class="btn-download">
+      <i class='bx bxs-cloud-download' ></i>
+      <span class="text">Refresh</span>
+    </a>
+</div>
+
+
+<form id="searchForm" method="GET" class="row g-3"> <!-- Added method attribute and Bootstrap row class -->
+    <div class="col-md-4"> <!-- Adjusted column width for better layout -->
+        <label for="customer" class="form-label">Customer:</label>
+        <input type="text" id="customer" name="customer" class="form-control"> <!-- Added form-control class for input styling -->
+    </div>
+    <div class="col-md-4"> <!-- Adjusted column width for better layout -->
+        <label for="start_date" class="form-label">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" class="form-control"> <!-- Added form-control class for input styling -->
+    </div>
+    <div class="col-md-4"> <!-- Adjusted column width for better layout -->
+        <label for="end_date" class="form-label">End Date:</label>
+        <input type="date" id="end_date" name="end_date" class="form-control"> <!-- Added form-control class for input styling -->
+    </div>
+    <div class="col-12"> <!-- Full-width column for button -->
+        <button type="submit" class="btn btn-primary">Search</button> <!-- Added btn and btn-primary classes for button styling -->
+    </div>
+</form>
+
+{% if sales_data %}
+<div class="table-data">
+  <div class="order">
+    <div class="head">
+      <h3>Search Results</h3>
+      <i class='bx bx-search' ></i>
+      <i class='bx bx-filter' ></i>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Product</th>
+          <th>Customer</th>
+          <th>quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+           
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in sales_data %}
+            <tr>
+              <td><p>{{sale.created_at}}</p></td>
+                <td>
+                  <p>{{sale.product.name}}</p>
+                </td>
+                <td><p>{{sale.customer.name}}</p></td>
+                <td>{{sale.quantity}}</td>
+                <td>{{sale.price}}</td>
+                <td>{{sale.total}}</td>
+              </tr>
+        {% endfor %}
+       
+      </tbody>
+    </table>
+
+  </div>
+</div>
+{% else %}
+<p>No sales found for the selected criteria.</p>
+{% endif %}
+
+
+
+<div class="invoice-foot text-center">
+    <div class="invoice-btns">
+        <a href="{% url 'print_invoice' %}?{% if sales_data %}{% for sale in sales_data %}selected_sales={{ sale.id }}{% if not forloop.last %}&{% endif %}{% endfor %}{% endif %}" class="invoice-btn btn btn-primary">
+            <span>
+                <i class="fa-solid fa-print"></i>
+            </span>
+            <span>Print</span>
+        </a>
+        
+      
+    </div>
+</div>
+
+{% endblock %}

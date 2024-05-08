@@ -11,6 +11,7 @@
 
 	<!-- My CSS -->
 	<link href="{% static './css/style.css' %}" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="{% static 'css/invoice.css' %}">
 	<style>
 		/* Custom style to override .btn-primary for this specific button */
 		.btn-custom {
@@ -42,7 +43,7 @@
 
 		</a>
 		<ul class="side-menu top">
-			<li class="active">
+			<li>
 				<a href="{% url 'home' %}">
 					<i class='bx bxs-dashboard' ></i>
 					<span class="text">Dashboard</span>
@@ -55,7 +56,7 @@
 				</a>
 			</li>
 			<li>
-				<a class="nav-link" href="{% url 'record' %}">
+				<a class="nav-link" href="{% url 'production' %}">
 					<i class='bx bxs-doughnut-chart' ></i>
 					<span class="text">Production</span>
 				</a>
@@ -122,11 +123,11 @@
 			</a>
 		</nav>
 		<!-- NAVBAR -->
-		<main>
-		{% block body %}
+	<main>
+        {% block body %}
                         
 		{% endblock%}
-		</main>
+	</main>
 	</section>
 	<!-- CONTENT -->
 	

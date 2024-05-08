@@ -1,5 +1,5 @@
 from django.contrib import admin
-from.models import Cap, Bottle, Preform, Preform_type, Customer, Supplier, StockItem, Stock, Production, Sales
+from.models import Cap, Bottle, Notification, Preform, Preform_type, Customer, Supplier, StockItem, Stock, Production, Sales
 # Register your models here.
 
 admin.site.register(Cap)
@@ -12,4 +12,5 @@ admin.site.register(StockItem)
 admin.site.register(Stock)
 admin.site.register(Production)
 admin.site.register(Sales)
+admin.site.register(Notification)
 

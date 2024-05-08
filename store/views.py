@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Cap, Preform, Preform_type, Supplier, Customer, StockItem, update_inventory, Production, Stock, Sales
+from .models import Cap, Preform, Preform_type, Supplier, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib import messages
@@ -8,11 +8,21 @@ from django.utils import timezone
 from django.http import HttpResponse
 from django.db import transaction
 from django.db.models import F
+from django.contrib.auth.models import User
+from .notification import notify_stock_threshold
+from django.template.loader import render_to_string
+from datetime import datetime
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 ###############     Create your views here    ###############
 
 @login_required
 def home(request):
-    return render(request, ('base/home.html'))
+    notifications = Notification.objects.all()
+    stock_items = Stock.objects.all()
+    return render(request, ('base/home.html'), {'notifications': notifications, 'stock_item': stock_items})
 
 def user_login(request):
     if request.method == 'POST':
@@ -28,7 +38,7 @@ def user_login(request):
 
 def user_logout(request):
     logout(request)
-    return redirect('login')
+    return redirect('user_login')
 
             ###############     Create Product Views    ###############
 
@@ -125,6 +135,7 @@ def add_stock_item(request):
         form = StockItemForm(request.POST)
         if form.is_valid():
             # Extracting data from the form
+            created_at = request.POST.get('created_at', '') 
             name = request.POST.get('name', '') 
             color = request.POST.get('color', '')  
             quantity = request.POST.get('quantity', '')  
@@ -169,9 +180,10 @@ def add_stock_item(request):
 
 
 @login_required
+
 def purchase_history(request):
-    stock = StockItem.objects.all()
-    return render(request, 'store/add_stock/details.html', {'stock': stock })
+    stock = StockItem.objects.order_by('-created_at')  # Order by the 'created_at' field in descending order
+    return render(request, 'store/add_stock/details.html', {'stock': stock})
 
 @login_required
 def stock_detail(request):
@@ -183,11 +195,17 @@ def stock_detail(request):
         # If the stock quantity is zero, delete the stock record
         if updated_stock_item.quantity == 0:
             updated_stock_item.delete()
+        elif updated_stock_item.quantity <= 2 and not updated_stock_item.notification_sent:
+            # Notify user if stock threshold is less than or equal to 2 and a notification has not been sent
+            notify_stock_threshold(request.user, updated_stock_item)
+            updated_stock_item.notification_sent = True
+            updated_stock_item.save()
 
     # Retrieve the updated stock items after deletion
     stock_items = Stock.objects.all()
 
     return render(request, 'stock/index.html', {'stock_item': stock_items})
+
 
 
 #####################                     PRODUCTION                          ######################
@@ -196,6 +214,7 @@ def stock_detail(request):
 def production(request):
     if request.method == 'POST':
         # Get form data
+        created_at = request.POST.get('created_at', '')
         product_id = request.POST.get('product')
         product_quantity = request.POST.get('preform_quantity')
         shortages = request.POST.get('shortages')
@@ -237,6 +256,7 @@ def production(request):
 
                 # Create Production object
                 production_instance = Production.objects.create(
+                    created_at=created_at,
                     product=product,
                     product_quantity=product_quantity,
                     shortages=shortages,
@@ -268,13 +288,13 @@ def production(request):
 
 @login_required
 def production_record(request):
-    record = Production.objects.all()
+    record = Production.objects.order_by('-created_at') 
     return render(request, 'production//summary.html', {'record': record })
 
 @login_required
 def sales_record(request):
     sales = Sales.objects.all()
-    return render(request, 'sales/index.html', {'sales': sales })
+    return render(request, 'sales/index.html', {'sales': sales})
 
 
 @login_required
@@ -332,3 +352,60 @@ def sales_form(request):
         customer = Customer.objects.all()
         sales = Sales.objects.all()
         return render(request, 'sales/forms.html', {'sales': sales, 'stock':stock, 'customer':customer })
+    
+
+@login_required  
+def show_notification(request):
+    # Fetch notifications and pass them to the template
+    notifications = Notification.objects.order_by('-timestamp').all()
+    
+    unread_notifications_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+
+    return render(request, 'notification/index.html', {'notifications': notifications, 'unread_notifications_count': unread_notifications_count})
+
+
+
+@login_required    
+def invoice(request):
+    error = None
+    sales_data = None
+    customers = Customer.objects.all()
+
+    if request.method == 'GET':
+        customer_str = request.GET.get('customer')
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+
+        if customer_str:
+            try:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
+                
+                sales_data = Sales.objects.filter(customer__name=customer_str)
+                
+                if start_date:
+                    sales_data = sales_data.filter(created_at__gte=start_date)
+                if end_date:
+                    sales_data = sales_data.filter(created_at__lte=end_date)
+                
+                if not sales_data:
+                    error = 'No sales found for the selected criteria.'
+            except ValueError:
+                error = 'Invalid date format. Please use YYYY-MM-DD.'
+
+    return render(request, 'invoice/base.html', {'sales_data': sales_data, 'customers': customers, 'error': error})
+
+@login_required  
+def print_invoice(request):
+    if request.method == 'GET':
+        selected_sales_ids = request.GET.getlist('selected_sales')  # Get selected sales IDs from the query parameters
+        sales_data = Sales.objects.filter(id__in=selected_sales_ids) 
+        
+         # Calculate the sum total
+        sum_total = sum(sale.total for sale in sales_data) 
+        # Filter sales data based on selected IDs
+        return render(request, 'invoice/index.html', {'sales_data': sales_data, 'sum_total': sum_total})
+
+    else:
+        # Handle POST request if needed
+        pass
