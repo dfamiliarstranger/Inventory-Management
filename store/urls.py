@@ -43,12 +43,14 @@ urlpatterns = [
 
         #Notification
         path('notify/', views.show_notification, name="notify"),
+        path('clear-notifications/', views.clear_notifications, name='clear_notifications'),
 
         #Invoice
         path('invoice/', views.invoice, name="invoice"),
         path('print_invoice/', views.print_invoice, name='print_invoice'),
 
-     
+        #Settings
+        path('settings/', views.settings, name="settings"),
 ]
 
 if settings.DEBUG:

@@ -17,7 +17,7 @@
     
         <a href="{% url 'production' %}">
           <li>
-            <i class='bx bxs-dollar-circle'></i>
+            <i class='bx bxs-factory'></i>
             <span class="text">
               <h3>Production</h3>
               <p>Add Record</p>
@@ -26,6 +26,14 @@
         </a>
       </ul>
 </div>
+{% if messages %}
+		{% for message in messages %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			{{message}}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		{% endfor %}
+{% endif %} 
 <div class="table-data">
     <div class="order">
       <div class="head">

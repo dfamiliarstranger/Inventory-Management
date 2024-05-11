@@ -1,4 +1,4 @@
-
+{% load custom_filters %}
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -21,7 +21,8 @@
                     <div class = "invoice-head">
                         <div class = "invoice-head-top">
                             <div class = "invoice-head-top-left text-start">
-                                <h3><span style="color: green;">TRIPLE</span>TEE</h3>
+                                <h3><span style="color: green;">TRIPLE T</span> Royal Ventures</h3>
+                                <span style="color: green;font-style: italic; font-size: 12px;">Quality Bottles, Endless Design</span>
                                 <!-- <img src = "images/logo.png"> -->
                             </div>
                             <div class = "invoice-head-top-right text-end">
@@ -44,19 +45,20 @@
                                     <li class="text-bold">Invoiced To:</li>
                                     
                                         <li>{{ sales_data.0.customer.name }}</li>
-                                        <li>{{ sales_data.0.customer.address }}</li>
                                         <li>{{ sales_data.0.customer.phone_number }}</li>
                                         <li>{{ sales_data.0.customer.email }}</li>
+                                        <li>{{ sales_data.0.customer.address }}</li>
+                                        
                                     
                                 </ul>
                             </div>
                             <div class = "invoice-head-bottom-right">
                                 <ul class = "text-end">
                                     <li class = 'text-bold'>Pay To:</li>
-                                    <li>TripleT.</li>
-                                    <li>1000. Enterprise</li>
-                                    <li>Osogbo, Osun State</li>
-                                    <li>contact@triplet.com</li>
+                                    <li>Triple T Royal Ventures </li>
+                                    <li>+234 9031381364, +234 8023463615</li>
+                                    <li>tripletroyalventures@yahoo.com</li>
+                                    <li>Back of Prime Filling Station, Olota Estate,<br> Ofatedo, Osogbo, Osun State</li>
                                 </ul>
                             </div>
                         </div>
@@ -80,25 +82,29 @@
                                             <td>{{ sale.product.color }} </td>
                                             <td>{{ sale.price }}</td>
                                             <td>{{ sale.quantity }}</td>
-                                            <td>   {{sale.total}}</td>
+                                            <td>  &#x20A6; {{sale.total|format_with_commas}}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
-                            <!-- <div class = "invoice-body-bottom">
-                                <div class = "invoice-body-info-item border-bottom">
+                            <div class = "invoice-body-bottom">
+                                <!-- <div class = "invoice-body-info-item border-bottom">
                                     <div class = "info-item-td text-end text-bold">Sub Total:</div>
                                     <div class = "info-item-td text-end">{{ sum_total }}</div>
-                                </div>
-                                <div class = "invoice-body-info-item border-bottom">
-                                    <div class = "info-item-td text-end text-bold">Tax:</div>
-                                    <div class = "info-item-td text-end">$215.00</div>
-                                </div> -->
+                                </div>  -->
+                                
                                 <div class = "invoice-body-info-item">
                                     <div class = "info-item-td text-end text-bold">Total:</div>
-                                    <div class = "info-item-td text-end text-bold">{{ sum_total }}</div>
+                                    <div class = "info-item-td text-end text-bold">&#x20A6; {{ sum_total|format_with_commas }}</div>
+                                </div>
+
+                                <div class = "border-bottom">
+                                    <div class = "info-item-td  text-bold">Total In Words:</div>
+                                    <div class = "info-item-td text-end text-bold" style="text-transform: capitalize;padding-right: 10px;padding-bottom: 5px;">{{ sum_total|int_to_words }} Naira Only</div>
+                                   
                                 </div>
                             </div>
+                            
                         </div>
                     </div>
                     <div class = "invoice-foot text-center">

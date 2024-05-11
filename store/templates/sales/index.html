@@ -17,7 +17,7 @@
     
         <a href="{% url 'sales_form' %}">
           <li>
-            <i class='bx bxs-dollar-circle'></i>
+            <i class='bx bxs-wallet'></i>
             <span class="text">
               <h3>Record <br> Sales</h3>
             </span>
@@ -26,7 +26,14 @@
       </ul>
     
 </div>
-
+{% if messages %}
+		{% for message in messages %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			{{message}}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		{% endfor %}
+{% endif %} 
 <div class="table-data">
     <div class="order">
       <div class="head">

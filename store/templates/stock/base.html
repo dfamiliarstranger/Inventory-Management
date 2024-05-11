@@ -56,32 +56,32 @@
 			</li>
 			<li>
 				<a class="nav-link" href="{% url 'record' %}">
-					<i class='bx bxs-doughnut-chart' ></i>
+					<i class='bx bxs-factory'></i>
 					<span class="text">Production</span>
 				</a>
 			</li>
-			<li>
+			<li >
 				<a href="{% url 'sales_record' %}">
-					<i class='bx bxs-doughnut-chart' ></i>
+					<i class='bx bxs-wallet'></i>
 					<span class="text">Sales</span>
 				</a>
 			</li>
 			<li>
 				<a href="{% url 'customer' %}">
-					<i class='bx bxs-doughnut-chart' ></i>
+					<i class='bx bxs-group'></i>
 					<span class="text">Clients</span>
 				</a>
 			</li>
 			<li>
 				<a href="{% url 'invoice' %}">
-					<i class='bx bxs-doughnut-chart' ></i>
+					<i class='bx bxs-receipt'></i>
 					<span class="text">Invoice</span>
 				</a>
 			</li>
 		</ul>
 		<ul class="side-menu">
 			<li>
-				<a href="#">
+				<a href="{% url 'settings' %}" >
 					<i class='bx bxs-cog' ></i>
 					<span class="text">Settings</span>
 				</a>
@@ -124,7 +124,7 @@
 		<!-- NAVBAR -->
 	<main>
         {% block body %}
-                        
+		         
 		{% endblock%}
 	</main>
 	</section>

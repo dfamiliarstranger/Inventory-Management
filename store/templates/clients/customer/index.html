@@ -18,10 +18,18 @@
       <span class="text">Download PDF</span>
     </a>
   </div>
+  {% if messages %}
+		{% for message in messages %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			{{message}}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		{% endfor %}
+  {% endif %} 
   <ul class="box-info">
     <a href="{% url 'create_customer' %}">
         <li>
-          <i class='bx bxs-dollar-circle' ></i>
+          <i class='bx bxs-group'></i>
           <span class="text">
             <h3>Add Customer</h3>
           </span>
@@ -30,7 +38,7 @@
       
     <a href="{% url 'create_supplier' %}">
       <li>
-        <i class='bx bxs-dollar-circle' ></i>
+        <i class='bx bxs-group'></i>
         <span class="text">
           <h3>Add Supplier</h3>
       
@@ -40,7 +48,7 @@
     
     <a href="{% url 'supplier' %}">
       <li>
-        <i class='bx bxs-dollar-circle' ></i>
+        <i class='bx bxs-book-open'></i>
         <span class="text">
           <h3>Supplier Records</h3>
         </span>

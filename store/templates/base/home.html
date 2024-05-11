@@ -1,4 +1,5 @@
 {% extends "base/base.html" %}
+{% load custom_filters %}
 {% block body %}
 
 <!-- MAIN -->
@@ -21,27 +22,34 @@
       <span class="text">Download PDF</span>
     </a>
   </div>
-
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      {{message}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  {% endif %} 
   <ul class="box-info">
     <li>
-      <i class='bx bxs-calendar-check' ></i>
+      <i class='bx bxs-shopping-bag-alt store' ></i>
       <span class="text">
         <h3>Stock</h3>
-        <p></p>
+        <p>{{ stock_count }}</p>
       </span>
     </li>
     <li>
-      <i class='bx bxs-group' ></i>
+      <i class='bx bxs-wallet'></i>
       <span class="text">
         <h3>Sales</h3>
-        <p></p>
+        <p>&#x20A6; {{total_sales_amount|format_with_commas}}</p>
       </span>
     </li>
     <li>
       <i class='bx bxs-dollar-circle' ></i>
       <span class="text">
-        <h3>Product</h3>
-        <p></p>
+        <h3>Purchases</h3>
+        <p>&#x20A6; {{total_purchase_amount|format_with_commas}}</p>
       </span>
     </li>
   </ul>
@@ -64,7 +72,7 @@
           </tr>
         </thead>
         <tbody>
-            {% for stock_item in stock_item %}
+            {% for stock_item in stock_item|slice:":5" %}
             <tr>
                 <td>
                   <p>{{stock_item.name}}</p>
@@ -79,7 +87,7 @@
                     N/A
                     {% endif %}
                 </td>
-                <td>{{stock_item.quantity}}</td>
+                <td>{{stock_item.unit}}</td>
               </tr>
             {% endfor %}
          
@@ -95,13 +103,14 @@
         <i class='bx bx-filter' ></i>
       </div>
       <ul class="todo-list">
-        {% for notification in notifications %}
-        <a href="#">
-          <li class="completed">
-            <p>{{ notification.message }}</p>
-            <i class='bx bx-dots-vertical-rounded' ></i>
-          </li>
-        </a>
+        {% for notification in notifications|slice:":2" %} 
+          <a href="#">
+            <li class="completed" style="display: flex;flex-direction: column; align-items: flex-start; margin-bottom: 10px;" >
+              <p>{{ notification.timestamp }}</p>
+              <p>{{ notification.message }}</p>
+              <i class='bx bx-dots-vertical-rounded' ></i>
+            </li>
+          </a>
         {% endfor %}
       </ul>
     </div>

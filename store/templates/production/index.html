@@ -18,16 +18,16 @@
       <span class="text">Download PDF</span>
     </a>
 </div>
+{% if messages %}
+		{% for message in messages %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			{{message}}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		{% endfor %}
+{% endif %}    
   <div class="col-md-6">
-        {% if messages %}
-                {% for message in messages %}
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    {{message}}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
-        {% endif %}
-
+       
     <form action="{% url 'production' %}" method="POST" class="shadow p-3">
         {% csrf_token %}
         <div class="mb-3">
@@ -48,11 +48,11 @@
         </div>
         
         <div class="mb-3">
-            <label for="preform_quantity" class="form-label">Preform Quantity</label>
-            <input type="text" class="form-control" id="preform_quantity" name="preform_quantity" placeholder="preform_quantity">
+            <label for="quantity" class="form-label">Preform Quantity</label>
+            <input type="text" class="form-control" id="quantity" name="quantity" placeholder="quantity in units">
         </div>
 
-        <div class="mb-3">
+        <!-- <div class="mb-3">
             <label for="shortages" class="form-label">shortages</label>
             <input type="text" class="form-control" id="shortages" name="shortages" placeholder="shortages">
         </div>
@@ -61,7 +61,7 @@
         <div class="mb-3">
             <label for="excesses" class="form-label">excesses</label>
             <input type="text" class="form-control" id="excesses" name="excesses" placeholder="excesses">
-        </div>
+        </div> -->
 
         
         <div class="mb-3">
@@ -81,24 +81,30 @@
             <input type="text" class="form-control" id="cap-good_bottle" name="good_bottle" placeholder="good_bottle">
         </div>
 
-        <div class="mb-3">
+        <div class="form-group">
             <label for="color" class="form-label">Color</label>
-            <select class="form-select" id="color" name="color" required>
-                <option value="" selected>Select</option> <!-- Default option -->
-                <option value="red">Red</option>
-                <option value="blue">Blue</option>
-                <option value="green">Green</option>
-                <option value="black">Black</option>
-                <option value="white">White</option>
-                <!-- Add more color options as needed -->
+            <select name="color" class="form-select" id="color">
+              <option value="" selected>Select</option> <!-- Default option -->
+              {% for color in color %}
+              <option value="{{ color.id }}">{{ color.name }}</option>
+              {% endfor %}
             </select>
-          </div>
+        </div>
 
         <div class="mb-3">
             <label for="bottle_size" class="form-label">bottle_size</label>
             <input type="text" class="form-control" id="bottle_size" name="bottle_size" placeholder="bottle_size">
         </div>
 
+        <!-- <div class="mb-3">
+            <label for="bottle_unit" class="form-label">bottle_unit</label>
+            <select class="form-select" id="bottle_unit" name="bottle_unit">
+                <option value="L">L</option>
+                <option value="CL">CL</option>
+                <option value="ML">ML</option>
+            </select>
+        </div> -->
+        
 
         <div class="mb-3">
             <button type="submit" class="btn btn-primary">Add Item</button>

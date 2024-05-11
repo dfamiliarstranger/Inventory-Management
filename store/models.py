@@ -14,10 +14,10 @@ class Cap(models.Model):
         return f"{self.name}, Size: {self.size}"
     
 
-class Bottle(models.Model):
-    name = models.CharField(max_length=20, default='Bottle', editable=False)
-    size = models.CharField(max_length=10)
-    color = models.CharField(max_length=10)
+# class Bottle(models.Model):
+#     name = models.CharField(max_length=20, default='Bottle', editable=False)
+#     size = models.CharField(max_length=10)
+#     color = models.CharField(max_length=10, null=True, blank=True)
 
 class Preform_type(models.Model):
     name = models.CharField(max_length=30)
@@ -36,7 +36,7 @@ class Preform(models.Model):
             #################   Clients Table     ################
 
 class Contact(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=100)
     address = models.TextField()
     phone_number = models.CharField(max_length=20)
     email = models.EmailField()
@@ -54,30 +54,52 @@ class Supplier(Contact):
 class Customer(Contact):
     pass
 
+class Color(models.Model):
+    name = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
 class Stock(models.Model):
-    name = models.CharField(max_length=20, null=True)
-    color = models.CharField(max_length=10, null=True, blank=True)
+    name = models.CharField(max_length=100, null=True)
+    color = models.CharField(max_length=50, null=True, blank=True)
     cap_type = models.ForeignKey(Cap, on_delete=models.CASCADE, null=True, blank=True)
     product_type = models.CharField(max_length=20, null=True, blank=True)
+    bottle_type = models.CharField(max_length=20, null=True, blank=True)
     preform_type = models.ForeignKey(Preform_type, on_delete=models.CASCADE, null=True, blank=True)
-    quantity = models.IntegerField()
-    notification_sent = models.BooleanField(default=False) 
+    notification_sent = models.BooleanField(default=False)
+    unit = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} - {self.color} - {self.product_type}"
 
-###################     Store Models     #####################
+
+
 class StockItem(models.Model):
     name = models.CharField(max_length=20, null=True)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True) 
-    quantity = models.CharField(max_length=5)
+    quantity = models.CharField(max_length=5, null=True, blank=True)
     price = models.IntegerField()
-    total = models.DecimalField(max_digits=20,decimal_places=2)
+    total = models.DecimalField(max_digits=20, decimal_places=2)
     created_at = models.DateField(null=True, blank=True)
     cap_type = models.ForeignKey(Cap, on_delete=models.CASCADE, null=True, blank=True)
-    color = models.CharField(max_length=10, null=True, blank=True)
+    color = models.ForeignKey(Color, on_delete=models.CASCADE, null=True, blank=True)
     product_type = models.CharField(max_length=20, null=True, blank=True)
     preform_type = models.ForeignKey(Preform_type, on_delete=models.CASCADE, null=True, blank=True)
+    unit = models.IntegerField(null=True, blank=True)  # New field for unit
+
+    def save(self, *args, **kwargs):
+        if not self.unit:
+            self.unit = self.calculate_unit()
+        super().save(*args, **kwargs)
+
+    def calculate_unit(self):
+        if self.name == 'Preform':
+            if self.preform_type:
+                return self.preform_type.quantity_per_bag * int(self.quantity)
+        elif self.cap_type:
+            return self.cap_type.quantity_per_bag* int(self.quantity)
+        return self.quantity
 
 def update_inventory(add_stock_item):
     try:
@@ -89,13 +111,20 @@ def update_inventory(add_stock_item):
                     product_type=add_stock_item.product_type,
                     cap_type=add_stock_item.cap_type,
                     preform_type=add_stock_item.preform_type,
-                    quantity=add_stock_item.quantity
             ).first()
 
             if inventory_item:
-                # If the item exists, update its quantity
-                inventory_item.quantity = F('quantity') + add_stock_item.quantity
+                # If the item exists
+                inventory_item.quantity = str(int(inventory_item.quantity) + int(add_stock_item.quantity))
+                if hasattr(inventory_item, 'unit'):
+                    # If the unit attribute exists, update both quantity and unit
+                    inventory_item.unit = str(int(inventory_item.unit) + int(add_stock_item.unit))
+                else:
+                    # If the unit attribute doesn't exist, set it to None
+                    inventory_item.unit = None
                 inventory_item.save()
+
+
             else:
                 # If the item doesn't exist, create a new inventory item
                 Stock.objects.create(
@@ -104,7 +133,7 @@ def update_inventory(add_stock_item):
                     product_type=add_stock_item.product_type,
                     cap_type=add_stock_item.cap_type,
                     preform_type=add_stock_item.preform_type,
-                    quantity=add_stock_item.quantity
+                    unit=add_stock_item.unit
                 )
 
             # Mark the purchase as inventory updated
@@ -117,18 +146,18 @@ def update_inventory(add_stock_item):
         print(f"Error updating inventory: {str(e)}")
         return False
 
+
 ###################     Production Models     #####################
 class Production(models.Model):
     product = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True ) 
     product_quantity = models.IntegerField(null=True, blank=True)
-    shortages = models.IntegerField(null=True, blank=True)
-    excesses = models.IntegerField(null=True, blank=True)
     damages = models.IntegerField(null=True, blank=True)
     waste_bottle = models.IntegerField(null=True, blank=True)
     good_bottle = models.IntegerField()
     bottle_size = models.IntegerField()
-    bottle_color = models.CharField(max_length=10, null=True, blank=True)
+    bottle_color = models.ForeignKey(Color, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateField(null=True, blank=True)
+    bottle_unit = models.CharField(max_length=30, null=True, blank=True)
 
 
 class Sales(models.Model):
@@ -148,3 +177,7 @@ class Notification(models.Model):
     message = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
     is_read = models.BooleanField(default=False)
+
+
+    
+    

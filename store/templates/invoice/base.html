@@ -1,4 +1,4 @@
-{% extends "notification/base.html" %}
+{% extends "invoice/bases.html" %}
 {% load static %}
 {% block body %}
 <div class="head-title">
@@ -22,10 +22,15 @@
 
 
 <form id="searchForm" method="GET" class="row g-3"> <!-- Added method attribute and Bootstrap row class -->
-    <div class="col-md-4"> <!-- Adjusted column width for better layout -->
-        <label for="customer" class="form-label">Customer:</label>
-        <input type="text" id="customer" name="customer" class="form-control"> <!-- Added form-control class for input styling -->
-    </div>
+  <div class="form-group">
+    <label for="customer" class="form-label">Customer</label>
+    <select name="customer" class="form-select" id="customer" required>
+      <option value="" selected>Select</option> <!-- Default option -->
+      {% for customers in customers %}
+      <option value="{{ customers.name }}"><p>{{ customers.name }}</p></option>
+      {% endfor %}
+    </select>
+  </div>
     <div class="col-md-4"> <!-- Adjusted column width for better layout -->
         <label for="start_date" class="form-label">Start Date:</label>
         <input type="date" id="start_date" name="start_date" class="form-control"> <!-- Added form-control class for input styling -->
@@ -63,14 +68,15 @@
         {% for sale in sales_data %}
             <tr>
               <td><p>{{sale.created_at}}</p></td>
-                <td>
-                  <p>{{sale.product.name}}</p>
-                </td>
-                <td><p>{{sale.customer.name}}</p></td>
-                <td>{{sale.quantity}}</td>
-                <td>{{sale.price}}</td>
-                <td>{{sale.total}}</td>
-              </tr>
+              <td>
+                <p>{{sale.product.name}}</p>
+              </td>
+              <td><p>{{sale.customer.name}}</p></td>
+              <td>{{sale.quantity}}</td>
+              <td>{{sale.price}}</td>
+                
+              <td>{{sale.total}}</td>
+            </tr>
         {% endfor %}
        
       </tbody>

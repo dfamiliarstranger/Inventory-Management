@@ -1,0 +1,106 @@
+{% extends "settings/base.html" %}
+{% block body %}
+<div class="head-title">
+    <div class="left">
+      <h1>Settings</h1>
+      <ul class="breadcrumb">
+        <li>
+          <a href="#">Settings</a>
+        </li>
+        <li><i class='bx bx-chevron-right' ></i></li>
+        <li>
+          <a class="active" href="{% url 'settings' %}">Settings</a>
+        </li>
+      </ul>
+    </div>
+    <a href="#" class="btn-download">
+      <i class='bx bxs-cloud-download' ></i>
+      <span class="text">Download PDF</span>
+    </a>
+  </div>
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      {{message}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  {% endif %} 
+<ul class="box-info" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+    <a href="#">
+      <li>
+        <i class='bx bxs-user'></i>
+        <span class="text">
+          <h3>Profile</h3>
+          <p>Edit Profile</p>
+        </span>
+      </li>
+    </a>
+    <a href="#">
+        <li>
+          <i class='bx bxs-group'></i>
+          <span class="text">
+            <h3>Register</h3>
+            <p>Add User</p>
+          </span>
+        </li>
+      </a>
+    
+      <a href="#">
+        <li>
+          <i class='bx bx-test-tube'></i>
+          <span class="text">
+            <h3>Preform</h3>
+            <p>Edit Preform</p>
+          </span>
+        </li>
+      </a>
+
+      <a href="#">
+        <li>
+          <i class='bx bxs-coin'></i>
+          <span class="text">
+            <h3>Caps</h3>
+            <p>Edit Cap</p>
+          </span>
+        </li>
+      </a>
+     
+      <a href="#">
+        <li>
+          <i class='bx bxs-cylinder'></i>
+          <span class="text">
+            <h3>ShrinkWrapper</h3>
+            <p>Edit ShrinkWrapper</p>
+          </span>
+        </li>
+      </a>
+      <a href="#">
+        <li>
+          <i class='bx bxs-file'></i>
+          <span class="text">
+            <h3>Ticket</h3>
+            <p>create</p>
+          </span>
+        </li>
+      </a>
+      <a href="#">
+        <li>
+          <i class='bx bxs-palette'></i>
+          <span class="text">
+            <h3>Color</h3>
+            <p>Add New Color</p>
+          </span>
+        </li>
+      </a>
+      <a href="#">
+        <li>
+          <i class='bx bxs-dollar-circle' ></i>
+          <span class="text">
+            <h3>Transaction</h3>
+            <p>Reverse Transaction</p>
+          </span>
+        </li>
+      </a>
+  </ul>
+{% endblock %}

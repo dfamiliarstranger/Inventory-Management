@@ -9,16 +9,28 @@
         </li>
         <li><i class='bx bx-chevron-right' ></i></li>
         <li>
-            <a class="active" href="{% url 'customer' %}">Notification</a>
+            <a class="active" href="{% url 'notify' %}">Notification</a>
         </li>
       </ul>
     </div>
-    <a href="#" class="btn-download">
-      <i class='bx bxs-cloud-download' ></i>
-      <span class="text">Download PDF</span>
-    </a>
+    <a href="#" class="btn-download" onclick="clearNotifications()">
+      <i class='bx bxs-cloud-download'></i>
+      <span class="text">Clear Notifications</span>
+  </a>
+  
+    <!-- Hidden form to submit notifications clearing -->
+    <form id="clearNotificationsForm" action="{% url 'clear_notifications' %}" method="GET" style="display: none;">
+        <button type="submit">Clear Notifications</button>
+    </form>
 </div>
-
+{% if messages %}
+		{% for message in messages %}
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			{{message}}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		{% endfor %}
+{% endif %} 
 <div class="table-data">
    
     <div class="todo">
@@ -28,18 +40,24 @@
         <i class='bx bx-filter' ></i>
       </div>
       <ul class="todo-list">
-        {% for notification in notifications %}
-        <a href="#">
-          <li class="completed">
-            <p>{{ notification.message }}</p>
-            <i class='bx bx-dots-vertical-rounded' ></i>
-          </li>
-        </a>
+        {% for notification in notifications %} 
+          <a href="#">
+            <li class="completed" style="display: flex;flex-direction: column; align-items: flex-start; margin-bottom: 10px;" >
+              <p>{{ notification.timestamp }}</p>
+              <p>{{ notification.message }}</p>
+              <i class='bx bx-dots-vertical-rounded' ></i>
+            </li>
+          </a>
         {% endfor %}
+        
       </ul>
     </div>
   </div>
 
 
-
+<script>
+    function clearNotifications() {
+        document.getElementById('clearNotificationsForm').submit();
+    }
+</script>
 {% endblock %}

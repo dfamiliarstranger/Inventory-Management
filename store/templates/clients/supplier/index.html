@@ -18,12 +18,19 @@
       <span class="text">Download PDF</span>
     </a>
   </div>
- 
+{% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+{% endif %} 
   <div class="table-data">
     <div class="order">
       <div class="head">
         <h3>Supplier Records</h3>
-        <i class='bx bx-search' ></i>
+        <i class='bx bxs-group'></i>
         <i class='bx bx-filter' ></i>
       </div>
       <table class="table table-striped">

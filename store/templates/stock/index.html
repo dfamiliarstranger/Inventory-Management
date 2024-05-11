@@ -18,7 +18,14 @@
       <span class="text">Download PDF</span>
     </a>
   </div>
-
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      {{message}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  {% endif %} 
   <ul class="box-info">
     <a href="{% url 'stock' %}">
       <li>
@@ -31,7 +38,7 @@
     </a>
     <a href="{% url 'add_stock' %}">
       <li>
-        <i class='bx bxs-dollar-circle' ></i>
+        <i class='bx bxs-shopping-bag-alt store' ></i>
         <span class="text">
           <h3>Add Stock</h3>
         </span>
@@ -41,7 +48,7 @@
       <li>
         <i class='bx bxs-dollar-circle' ></i>
         <span class="text">
-          <h3>10</h3>
+          <h3>{{ stock_count }}</h3>
           <p>Stock Items</p>
         </span>
       </li>
@@ -60,8 +67,9 @@
             <tr>
               <th>Name</th>
               <th>Color</th>
+              <th>Size</th>
               <th>Product Types</th>
-              <th>Quantity </th> 
+              <th>Unit </th> 
             </tr>
           </thead>
           <tbody>
@@ -72,6 +80,17 @@
                   </td>
                   <td><p>{{stock_item.color}}</p></td>
                   <td>
+                    {% if stock_item.preform_type %}
+                    {{ stock_item.preform_type.size }}
+                    {% elif stock_item.cap_type %}
+                    {{ stock_item.cap_type.size }}
+                    {% elif stock_item.bottle_type %}
+                    {{ stock_item.bottle_type }}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                  <td>
                       {% if stock_item.preform_type %}
                       {{ stock_item.preform_type.name }}
                       {% elif stock_item.product_type %}
@@ -80,7 +99,9 @@
                       N/A
                       {% endif %}
                   </td>
-                  <td>{{stock_item.quantity}}</td>
+                 
+                  <td>{{stock_item.unit}}</td>
+                  
                 </tr>
               {% endfor %}
            

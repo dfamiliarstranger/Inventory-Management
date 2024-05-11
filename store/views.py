@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Cap, Preform, Preform_type, Supplier, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification
+from .models import Cap, Color ,Preform, Preform_type, Supplier, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib import messages
@@ -7,7 +7,7 @@ from .forms import CapForm, PreformForm, CustomerForm, SupplierForm, StockItemFo
 from django.utils import timezone
 from django.http import HttpResponse
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Sum
 from django.contrib.auth.models import User
 from .notification import notify_stock_threshold
 from django.template.loader import render_to_string
@@ -20,9 +20,14 @@ from xhtml2pdf import pisa
 
 @login_required
 def home(request):
-    notifications = Notification.objects.all()
-    stock_items = Stock.objects.all()
-    return render(request, ('base/home.html'), {'notifications': notifications, 'stock_item': stock_items})
+    notifications = Notification.objects.order_by('-timestamp').all()
+    stock_items = Stock.objects.all().order_by('-id')
+    stock_count = stock_items.count()
+    unread_notifications_count = notifications.filter(is_read=False).count()
+    # Query for the total sum of all sales amounts
+    total_sales_amount = Sales.objects.aggregate(total_amount=Sum('total'))['total_amount'] or 0
+    total_purchase_amount = StockItem.objects.aggregate(total_amount=Sum('total'))['total_amount'] or 0
+    return render(request, ('base/home.html'), {'notifications': notifications, 'stock_item': stock_items,'stock_count':stock_count, 'total_sales_amount':total_sales_amount,'total_purchase_amount':total_purchase_amount,'unread_notifications_count':unread_notifications_count})
 
 def user_login(request):
     if request.method == 'POST':
@@ -107,7 +112,9 @@ def create_supplier(request):
 @login_required
 def customer(request):
     customer = Customer.objects.all()
-    return render(request, 'clients/customer/index.html', {'customers':customer})
+    notifications = Notification.objects.all()
+    unread_notifications_count = notifications.filter(is_read=False).count()
+    return render(request, 'clients/customer/index.html', {'customers':customer,'unread_notifications_count':unread_notifications_count})
 
 @login_required
 def create_customer(request):
@@ -130,6 +137,7 @@ def add_stock_item(request):
     preform_type = Preform_type.objects.all()
     cap = Cap.objects.all()
     supplier = Supplier.objects.all()
+   
     
     if request.method == 'POST':
         form = StockItemForm(request.POST)
@@ -145,6 +153,7 @@ def add_stock_item(request):
             product_type = request.POST.get('product_type', '')  
             price = request.POST.get('price', '')  
             total = request.POST.get('total', '') 
+             
             
             # Validation
             if not (name and total and quantity and supplier_id and price):
@@ -158,9 +167,7 @@ def add_stock_item(request):
             # Creating a new stock item
             stock_item = form.save(commit=False)
             stock_item.supplier = supplier
-            
-           
-            
+               
             # Calculating total price
             total = float(quantity) * float(price)
             stock_item.total = total
@@ -170,20 +177,27 @@ def add_stock_item(request):
             
             # Update inventory
             update_inventory(stock_item)
-            
+            messages.success(request, 'Stock added successfully.')
             return redirect('stock') 
         else:
             print(form.errors)
             return redirect('add_stock')
     else:
-        return render(request, 'store/add_stock/index.html', {'stock_form': stock_form, 'preform_types': preform_type, 'caps': cap, 'suppliers': supplier})
+        color = Color.objects.all()
+        return render(request, 'store/add_stock/index.html', {'stock_form': stock_form, 'preform_types': preform_type, 'caps': cap, 'suppliers': supplier, 'color':color})
 
 
 @login_required
-
 def purchase_history(request):
     stock = StockItem.objects.order_by('-created_at')  # Order by the 'created_at' field in descending order
     return render(request, 'store/add_stock/details.html', {'stock': stock})
+
+threshold_values = {
+            'Cap': 5000,
+            'Preform': 5000,
+            'Bottle': 3000,
+            'Shrinkwrapper': 30,  # Define a threshold value for "Shrinkwrapper"
+            }
 
 @login_required
 def stock_detail(request):
@@ -193,18 +207,30 @@ def stock_detail(request):
     # Iterate through each stock item
     for updated_stock_item in updated_stock_items:
         # If the stock quantity is zero, delete the stock record
-        if updated_stock_item.quantity == 0:
+        if updated_stock_item.unit == 0:
             updated_stock_item.delete()
-        elif updated_stock_item.quantity <= 2 and not updated_stock_item.notification_sent:
-            # Notify user if stock threshold is less than or equal to 2 and a notification has not been sent
+        # # Trigger notification if the stock quantity is below the threshold
+       
+        # notify_stock_threshold(request.user, updated_stock_item)
+        
+        elif updated_stock_item.unit <= threshold_values.get(updated_stock_item.name, 5000) and not updated_stock_item.notification_sent:
+            
+            # Notify user if stock threshold is met and a notification has not been sent
             notify_stock_threshold(request.user, updated_stock_item)
-            updated_stock_item.notification_sent = True
+            
+            # Set notification_sent to True
+            updated_stock_item.notification_sent = True  
             updated_stock_item.save()
 
     # Retrieve the updated stock items after deletion
-    stock_items = Stock.objects.all()
+    stock_items = Stock.objects.all().order_by('-id')
+    notifications = Notification.objects.all()
+    unread_notifications_count = notifications.filter(is_read=False).count()
 
-    return render(request, 'stock/index.html', {'stock_item': stock_items})
+    # Get the count of stock items
+    stock_count = stock_items.count()
+
+    return render(request, 'stock/index.html', {'stock_item': stock_items, 'stock_count': stock_count,'unread_notifications_count':unread_notifications_count})
 
 
 
@@ -214,25 +240,34 @@ def stock_detail(request):
 def production(request):
     if request.method == 'POST':
         # Get form data
-        created_at = request.POST.get('created_at', '')
+        created_at = request.POST.get('created_at')
         product_id = request.POST.get('product')
-        product_quantity = request.POST.get('preform_quantity')
-        shortages = request.POST.get('shortages')
-        excesses = request.POST.get('excesses')
+        quantity = request.POST.get('quantity')
         damages = request.POST.get('damages')
         waste_bottle = request.POST.get('waste_bottle')
         good_bottle = request.POST.get('good_bottle')
         bottle_size = request.POST.get('bottle_size')
-        bottle_color = request.POST.get('color')
+        bottle_color_id = request.POST.get('color')
+        
+        try:
+            bottle_color = Color.objects.get(pk=bottle_color_id)
+        except Color.DoesNotExist:
+            messages.error(request, 'Invalid color selection.')
+            return redirect('production')
 
         # Perform input validation
-        if not product_id or not product_quantity or not bottle_color or not good_bottle:
+        if not product_id or not quantity or not bottle_color or not good_bottle:
             messages.error(request, 'Please fill all required fields.')
+            return redirect('production')
+        
+        # Check if quantity equals damages + good bottle + bad bottle
+        if int(quantity) != int(damages) + int(good_bottle) + int(waste_bottle):
+            messages.error(request, 'Quantity should be equal to damages + good bottles + bad bottles.')
             return redirect('production')
 
         # Perform business logic checks
         try:
-            product_quantity = int(product_quantity)
+            quantity = int(quantity)
             waste_bottle = int(waste_bottle)
             good_bottle = int(good_bottle)
             bottle_size = int(bottle_size)
@@ -243,37 +278,35 @@ def production(request):
         product = Stock.objects.get(pk=product_id)
 
         # Check if there's enough preform quantity
-        if product.quantity < product_quantity:
+        if int(product.unit) < quantity:
             messages.error(request, 'Insufficient stock quantity.')
             return redirect('production')
-        
         try:
             # Start a database transaction
             with transaction.atomic():
                 # Deduct product quantity used from stock
-                product.quantity -= product_quantity
+                product.unit -= quantity
                 product.save()
 
                 # Create Production object
                 production_instance = Production.objects.create(
                     created_at=created_at,
                     product=product,
-                    product_quantity=product_quantity,
-                    shortages=shortages,
-                    excesses=excesses,
+                    product_quantity=quantity,
                     damages=damages,
                     waste_bottle=waste_bottle,
                     good_bottle=good_bottle,
                     bottle_size=bottle_size,
-                    bottle_color=bottle_color
+                    bottle_color=bottle_color,
+                    
                 )
 
                 # Create Bottle Stock
                 bottle_stock, created = Stock.objects.get_or_create(
                     name='Bottle',
                     color=bottle_color,
-                    product_type='Bottle',
-                    quantity=good_bottle
+                    unit=good_bottle,
+                    bottle_type=bottle_size,
                 )
 
                 messages.success(request, 'Production record created successfully.')
@@ -284,30 +317,36 @@ def production(request):
 
     else:
         stock = Stock.objects.all()
-        return render(request, 'production/index.html', {'stock': stock})
+        color = Color.objects.all()
+        return render(request, 'production/index.html', {'stock': stock, 'color':color})
 
 @login_required
 def production_record(request):
     record = Production.objects.order_by('-created_at') 
-    return render(request, 'production//summary.html', {'record': record })
+    notifications = Notification.objects.all()
+    unread_notifications_count = notifications.filter(is_read=False).count()
+    return render(request, 'production/summary.html', {'record': record,'unread_notifications_count':unread_notifications_count })
 
 @login_required
 def sales_record(request):
     sales = Sales.objects.all()
-    return render(request, 'sales/index.html', {'sales': sales})
+    notifications = Notification.objects.all()
+    unread_notifications_count = notifications.filter(is_read=False).count()
+    return render(request, 'sales/index.html', {'sales': sales,'unread_notifications_count':unread_notifications_count})
 
 
 @login_required
 def sales_form(request):
     if request.method == 'POST':
         # Get form data
+        created_at = request.POST.get('created_at')
         product_id = request.POST.get('product_id')
         customer_id = request.POST.get('customer_id')
         quantity = request.POST.get('quantity')
         price = request.POST.get('price')
 
         # Perform input validation
-        if not product_id or not customer_id or not quantity or not price:
+        if not product_id or not customer_id or not quantity or not price or not created_at:
             messages.error(request, 'Please fill all fields.')
             return redirect('sales_form')
 
@@ -320,56 +359,74 @@ def sales_form(request):
             return redirect('sales_form')
 
         product = Stock.objects.get(pk=product_id)
-    
 
-        # Convert product.quantity to integer before comparison
-        if int(product.quantity) < int(quantity):
-            messages.error(request, 'Insufficient stock quantity.')
+           
+        if product.unit < quantity:
+                messages.error(request, 'Insufficient stock quantity.')
+                return redirect('sales_form')
+        
+        try:
+            # Start a database transaction
+            with transaction.atomic():
+                # Deduct product quantity used from stock
+                product.unit -= quantity
+                product.save()
+
+               
+                # Calculate total, create Sales object, and handle success
+                total = quantity * price
+                sale = Sales.objects.create(
+                    created_at=created_at,
+                    product=product,
+                    customer_id=customer_id,
+                    quantity=quantity,
+                    price=price,
+                    total=total
+                )
+                
+                messages.success(request, 'Sale completed successfully.')
+                return redirect('sales_record')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
             return redirect('sales_form')
 
-        # Calculate total
-        total = quantity * price
-
-        # Create Sales object
-        sale = Sales.objects.create(
-            product=product,
-            customer_id=customer_id,
-            quantity=quantity,
-            price=price,
-            total=total
-        )
-
-        # Update stock quantity
-        product.quantity -= quantity
-        product.save()
-
-        messages.success(request, 'Sale completed successfully.')
-        return redirect('sales_record')
-
     else:
-        
+        # Fetch required data for rendering form
         stock = Stock.objects.all()
         customer = Customer.objects.all()
         sales = Sales.objects.all()
-        return render(request, 'sales/forms.html', {'sales': sales, 'stock':stock, 'customer':customer })
-    
+        color = Color.objects.all()
+        
+        # Check for None value in product.unit before rendering the form
+        products_with_unspecified_quantity = [item for item in stock if item.unit is None]
+        
 
-@login_required  
+        return render(request, 'sales/forms.html', {'sales': sales, 'stock': stock, 'customer': customer, 'color': color})
+
+
+
+@login_required
 def show_notification(request):
     # Fetch notifications and pass them to the template
-    notifications = Notification.objects.order_by('-timestamp').all()
-    
-    unread_notifications_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
-
+    notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
+    unread_notifications_count = notifications.filter(is_read=False).count()
     return render(request, 'notification/index.html', {'notifications': notifications, 'unread_notifications_count': unread_notifications_count})
 
-
+@login_required
+def clear_notifications(request):
+    if request.method == 'GET':
+        # Mark all notifications as read for the current user
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        # Redirect back to the notifications page
+        return redirect('notify')
 
 @login_required    
 def invoice(request):
     error = None
     sales_data = None
     customers = Customer.objects.all()
+    notifications = Notification.objects.all()
+    unread_notifications_count = notifications.filter(is_read=False).count()
 
     if request.method == 'GET':
         customer_str = request.GET.get('customer')
@@ -393,7 +450,7 @@ def invoice(request):
             except ValueError:
                 error = 'Invalid date format. Please use YYYY-MM-DD.'
 
-    return render(request, 'invoice/base.html', {'sales_data': sales_data, 'customers': customers, 'error': error})
+    return render(request, 'invoice/base.html', {'sales_data': sales_data, 'customers': customers, 'error': error,'unread_notifications_count':unread_notifications_count})
 
 @login_required  
 def print_invoice(request):
@@ -409,3 +466,7 @@ def print_invoice(request):
     else:
         # Handle POST request if needed
         pass
+
+@login_required
+def settings(request):
+    return render(request, 'settings/index.html')
