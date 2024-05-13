@@ -1,21 +1,18 @@
-from django.shortcuts import render, redirect
-from .models import Cap, Color ,Preform, Preform_type, Supplier, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Cap, Color ,Preform, Preform_type, Supplier, Ticket_Records, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib import messages
-from .forms import CapForm, PreformForm, CustomerForm, SupplierForm, StockItemForm, ProductionForm
+from .forms import CapForm, PreformForm, CustomerForm, SupplierForm, StockItemForm
 from django.utils import timezone
 from django.http import HttpResponse
 from django.db import transaction
 from django.db.models import F, Sum
 from django.contrib.auth.models import User
 from .notification import notify_stock_threshold
-from django.template.loader import render_to_string
+
 from datetime import datetime
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from django.template.loader import get_template
-from xhtml2pdf import pisa
+from django.middleware.csrf import rotate_token
 ###############     Create your views here    ###############
 
 @login_required
@@ -29,17 +26,25 @@ def home(request):
     total_purchase_amount = StockItem.objects.aggregate(total_amount=Sum('total'))['total_amount'] or 0
     return render(request, ('base/home.html'), {'notifications': notifications, 'stock_item': stock_items,'stock_count':stock_count, 'total_sales_amount':total_sales_amount,'total_purchase_amount':total_purchase_amount,'unread_notifications_count':unread_notifications_count})
 
+
 def user_login(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        # Rotate CSRF token
+        rotate_token(request)
+        
+        username = request.POST.get('username')
+        password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
+        
         if user is not None:
             login(request, user)
             return redirect('home')
         else:
-            return render(request, 'base/login.html', {'error_message':'invalid username or password'})
-    return render(request, 'base/login.html')
+            return render(request, 'base/login.html', {'error_message': 'Invalid username or password'})
+    else:
+        # Render login form
+        return render(request, 'base/login.html')
+
 
 def user_logout(request):
     logout(request)
@@ -469,4 +474,119 @@ def print_invoice(request):
 
 @login_required
 def settings(request):
-    return render(request, 'settings/index.html')
+    notifications = Notification.objects.all()
+    unread_notifications_count = notifications.filter(is_read=False).count()
+    return render(request, 'settings/index.html',{'unread_notifications_count':unread_notifications_count})
+
+# @login_required
+# def products(request):
+#     preform_type = Preform_type.objects.all()
+#     cap = Cap.objects.all()
+#     return render(request, 'settings/product.html',{'preform_type':preform_type,'cap':cap})
+
+@login_required
+def products(request):
+    if request.method == 'POST':
+        # Check if the form is for adding a new Preform type
+        if 'add_preform' in request.POST:
+            preform_name = request.POST.get('preform_name')
+            preform_size = request.POST.get('preform_size')
+            preform_quantity_per_bag = request.POST.get('preform_quantity_per_bag')
+            if preform_name and preform_size and preform_quantity_per_bag:
+                Preform_type.objects.create(
+                    name=preform_name,
+                    size=preform_size,
+                    quantity_per_bag=preform_quantity_per_bag
+                )
+                return redirect('product')
+        # Check if the form is for adding a new Cap type
+        elif 'add_cap' in request.POST:
+            cap_name = request.POST.get('cap_name')
+            cap_size = request.POST.get('cap_size')
+            cap_quantity_per_bag = request.POST.get('cap_quantity_per_bag')
+            if cap_name and cap_size and cap_quantity_per_bag:
+                Cap.objects.create(
+                    name=cap_name,
+                    size=cap_size,
+                    quantity_per_bag=cap_quantity_per_bag
+                )
+                return redirect('product')
+
+    preform_type = Preform_type.objects.all()
+    cap = Cap.objects.all()
+
+    return render(request, 'settings/product.html', {'preform_type': preform_type, 'cap': cap})
+
+@login_required
+def color(request):
+    if request.method == 'POST':
+        # Get the color name from the form data
+        color_name = request.POST.get('name')
+
+        # Check if the color name is not empty
+        if color_name:
+            # Create a new Color object and save it to the database
+            Color.objects.create(name=color_name)
+            # Redirect to the same page after adding color
+            return redirect('color')
+
+    # Retrieve all colors from the database
+    color = Color.objects.all()
+    
+    # Render the template with the list of colors
+    return render(request, 'color/index.html', {'color': color})
+
+
+@login_required
+# View for rendering the form
+def ticket_form(request):
+    stocks = Stock.objects.all()
+    return render(request, 'settings/ticket.html', {'stocks': stocks})
+
+def ticket_update(request, stock_id):
+    stock = get_object_or_404(Stock, id=stock_id)
+    
+    if request.method == 'POST':
+        # Get form data
+        stock_id = request.POST.get('stock_id')
+        option = request.POST.get('option')
+        quantity = int(request.POST.get('quantity'))
+        
+        # Check if the stock is sufficient for deduction
+        if option == 'shortage' and stock.unit < quantity:
+            messages.error(request, 'Insufficient stock for deduction')
+            return redirect('ticket_form')
+        
+        # Update stock unit based on selected option
+        if option == 'excess':
+            stock.unit += quantity
+        elif option == 'shortage':
+            stock.unit -= quantity
+        
+        # Save the updated stock
+        stock.save()
+        
+        # Determine product type for the record
+        product_type = None
+        if stock.preform_type:
+            product_type = stock.preform_type
+        elif stock.cap_type:
+            product_type = stock.cap_type
+        elif stock.product_type:
+            product_type = stock.product_type
+        elif stock.bottle_type:
+            product_type = stock.bottle_type
+        
+        # Create a record for the stock update
+        record = Ticket_Records.objects.create(
+            product=stock,
+            product_type=product_type,
+            action=option,
+            quantity=quantity,
+          # Use timezone.now() for the current datetime
+        )
+        
+        # Redirect to the stock detail page or any other appropriate page
+        return redirect('ticket_update', stock_id=stock.id)
+   
+    return redirect('stock_list')

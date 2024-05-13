@@ -51,6 +51,21 @@ urlpatterns = [
 
         #Settings
         path('settings/', views.settings, name="settings"),
+
+        #Color
+        path('color/', views.color, name="color"),
+
+        #Product
+        path('product/', views.products, name="product"),
+
+        #ticket
+        # URL for rendering the form
+        path('ticket/', views.ticket_form, name='ticket_form'),
+
+        # URL for handling form submission and updating the stock record
+        path('ticket/<int:stock_id>/', views.ticket_update, name='ticket_update'),
+
+        
 ]
 
 if settings.DEBUG:

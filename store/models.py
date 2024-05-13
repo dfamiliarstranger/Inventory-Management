@@ -14,10 +14,6 @@ class Cap(models.Model):
         return f"{self.name}, Size: {self.size}"
     
 
-# class Bottle(models.Model):
-#     name = models.CharField(max_length=20, default='Bottle', editable=False)
-#     size = models.CharField(max_length=10)
-#     color = models.CharField(max_length=10, null=True, blank=True)
 
 class Preform_type(models.Model):
     name = models.CharField(max_length=30)
@@ -69,6 +65,7 @@ class Stock(models.Model):
     preform_type = models.ForeignKey(Preform_type, on_delete=models.CASCADE, null=True, blank=True)
     notification_sent = models.BooleanField(default=False)
     unit = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} - {self.color} - {self.product_type}"
@@ -177,6 +174,17 @@ class Notification(models.Model):
     message = models.TextField()
     timestamp = models.DateTimeField(default=timezone.now)
     is_read = models.BooleanField(default=False)
+
+class Ticket_Records(models.Model):
+    product = models.ForeignKey(Stock, on_delete=models.CASCADE) 
+    product_type = models.CharField(max_length=30, null=True, blank=True)
+    action = models.TextField()
+    quantity = models.IntegerField()
+    created_at = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Record for {self.product} created at {self.created_at}"
+   
 
 
     

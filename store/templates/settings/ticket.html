@@ -1,0 +1,188 @@
+{% extends "settings/base.html" %}
+{% block body %}
+<style>
+  #color-form input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+  }
+
+  #color-form button[type="submit"] {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+  }
+
+  #color-form button[type="submit"]:hover {
+      background-color: #45a049;
+  }
+
+  .toggle-icon {
+            float: right;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    form {
+        margin-bottom: 20px;
+    }
+    label {
+        font-weight: bold;
+    }
+    input[type="text"], select {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    button[type="submit"] {
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    button[type="submit"]:hover {
+        background-color: #45a049;
+    }
+    .error-message {
+        color: red;
+        margin-bottom: 10px;
+    }
+
+    #quantity {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    /* Add any additional styling you want here */
+}
+
+</style>
+
+<div class="head-title">
+    <div class="left">
+      <h1>Ticket</h1>
+      <ul class="breadcrumb">
+        <li>
+          <a href="#">Ticket</a>
+        </li>
+        <li><i class='bx bx-chevron-right' ></i></li>
+        <li>
+          <a class="active" href="{% url 'settings' %}">Settings</a>
+        </li>
+      </ul>
+    </div>
+    
+  </div>
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      {{message}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  {% endif %} 
+
+  
+</head>
+<body>
+<div class="container">  
+    <h5><strong>Update Stock</strong></h5>
+    {% if messages %}
+        <div class="error-message">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form method="post" id="ticket-form" action="{% url 'ticket_update' stock_id=0 %}">
+        {% csrf_token %}
+        <div>
+            <label for="stock">Select Stock:</label>
+            <select name="stock_id" id="stock">
+                <option value="" selected>Select</option> <!-- Default option -->
+                {% for stock in stocks %}
+                        <option value="{{ stock.id }}">   
+                            <p>{{ stock.name }} || 
+                            {% if stock.product_type %}
+                                {{ stock.product_type }} ||
+                            {% elif stock.cap_type %}
+                                {{ stock.cap_type }} ||
+                            {% elif stock.preform_type %}
+                                {{ stock.preform_type }} ||
+                            {% else %}
+                                
+                            {% endif %}
+                             {{ stock.color }}
+                            </p>
+                        </option>
+                        {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="option">Action:</label>
+            <select name="option" id="option">
+                <option value="excess">Excess</option>
+                <option value="shortage">Shortage</option>
+            </select>
+        </div>
+        <div>
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" name="quantity" placeholder="Enter Quantity">
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+
+<script>
+    var selected_stock_id = document.getElementById('stock').value;
+
+    function updateFormAction() {
+        selected_stock_id = document.getElementById('stock').value;
+        var form = document.getElementById('ticket-form');
+        form.action = "{% url 'ticket_update' stock_id=0 %}".replace('0', selected_stock_id || 0);
+    }
+
+    document.getElementById('stock').addEventListener('change', updateFormAction);
+    updateFormAction();
+</script>
+
+{% endblock %}

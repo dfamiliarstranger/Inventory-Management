@@ -11,7 +11,6 @@
 
 	<!-- My CSS -->
 	<link href="{% static './css/style.css' %}" rel="stylesheet" />
-	<link rel="stylesheet" type="text/css" href="{% static 'css/invoice.css' %}">
 	<style>
 		/* Custom style to override .btn-primary for this specific button */
 		.btn-custom {
@@ -55,34 +54,34 @@
 					<span class="text">My Store</span>
 				</a>
 			</li>
-			<li>
-				<a class="nav-link" href="{% url 'production' %}">
-					<i class='bx bxs-doughnut-chart' ></i>
+			<li >
+				<a class="nav-link" href="{% url 'record' %}">
+					<i class='bx bxs-factory'></i>
 					<span class="text">Production</span>
 				</a>
 			</li>
 			<li>
 				<a href="{% url 'sales_record' %}">
-					<i class='bx bxs-doughnut-chart' ></i>
+					<i class='bx bxs-wallet'></i>
 					<span class="text">Sales</span>
 				</a>
 			</li>
 			<li>
 				<a href="{% url 'customer' %}">
-					<i class='bx bxs-doughnut-chart' ></i>
+					<i class='bx bxs-group'></i>
 					<span class="text">Clients</span>
 				</a>
 			</li>
 			<li>
 				<a href="{% url 'invoice' %}">
-					<i class='bx bxs-doughnut-chart' ></i>
+					<i class='bx bxs-receipt'></i>
 					<span class="text">Invoice</span>
 				</a>
 			</li>
 		</ul>
 		<ul class="side-menu">
 			<li>
-				<a href="#">
+				<a href="{% url 'settings' %}" >
 					<i class='bx bxs-cog' ></i>
 					<span class="text">Settings</span>
 				</a>
@@ -117,7 +116,6 @@
 				<i class='bx bxs-bell' ></i>
 				<span class="num">{{ unread_notifications_count }}</span>
 			</a>
-			
 			<a href="#" class="profile">
 					<div class="small">Logged in as: <strong>{{user.get_username}}</strong></div>
 				</div>
@@ -126,7 +124,7 @@
 		<!-- NAVBAR -->
 	<main>
         {% block body %}
-                        
+		         
 		{% endblock%}
 	</main>
 	</section>

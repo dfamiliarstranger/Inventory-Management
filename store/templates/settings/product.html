@@ -1,0 +1,238 @@
+{% extends "settings/base.html" %}
+{% block body %}
+<style>
+    /* Style for form container */
+#preform-form,
+#cap-form {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* Style for form inputs */
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* Style for buttons */
+.btn {
+    margin-right: 10px;
+}
+
+/* Style for cancel button */
+.btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.toggle-icon {
+            float: right;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            cursor: pointer;
+}
+
+#color-form input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+  }
+
+button[type="submit"] {
+      width: 100%;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+  }
+
+  button[type="submit"]:hover {
+      background-color: #45a049;
+  }
+
+</style>
+
+<div class="head-title">
+    <div class="left">
+      <h1>Product</h1>
+      <ul class="breadcrumb">
+        <li>
+          <a href="#">product</a>
+        </li>
+        <li><i class='bx bx-chevron-right' ></i></li>
+        <li>
+          <a class="active" href="{% url 'settings' %}">Settings</a>
+        </li>
+      </ul>
+    </div>
+   
+  </div>
+  <ul class="box-info">
+    <li id="preform-edit-button">
+        <i class='bx bxs-calendar-check' ></i>
+        <span class="text">
+            <h3>Preform</h3>
+            <p>Add Preform</p>
+        </span>
+    </li>
+    <li id="cap-edit-button">
+        <i class='bx bxs-group' ></i>
+        <span class="text">
+            <h3>Cap</h3>
+            <p>Add Cap</p>
+        </span>
+    </li>
+</ul>
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      {{message}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  {% endif %} 
+
+
+<div id="preform-form" style="display: none;">
+    <div class="toggle-icon" onclick="cancelPreformForm()">
+        <i class="bx bx-x"></i>
+    </div>
+    <h5>Add New Preform Type</h5>
+    <form method="post" action="{% url 'product' %}">
+        {% csrf_token %}
+        <input type="hidden" name="add_preform" value="true">
+        <div class="form-group">
+            <label for="preform-name">Name:</label>
+            <input type="text" id="preform-name" name="preform_name" class="form-control" placeholder="Enter Preform Name">
+        </div>
+        <div class="form-group">
+            <label for="preform-size">Size:</label>
+            <input type="text" id="preform-size" name="preform_size" class="form-control" placeholder="Enter Preform Size">
+        </div>
+        <div class="form-group">
+            <label for="preform-quantity">Quantity per Bag:</label>
+            <input type="text" id="preform-quantity" name="preform_quantity_per_bag" class="form-control" placeholder="Enter Quantity per Bag">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<!-- Form for adding new Cap -->
+<div id="cap-form" style="display: none;">
+    <div class="toggle-icon" onclick="cancelCapForm()">
+        <i class="bx bx-x"></i>
+    </div>
+    <h5>Add New Cap Type</h5>
+    <form method="post" action="{% url 'product' %}">
+        {% csrf_token %}
+        <input type="hidden" name="add_cap" value="true">
+        <div class="form-group">
+            <label for="cap-name">Name:</label>
+            <input type="text" id="cap-name" name="cap_name" class="form-control" placeholder="Enter Cap Name">
+        </div>
+        <div class="form-group">
+            <label for="cap-size">Size:</label>
+            <input type="text" id="cap-size" name="cap_size" class="form-control" placeholder="Enter Cap Size">
+        </div>
+        <div class="form-group">
+            <label for="cap-quantity">Quantity per Bag:</label>
+            <input type="text" id="cap-quantity" name="cap_quantity_per_bag" class="form-control" placeholder="Enter Quantity per Bag">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+
+  <div class="table-data">
+    <div class="order" style="flex-basis: 400px;">
+        <div class="head">
+            <h3>Preform Types</h3>
+            <i class='bx bx-search' ></i>
+            <i class='bx bx-filter' ></i>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>size</th>
+                    <th>Quantity per Bag</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for preform_type in preform_type %}
+                <tr>
+                    <td>
+                        <p>{{preform_type.name}}</p>
+                    </td>
+                    <td>{{preform_type.size}}</td>
+                    <td><span>{{preform_type.quantity_per_bag}}</span></td>
+                </tr>
+                {% endfor %}
+              
+            </tbody>
+        </table>
+    </div>
+    <div class="todo" style="flex-basis: 400px;">
+        <div class="head">
+            <h3>Cap Type</h3>
+            <i class='bx bx-plus' ></i>
+            <i class='bx bx-filter' ></i>
+        </div>
+        <div class="order">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>size</th>
+                        <th>Quantity per Bag</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cap in cap %}
+                    <tr>
+                        <td>
+                            <p>{{cap.name}}</p>
+                        </td>
+                        <td>{{cap.size}}</td>
+                        <td><span>{{cap.quantity_per_bag}}</span></td>
+                    </tr>
+                    {% endfor %}
+                  
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> 
+
+<script>
+    // Add event listeners to the edit buttons
+    document.getElementById('preform-edit-button').addEventListener('click', function() {
+        document.getElementById('preform-form').style.display = 'block';
+    });
+
+    document.getElementById('cap-edit-button').addEventListener('click', function() {
+        document.getElementById('cap-form').style.display = 'block';
+    });
+
+    function cancelPreformForm() {
+    document.getElementById('preform-form').style.display = 'none';
+    }
+
+    function cancelCapForm() {
+    document.getElementById('cap-form').style.display = 'none';
+    }
+
+</script>
+
+
+{% endblock %}
