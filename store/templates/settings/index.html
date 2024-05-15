@@ -13,9 +13,9 @@
         </li>
       </ul>
     </div>
-    <a href="#" class="btn-download">
-      <i class='bx bxs-cloud-download' ></i>
-      <span class="text">Download PDF</span>
+    <a href="{% url 'settings' %}" class="btn-download">
+      <i class='bx bx-right-arrow-circle'></i>
+      <span class="text">Back</span>
     </a>
   </div>
   {% if messages %}
@@ -36,12 +36,12 @@
         </span>
       </li>
     </a>
-    <a href="#">
+    <a href="{% url 'report' %}">
         <li>
           <i class='bx bxs-group'></i>
           <span class="text">
-            <h3>Register</h3>
-            <p>Add User</p>
+            <h3>Reports</h3>
+            <p>Generate Reports</p>
           </span>
         </li>
       </a>

@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'store.middleware.HandlePageNotFoundMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -91,6 +92,9 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+
+CSRF_FAILURE_VIEW = 'store.views.csrf_failure_view'
 
 
 # Password validation

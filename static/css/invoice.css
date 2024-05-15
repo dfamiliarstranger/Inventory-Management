@@ -138,6 +138,15 @@ body{
     padding-bottom: 10px;
 }
 
+
+.production-summary {
+    grid-column: span 2;
+    background-color: rgba(0, 0, 0, 0.02);
+    padding: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 32px;
+}
+
 @media screen and (max-width: 992px){
     .invoice{
         padding: 40px;

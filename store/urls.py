@@ -12,8 +12,6 @@ urlpatterns = [
         path('cap/', views.cap, name="cap"),
         path('cap/add/', views.create_cap, name="create_cap"),
 
-        
-
         # Preform Product URLS
         path('preform/', views.preform, name="preform"),
         path('preform/add', views.create_preform, name="create_preform"),
@@ -28,7 +26,6 @@ urlpatterns = [
         path('customer/add', views.create_customer, name="create_customer"),
 
         # Add Stock Items
-
         path('add_stock/', views.add_stock_item, name="add_stock"),
         path('stock/', views.purchase_history, name="stock"),
         path('stock_list/', views.stock_detail, name="stock_list"),
@@ -59,13 +56,18 @@ urlpatterns = [
         path('product/', views.products, name="product"),
 
         #ticket
-        # URL for rendering the form
         path('ticket/', views.ticket_form, name='ticket_form'),
-
-        # URL for handling form submission and updating the stock record
         path('ticket/<int:stock_id>/', views.ticket_update, name='ticket_update'),
 
         
+
+        path('error/', views.error_page, name='error_page'),
+
+        path('report/', views.search_view, name='report'),
+        path('production_report/', views.production_report, name='production_report'),
+        path('sales_report/', views.sales_report, name='sales_report'),
+        path('purchase_report/', views.purchase_report, name='purchase_report'),
+       
 ]
 
 if settings.DEBUG:

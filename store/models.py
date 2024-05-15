@@ -13,8 +13,6 @@ class Cap(models.Model):
     def __str__(self):
         return f"{self.name}, Size: {self.size}"
     
-
-
 class Preform_type(models.Model):
     name = models.CharField(max_length=30)
     size = models.DecimalField(max_digits=5, decimal_places=1)
@@ -23,7 +21,6 @@ class Preform_type(models.Model):
     def __str__(self):
         return f"{self.name} {self.size}"
         
-
 class Preform(models.Model):
     name = models.CharField(max_length=30, default='Preform', editable=False)
     product_type = models.ForeignKey(Preform_type, on_delete=models.CASCADE)
@@ -69,7 +66,6 @@ class Stock(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.color} - {self.product_type}"
-
 
 
 class StockItem(models.Model):
@@ -142,7 +138,7 @@ def update_inventory(add_stock_item):
         # Handle exceptions, log errors, and return False to indicate failure
         print(f"Error updating inventory: {str(e)}")
         return False
-
+    
 
 ###################     Production Models     #####################
 class Production(models.Model):

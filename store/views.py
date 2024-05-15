@@ -5,14 +5,19 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import CapForm, PreformForm, CustomerForm, SupplierForm, StockItemForm
 from django.utils import timezone
+import datetime
 from django.http import HttpResponse
 from django.db import transaction
 from django.db.models import F, Sum
 from django.contrib.auth.models import User
 from .notification import notify_stock_threshold
-
+from django.http import HttpResponseBadRequest
 from datetime import datetime
 from django.middleware.csrf import rotate_token
+from datetime import datetime
+from django.urls import reverse
+from decimal import Decimal
+
 ###############     Create your views here    ###############
 
 @login_required
@@ -26,6 +31,15 @@ def home(request):
     total_purchase_amount = StockItem.objects.aggregate(total_amount=Sum('total'))['total_amount'] or 0
     return render(request, ('base/home.html'), {'notifications': notifications, 'stock_item': stock_items,'stock_count':stock_count, 'total_sales_amount':total_sales_amount,'total_purchase_amount':total_purchase_amount,'unread_notifications_count':unread_notifications_count})
 
+
+
+def csrf_failure_view(request, reason=""):
+    # You can customize this view to render a custom template or redirect users
+    return render(request, 'base/login.html', {'reason': reason})
+
+
+def error_page(request):
+    return render(request, 'base/test.html', {'user': request.user})
 
 def user_login(request):
     if request.method == 'POST':
@@ -478,11 +492,7 @@ def settings(request):
     unread_notifications_count = notifications.filter(is_read=False).count()
     return render(request, 'settings/index.html',{'unread_notifications_count':unread_notifications_count})
 
-# @login_required
-# def products(request):
-#     preform_type = Preform_type.objects.all()
-#     cap = Cap.objects.all()
-#     return render(request, 'settings/product.html',{'preform_type':preform_type,'cap':cap})
+
 
 @login_required
 def products(request):
@@ -543,6 +553,7 @@ def ticket_form(request):
     stocks = Stock.objects.all()
     return render(request, 'settings/ticket.html', {'stocks': stocks})
 
+@login_required
 def ticket_update(request, stock_id):
     stock = get_object_or_404(Stock, id=stock_id)
     
@@ -590,3 +601,179 @@ def ticket_update(request, stock_id):
         return redirect('ticket_update', stock_id=stock.id)
    
     return redirect('stock_list')
+
+@login_required
+def search_view(request):
+    if request.method == 'GET':
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        option = request.GET.get('option')
+
+        # Validate start_date and end_date
+        if start_date is None or end_date is None:
+            # Handle the case when start_date or end_date is not provided
+            return render(request, 'settings/reports.html', {'error_message': 'Please provide both start date and end date'})
+
+        # Extract only the date part from the start date parameter
+        start_date = datetime.strptime(start_date.split()[0], '%Y-%m-%d')
+        end_date = datetime.strptime(end_date.split()[0], '%Y-%m-%d')
+
+        # Initialize queryset
+        queryset = None
+
+        # Filter data based on the selected option
+        if option == 'sales':
+            # Redirect to sales_report view
+            url = reverse('sales_report') + f'?queryset=sales&start_date={start_date}&end_date={end_date}'
+            return redirect(url)
+        elif option == 'purchases':
+            # Redirect to purchases_report view
+            url = reverse('purchase_report') + f'?queryset=purchases&start_date={start_date}&end_date={end_date}'
+            return redirect(url)
+        elif option == 'tickets':
+            # Redirect to tickets_report view
+            return redirect('tickets_report', start_date=start_date, end_date=end_date)
+        elif option == 'production':
+            # Redirect to production_report view with queryset as query parameter
+            url = reverse('production_report') + f'?queryset=production&start_date={start_date}&end_date={end_date}'
+            return redirect(url)
+        else:
+            # Handle invalid option
+            return render(request, 'settings/reports.html', {'error_message': 'Invalid option selected'})
+
+    else:
+        return render(request, 'settings/reports.html')
+
+  
+@login_required
+def production_report(request):
+    if request.method == 'GET':
+        # Retrieve parameters from the URL
+        queryset = request.GET.get('queryset')
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+
+        # Remove time part from the date strings
+        start_date_str = start_date_str.split()[0]
+        end_date_str = end_date_str.split()[0]
+
+        # Convert start_date and end_date strings to datetime objects
+        start_date = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
+        end_date = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'))
+
+        # Retrieve production records based on the specified date range
+        production_records = Production.objects.filter(created_at__range=[start_date, end_date])
+
+        # Calculate totals for each production summary item
+        total_good_bottles = production_records.aggregate(Sum('good_bottle'))['good_bottle__sum']  
+        total_preforms_used = production_records.aggregate(Sum('product_quantity'))['product_quantity__sum']
+        total_damaged_preforms = production_records.aggregate(Sum('damages'))['damages__sum']
+        total_waste_bottles = production_records.aggregate(Sum('waste_bottle'))['waste_bottle__sum']
+
+        # Render the production report template with the retrieved data
+        return render(request, 'settings/production_report.html', {'queryset': queryset, 'start_date': start_date, 'end_date': end_date, 'production_records': production_records, 'total_good_bottles': total_good_bottles, 'total_preforms_used': total_preforms_used, 'total_damaged_preforms': total_damaged_preforms,'total_waste_bottles': total_waste_bottles,})
+
+
+@login_required
+def sales_report(request):
+    if request.method == 'GET':
+        # Retrieve parameters from the URL
+        queryset = request.GET.get('queryset')
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+
+        # Remove time part from the date strings
+        start_date_str = start_date_str.split()[0]
+        end_date_str = end_date_str.split()[0]
+
+        # Convert start_date and end_date strings to datetime objects
+        start_date = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
+        end_date = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'))
+
+        # Retrieve production records based on the specified date range
+        sales_records = Sales.objects.filter(created_at__range=[start_date, end_date])
+
+        # Initialize variables to hold aggregate values
+        bottles_sold = Decimal(0)
+        preforms_sold = Decimal(0)
+        shrinkwrappers_sold = Decimal(0)
+        caps_sold = Decimal(0)
+        bottles_total = Decimal(0)
+        preforms_total = Decimal(0)
+        shrinkwrappers_total = Decimal(0)
+        caps_total = Decimal(0)
+
+        # Calculate total quantities sold for each product type
+        bottles_sold = sales_records.filter(product__name='Bottle').aggregate(total_sold=Sum('quantity'))['total_sold'] or Decimal(0)
+        preforms_sold = sales_records.filter(product__name='Preform').aggregate(total_sold=Sum('quantity'))['total_sold'] or Decimal(0)
+        shrinkwrappers_sold = sales_records.filter(product__name='Shrinkwrapper').aggregate(total_sold=Sum('quantity'))['total_sold'] or Decimal(0)
+        caps_sold = sales_records.filter(product__name='Cap').aggregate(total_sold=Sum('quantity'))['total_sold'] or Decimal(0)
+
+        # Calculate the sum of all totals
+        total_quantity_sold = bottles_sold + preforms_sold + shrinkwrappers_sold + caps_sold
+
+        # Calculate total quantities sold for each product type
+        bottles_total = sales_records.filter(product__name='Bottle').aggregate(total_sold=Sum('total'))['total_sold'] or Decimal(0)
+        preforms_total = sales_records.filter(product__name='Preform').aggregate(total_sold=Sum('total'))['total_sold'] or Decimal(0)
+        shrinkwrappers_total = sales_records.filter(product__name='Shrinkwrapper').aggregate(total_sold=Sum('total'))['total_sold'] or Decimal(0)
+        caps_total = sales_records.filter(product__name='Cap').aggregate(total_sold=Sum('total'))['total_sold'] or Decimal(0)
+
+        # Calculate the sum of all totals
+        total_stk = bottles_total + preforms_total + shrinkwrappers_total + caps_total
+
+        # Render the production report template with the retrieved data
+        return render(request, 'settings/sale_report.html', {
+            'queryset': queryset,
+            'start_date': start_date,
+            'end_date': end_date,
+            'sales_records': sales_records,
+            'caps_total': caps_total,
+            'preforms_total': preforms_total,
+            'bottles_total': bottles_total,
+            'shrinkwrappers_total': shrinkwrappers_total,
+            'total_stk': total_stk,
+            'bottles_sold': bottles_sold,
+            'preforms_sold': preforms_sold,
+            'shrinkwrappers_sold': shrinkwrappers_sold,
+            'caps_sold': caps_sold,
+            'total_quantity_sold': total_quantity_sold
+        })
+    
+
+@login_required
+def purchase_report(request):
+    if request.method == 'GET':
+        # Retrieve parameters from the URL
+        queryset = request.GET.get('queryset')
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+
+        # Remove time part from the date strings
+        start_date_str = start_date_str.split()[0]
+        end_date_str = end_date_str.split()[0]
+
+        # Convert start_date and end_date strings to datetime objects
+        start_date = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
+        end_date = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'))
+
+        # Retrieve production records based on the specified date range
+        purchase_records = StockItem.objects.filter(created_at__range=[start_date, end_date])
+
+     
+
+        # Calculate totals for each production summary item
+        total = purchase_records.aggregate(Sum('total'))['total__sum']  
+        # total_preforms_used = purchase_records.aggregate(Sum('preform'))['preform__sum']
+        # total_damaged_preforms = purchase_records.aggregate(Sum('caps'))['caps__sum']
+        # total_waste_bottles = purchase_records.aggregate(Sum('shrinkwrapper'))['shrinkwrapper__sum']
+
+        # Render the production report template with the retrieved data
+        return render(request, 'settings/purchase_report.html', {
+            'queryset': queryset,
+            'start_date': start_date,
+            'end_date': end_date,
+            'purchase_records': purchase_records,
+            'total':total
+        })
+    
+
