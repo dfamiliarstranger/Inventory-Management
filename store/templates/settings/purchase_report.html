@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Report</title>
+    <title>Purchase Report</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -64,19 +64,19 @@
                                 <div class="production-summary">    
                                     <div class="box">
                                         
-                                        <h5>Shrinkwrappers Total:  &#x20A6; {{shrinkwrappers}}</h5>
+                                        <h5>Shrinkwrappers Total:  &#x20A6; {{total_shrinkwrapper}}</h5>
                                     </div>
                                     
                                     <div class="box">
-                                        <h5>Caps Total: &#x20A6; {{caps}}</h5>
+                                        <h5>Caps Total: &#x20A6; {{ total_cap}}</h5>
                                     </div>
                                     
                                     <div class="box">
-                                        <h5>Sold Stock Total: &#x20A6; {{preform}}</h5>
+                                        <h5>Preform Total: &#x20A6; {{total_preform}}</h5>
                                     </div>
 
                                     <div class="box">
-                                        <h5>Sold Stock Quantity: &#x20A6; {{total}}</h5>
+                                        <h5>Purchases Total &#x20A6; {{total}}</h5>
                                     </div>
                                 </div>     
                             </div>
@@ -89,9 +89,9 @@
                                                 <th class="fw-bold">Product</th>
                                                 <th class="fw-bold">Product type</th>
                                                 <th class="fw-bold">Product size</th>
-                                                <th class="fw-bold">Price</th>
+                                                <th class="fw-bold">Price (&#x20A6;)</th>
                                                 <th class="fw-bold">Quantity</th>
-                                                <th class="fw-bold">Total</th>
+                                                <th class="fw-bold">Total (&#x20A6;)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -120,13 +120,13 @@
                                                         N/A
                                                         {% endif %}
                                                     </td>
-                                                    <td>&#x20A6; {{ purchase_records.price }}</td>
+                                                    <td> {{ purchase_records.price }}</td>
                                                     <td>{{ purchase_records.quantity }}</td>
                                                     
-                                                    <td>&#x20A6; {{ purchase_records.total }}</td>
+                                                    <td> {{ purchase_records.total }}</td>
                                                 </tr>
                                                 
-                                            </td>
+                                            
                                             {% endfor %}
                                         </tbody>
                                     </table>

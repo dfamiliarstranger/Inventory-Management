@@ -13,8 +13,6 @@ urlpatterns = [
         path('cap/add/', views.create_cap, name="create_cap"),
 
         # Preform Product URLS
-        path('preform/', views.preform, name="preform"),
-        path('preform/add', views.create_preform, name="create_preform"),
         path('preform_type', views.preform_type, name="preform_type"),
 
         # Supplier Client URLS
@@ -41,6 +39,7 @@ urlpatterns = [
         #Notification
         path('notify/', views.show_notification, name="notify"),
         path('clear-notifications/', views.clear_notifications, name='clear_notifications'),
+        path('delete-notification/<int:notification_id>/', views.delete_notification, name='delete_notification'),
 
         #Invoice
         path('invoice/', views.invoice, name="invoice"),
@@ -59,14 +58,13 @@ urlpatterns = [
         path('ticket/', views.ticket_form, name='ticket_form'),
         path('ticket/<int:stock_id>/', views.ticket_update, name='ticket_update'),
 
-        
-
         path('error/', views.error_page, name='error_page'),
 
         path('report/', views.search_view, name='report'),
         path('production_report/', views.production_report, name='production_report'),
         path('sales_report/', views.sales_report, name='sales_report'),
         path('purchase_report/', views.purchase_report, name='purchase_report'),
+        path('ticket_report/', views.ticket_report, name='ticket_report'),
        
 ]
 

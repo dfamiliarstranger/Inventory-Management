@@ -3,7 +3,20 @@
 {% block body %}
 
 <!-- MAIN -->
-
+<style>
+  .delete-button {
+    background: none;
+    border: none; /* Remove border */
+    cursor: pointer;
+    padding: 0;
+    margin: 0;}
+    
+  .delete-icon {
+    font-size: 24px; /* Adjust the font size as needed */
+    color: #FF0000; /* Change color if needed */
+    /* Add more styling properties as needed */
+}
+</style>
   <div class="head-title">
     <div class="left">
       <h1>Dashboard</h1>
@@ -108,7 +121,12 @@
             <li class="completed" style="display: flex;flex-direction: column; align-items: flex-start; margin-bottom: 10px;" >
               <p>{{ notification.timestamp }}</p>
               <p>{{ notification.message }}</p>
-              <i class='bx bx-dots-vertical-rounded' ></i>
+              <form action="{% url 'delete_notification' notification.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="delete-button">
+                    <i class='bx bx-trash delete-icon'></i> <!-- Replace 'bx-trash' with the desired trash icon from Boxicons -->
+                </button>
+              </form>
             </li>
           </a>
         {% endfor %}

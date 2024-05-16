@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Cap, Color ,Preform, Preform_type, Supplier, Ticket_Records, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification
+from .models import Cap, Color , Preform_type, Supplier, Ticket_Records, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib import messages
-from .forms import CapForm, PreformForm, CustomerForm, SupplierForm, StockItemForm
+from .forms import CapForm,CustomerForm, SupplierForm, StockItemForm
 from django.utils import timezone
 import datetime
 from django.http import HttpResponse
@@ -84,29 +84,13 @@ def create_cap(request):
         form = CapForm()
     return render(request, 'products/cap/form.html', {'form':form})
 
-@login_required
-def preform(request):
-    preform = Preform.objects.all()
-    return render(request, ('products/preform/index.html'), {'preforms':preform})
 
 @login_required
 def preform_type(request):
     preform_type = Preform_type.objects.all()
     return render(request, ('products/cap/index.html'), {'preform_types':preform_type})
 
-@login_required
-def create_preform(request):
-    if request.method == "POST":
-        form = PreformForm(request.POST)
-        if form.is_valid():
-           form.save()
-           return redirect('preform')
-        else:
-            return redirect('create_preform')
-    else:
-        form = PreformForm()
-        preform_type = Preform_type.objects.all()
-    return render(request, 'products/preform/form.html', {'form':form, 'preform_types':preform_type})
+
 
             ############       Create Clients Views         ############   
 @login_required
@@ -267,6 +251,7 @@ def production(request):
         good_bottle = request.POST.get('good_bottle')
         bottle_size = request.POST.get('bottle_size')
         bottle_color_id = request.POST.get('color')
+        bottle_unit = request.POST.get('bottle_unit')
         
         try:
             bottle_color = Color.objects.get(pk=bottle_color_id)
@@ -317,16 +302,20 @@ def production(request):
                     good_bottle=good_bottle,
                     bottle_size=bottle_size,
                     bottle_color=bottle_color,
-                    
+                    bottle_unit=bottle_unit
                 )
 
-                # Create Bottle Stock
+                 # Create or increment Bottle Stock
                 bottle_stock, created = Stock.objects.get_or_create(
                     name='Bottle',
                     color=bottle_color,
-                    unit=good_bottle,
                     bottle_type=bottle_size,
+                    product_type=bottle_unit,
+                    defaults={'unit': good_bottle}  # Set default unit if creating new
                 )
+                if not created:
+                    # Increment the quantity if the stock already exists
+                    Stock.objects.filter(pk=bottle_stock.pk).update(unit=F('unit') + good_bottle)
 
                 messages.success(request, 'Production record created successfully.')
                 return redirect('record')
@@ -430,6 +419,13 @@ def show_notification(request):
     notifications = Notification.objects.filter(recipient=request.user).order_by('-timestamp')
     unread_notifications_count = notifications.filter(is_read=False).count()
     return render(request, 'notification/index.html', {'notifications': notifications, 'unread_notifications_count': unread_notifications_count})
+
+
+@login_required
+def delete_notification(request, notification_id):
+    notification = get_object_or_404(Notification, pk=notification_id)
+    notification.delete()
+    return redirect('notify')
 
 @login_required
 def clear_notifications(request):
@@ -632,7 +628,8 @@ def search_view(request):
             return redirect(url)
         elif option == 'tickets':
             # Redirect to tickets_report view
-            return redirect('tickets_report', start_date=start_date, end_date=end_date)
+            url = reverse('ticket_report') + f'?queryset=production&start_date={start_date}&end_date={end_date}'
+            return redirect(url)
         elif option == 'production':
             # Redirect to production_report view with queryset as query parameter
             url = reverse('production_report') + f'?queryset=production&start_date={start_date}&end_date={end_date}'
@@ -759,21 +756,57 @@ def purchase_report(request):
         # Retrieve production records based on the specified date range
         purchase_records = StockItem.objects.filter(created_at__range=[start_date, end_date])
 
-     
+         # Filter records for products 'preform', 'cap', and 'shrinkwrapper'
+        preform_records = purchase_records.filter(name='Preform')
+        cap_records = purchase_records.filter(name='Cap')
+        shrinkwrapper_records = purchase_records.filter(name='Shrinkwrapper')
+
+        # Calculate totals for each product category
+        total_preform = preform_records.aggregate(Sum('total'))['total__sum'] or 0
+        total_cap = cap_records.aggregate(Sum('total'))['total__sum'] or 0
+        total_shrinkwrapper = shrinkwrapper_records.aggregate(Sum('total'))['total__sum'] or 0
 
         # Calculate totals for each production summary item
         total = purchase_records.aggregate(Sum('total'))['total__sum']  
-        # total_preforms_used = purchase_records.aggregate(Sum('preform'))['preform__sum']
-        # total_damaged_preforms = purchase_records.aggregate(Sum('caps'))['caps__sum']
-        # total_waste_bottles = purchase_records.aggregate(Sum('shrinkwrapper'))['shrinkwrapper__sum']
+        
 
         # Render the production report template with the retrieved data
         return render(request, 'settings/purchase_report.html', {
             'queryset': queryset,
             'start_date': start_date,
             'end_date': end_date,
+            'total_preform':total_preform,
+            'total_cap':total_cap,
+            'total_shrinkwrapper':total_shrinkwrapper,
             'purchase_records': purchase_records,
             'total':total
         })
-    
 
+@login_required
+def ticket_report(request):
+    if request.method == 'GET':
+        # Retrieve parameters from the URL
+        queryset = request.GET.get('queryset')
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+
+        # Remove time part from the date strings
+        start_date_str = start_date_str.split()[0]
+        end_date_str = end_date_str.split()[0]
+
+        # Convert start_date and end_date strings to datetime objects
+        start_date = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
+        end_date = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'))
+
+        # Retrieve production records based on the specified date range
+        ticket_records = Ticket_Records.objects.filter(created_at__range=[start_date, end_date])
+
+        # Render the production report template with the retrieved data
+        return render(request, 'settings/ticket_report.html', {
+            'queryset': queryset,
+            'start_date': start_date,
+            'end_date': end_date,
+            'ticket_records': ticket_records,
+            
+        })
+    

@@ -20,10 +20,6 @@ class Preform_type(models.Model):
 
     def __str__(self):
         return f"{self.name} {self.size}"
-        
-class Preform(models.Model):
-    name = models.CharField(max_length=30, default='Preform', editable=False)
-    product_type = models.ForeignKey(Preform_type, on_delete=models.CASCADE)
     
 
             #################   Clients Table     ################
@@ -56,13 +52,13 @@ class Color(models.Model):
 class Stock(models.Model):
     name = models.CharField(max_length=100, null=True)
     color = models.CharField(max_length=50, null=True, blank=True)
-    cap_type = models.ForeignKey(Cap, on_delete=models.CASCADE, null=True, blank=True)
+    cap_type = models.ForeignKey(Cap, on_delete=models.SET_NULL, null=True, blank=True)
     product_type = models.CharField(max_length=20, null=True, blank=True)
     bottle_type = models.CharField(max_length=20, null=True, blank=True)
-    preform_type = models.ForeignKey(Preform_type, on_delete=models.CASCADE, null=True, blank=True)
-    notification_sent = models.BooleanField(default=False)
+    preform_type = models.ForeignKey(Preform_type, on_delete=models.SET_NULL, null=True, blank=True)
     unit = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    notification_sent = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} - {self.color} - {self.product_type}"
@@ -70,15 +66,15 @@ class Stock(models.Model):
 
 class StockItem(models.Model):
     name = models.CharField(max_length=20, null=True)
-    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True) 
+    supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True) 
     quantity = models.CharField(max_length=5, null=True, blank=True)
     price = models.IntegerField()
     total = models.DecimalField(max_digits=20, decimal_places=2)
     created_at = models.DateField(null=True, blank=True)
-    cap_type = models.ForeignKey(Cap, on_delete=models.CASCADE, null=True, blank=True)
-    color = models.ForeignKey(Color, on_delete=models.CASCADE, null=True, blank=True)
+    cap_type = models.ForeignKey(Cap, on_delete=models.SET_NULL, null=True, blank=True)
+    color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True)
     product_type = models.CharField(max_length=20, null=True, blank=True)
-    preform_type = models.ForeignKey(Preform_type, on_delete=models.CASCADE, null=True, blank=True)
+    preform_type = models.ForeignKey(Preform_type, on_delete=models.SET_NULL, null=True, blank=True)
     unit = models.IntegerField(null=True, blank=True)  # New field for unit
 
     def save(self, *args, **kwargs):
@@ -148,14 +144,14 @@ class Production(models.Model):
     waste_bottle = models.IntegerField(null=True, blank=True)
     good_bottle = models.IntegerField()
     bottle_size = models.IntegerField()
-    bottle_color = models.ForeignKey(Color, on_delete=models.CASCADE, null=True, blank=True)
+    bottle_color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateField(null=True, blank=True)
     bottle_unit = models.CharField(max_length=30, null=True, blank=True)
 
-
+ 
 class Sales(models.Model):
     product = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True )  
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)  
     quantity = models.IntegerField()
     price = models.IntegerField()
     total = models.DecimalField(max_digits=20,decimal_places=2)

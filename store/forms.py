@@ -1,5 +1,5 @@
 from django import forms
-from .models import Cap, Preform, Customer, Supplier, StockItem, Production
+from .models import Cap, Customer, Supplier, StockItem, Production
 
 class CapForm(forms.ModelForm):
     class Meta:
@@ -8,10 +8,6 @@ class CapForm(forms.ModelForm):
 
 
 
-class PreformForm(forms.ModelForm):
-    class Meta:
-        model = Preform
-        fields = '__all__'
 
 class SupplierForm(forms.ModelForm):
     class Meta:
