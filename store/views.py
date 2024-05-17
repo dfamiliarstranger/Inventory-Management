@@ -27,8 +27,8 @@ def home(request):
     stock_count = stock_items.count()
     unread_notifications_count = notifications.filter(is_read=False).count()
     # Query for the total sum of all sales amounts
-    total_sales_amount = Sales.objects.aggregate(total_amount=Sum('total'))['total_amount'] or 0
-    total_purchase_amount = StockItem.objects.aggregate(total_amount=Sum('total'))['total_amount'] or 0
+    total_sales_amount = Sales.objects.count()
+    total_purchase_amount = StockItem.objects.count()
     return render(request, ('base/home.html'), {'notifications': notifications, 'stock_item': stock_items,'stock_count':stock_count, 'total_sales_amount':total_sales_amount,'total_purchase_amount':total_purchase_amount,'unread_notifications_count':unread_notifications_count})
 
 
