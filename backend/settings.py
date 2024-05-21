@@ -29,12 +29,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 
-ALLOWED_HOSTS = [
-    'inventory-management-2s5q.onrender.com',  # Add your Render hostname here
-    '*.onrender.com',  # Allow all subdomains of onrender.com
-    '127.0.0.1:8000',
-    '127.0.0.1'
-]
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
