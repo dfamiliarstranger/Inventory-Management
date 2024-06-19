@@ -27,10 +27,11 @@
 		{% endfor %}
 {% endif %} 
 <div class="container mt-5">
-
+  <div>
   <button onclick="showForm('preform')" class="btn btn-primary" id="preformButton">Preform</button>
   <button onclick="showForm('cap')" class="btn btn-primary" id="capButton">Cap</button>
   <button onclick="showForm('shrinkwrapper')" class="btn btn-primary" id="shrinkwrapperButton">Shrinkwrapper</button>
+  <button onclick="showForm('bottle')" class="btn btn-primary" id="bottleButton">Bottle</button>
   </div>
 
   <div id="forms" class="col-md-6 mb-3 mt-5">
@@ -81,7 +82,7 @@
 
         <div class="mb-3">
           <label for="quantity" class="form-label">Quantity</label>
-          <input type="number" class="form-control" name="quantity" id="preform-quantity" placeholder="Product quantity">
+          <input type="number" class="form-control" name="quantity" id="preform-quantity" step="0.01" placeholder="Product quantity">
         </div>
 
         <div class="mb-3">
@@ -123,7 +124,7 @@
           <input type="date" class="form-control" name="created_at" id="created_at" placeholder="created_at" value="created_at">
         </div>
         <div class="form-group">
-          <label for="product_type" class="form-label">Product Type</label>
+          <label for="product_type" class="form-label">Size</label>
           <select name="cap_type" class="form-select" id="cap_type"  required>
             <option value="" selected>Select</option> <!-- Default option -->
             {% for cap in caps %}
@@ -131,6 +132,16 @@
             {% endfor %}
           </select>
         </div>
+
+        <div class="form-group">
+          <label for="cap_name" class="form-label">Product Type</label>
+          <select name="product_type" class="form-select" id="cap_name">
+            <option value="" selected>Select</option> <!-- Default option -->
+            {% for cap_name in cap_name %}
+            <option value="{{ cap_name.name }}">{{ cap_name.name }}</option>
+            {% endfor %}
+          </select>
+      </div>
 
         <div class="form-group">
           <label for="color" class="form-label">Color</label>
@@ -144,7 +155,7 @@
 
         <div class="mb-3">
           <label for="quantity" class="form-label">Quantity</label>
-          <input type="number" class="form-control" id="cap-quantity" name="quantity" placeholder="Product quantity">
+          <input type="number" class="form-control" id="cap-quantity" name="quantity" step="0.01" placeholder="Product quantity">
         </div>
 
         <div class="mb-3">
@@ -220,6 +231,59 @@
 
           <!-- fields as already defined -->
       </form>
+
+
+      <!-- Bottle Form  -->
+
+      <form id="bottle" method="POST" action="{% url 'add_bottle' %}" class="shadow p-3 form-display" style="display:none;">
+        {% csrf_token %}
+
+      <div class="mb-3">
+          <label for="name" class="form-label">Product Name</label>
+          <input type="text" class="form-control" name="name" id="name" placeholder="Product Name" value="bottle" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label for="created_at" class="text form-label">Date</label>
+        <input type="date" class="form-control" name="created_at" id="created_at" placeholder="created_at" value="created_at">
+      </div>
+     
+      <div class="form-group">
+        <label for="color" class="form-label">Color</label>
+        <select name="color" class="form-select" id="color">
+          <option value="" selected>Select</option> <!-- Default option -->
+          {% for color in color %}
+          <option value="{{ color.id }}">{{ color.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="mb-3">
+          <label for="quantity" class="form-label">Pieces</label>
+          <input type="number" class="form-control" name="quantity" id="bottle-quantity" placeholder="Bottle quantity">
+      </div>
+
+      <div class="mb-3">
+          <label for="bottle_size" class="form-label">Size</label>
+          <input type="number" class="form-control" name="bottle_size" id="bottle-quantity" placeholder="Bottle quantity">
+      </div>
+
+      <div class="mb-3">
+        <label for="bottle_unit" class="form-label">Quantity Unit</label>
+        <select class="form-select" id="product_type" name="product_type">
+            <option value="" selected>Select</option>
+            <option value="L">L</option>
+            <option value="CL">CL</option>
+            <option value="ML">ML</option>
+        </select>
+      </div>
+        
+
+      <div class="mb-3">
+          <button type="submit" class="btn btn-primary">Add Item</button>
+      </div>
+
+    </form>
   </div>
 
            
@@ -267,6 +331,7 @@ document.getElementById('cap-price').addEventListener('input', () => calculateTo
 
 document.getElementById('shrinkwrapper-quantity').addEventListener('input', () => calculateTotal('shrinkwrapper-quantity', 'shrinkwrapper-price', 'shrinkwrapper-total'));
 document.getElementById('shrinkwrapper-price').addEventListener('input', () => calculateTotal('shrinkwrapper-quantity', 'shrinkwrapper-price', 'shrinkwrapper-total'));
+
 
 
 

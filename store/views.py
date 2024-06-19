@@ -1,14 +1,19 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Cap, Color , Preform_type, Supplier, Ticket_Records, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification
+from .models import Cap, Color , Preform_type, Supplier, Ticket_Records, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification, Cap_name, Bottle
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib import messages
-from .forms import CapForm,CustomerForm, SupplierForm, StockItemForm
+from .forms import CapForm,CustomerForm, SupplierForm, StockItemForm, StockForm
 from django.utils import timezone
 import datetime
+import json
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.db import transaction
-from django.db.models import F, Sum
+from django.db.models import F, Sum, Count
 from django.contrib.auth.models import User
 from .notification import notify_stock_threshold
 from django.http import HttpResponseBadRequest
@@ -17,21 +22,171 @@ from django.middleware.csrf import rotate_token
 from datetime import datetime
 from django.urls import reverse
 from decimal import Decimal
+from django.db.models.functions import ExtractYear, ExtractMonth
+from calendar import monthrange
 
 ###############     Create your views here    ###############
 
-@login_required
+
+
 def home(request):
     notifications = Notification.objects.order_by('-timestamp').all()
-    stock_items = Stock.objects.all().order_by('-id')
-    stock_count = stock_items.count()
     unread_notifications_count = notifications.filter(is_read=False).count()
-    # Query for the total sum of all sales amounts
-    total_sales_amount = Sales.objects.count()
-    total_purchase_amount = StockItem.objects.count()
-    return render(request, ('base/home.html'), {'notifications': notifications, 'stock_item': stock_items,'stock_count':stock_count, 'total_sales_amount':total_sales_amount,'total_purchase_amount':total_purchase_amount,'unread_notifications_count':unread_notifications_count})
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+
+    # Get month and year from query parameters, or use default values
+    selected_month = request.GET.get('month', current_month)
+    selected_year = request.GET.get('year', current_year)
+
+    # Filter and annotate stock items by the selected month and year
+    preform_stock = (
+        Stock.objects.filter(name='Preform', created_at__month=selected_month, created_at__year=selected_year)
+        .values('name', 'color', 'preform_type__size', 'preform_type__name', 'product_type')
+        .annotate(total_quantity=Sum('quantity'), total_unit=Sum('unit'))
+    )
+
+    caps_stock = (
+        Stock.objects.filter(name='Cap', created_at__month=selected_month, created_at__year=selected_year)
+        .values('name', 'color', 'cap_type__size', 'product_type')
+        .annotate(total_quantity=Sum('quantity'), total_unit=Sum('unit'))
+    )
+
+    shrinkwrappers_stock = (
+        Stock.objects.filter(name='Shrinkwrapper', created_at__month=selected_month, created_at__year=selected_year)
+        .values('name', 'color', 'product_type')
+        .annotate(total_quantity=Sum('quantity'), total_unit=Sum('unit'))
+    )
+
+    bottle_stock = (
+        Stock.objects.filter(name='Bottle', created_at__month=selected_month, created_at__year=selected_year)
+        .values('name', 'color', 'bottle_type', 'product_type')
+        .annotate(total_quantity=Sum('quantity'), total_unit=Sum('unit'))
+    )
 
 
+    total_units_preforms = preform_stock.aggregate(total_units=Sum('total_unit'))['total_units'] or 0
+    total_quantity_preforms = preform_stock.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
+
+    total_units_caps = caps_stock.aggregate(total_units=Sum('total_unit'))['total_units'] or 0
+    total_quantity_caps = caps_stock.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
+
+    total_units_shrinkwrappers = shrinkwrappers_stock.aggregate(total_units=Sum('total_unit'))['total_units'] or 0
+   
+    total_units_bottles = bottle_stock.aggregate(total_units=Sum('total_unit'))['total_units'] or 0
+
+# SALES VIEW
+    
+    # Filter and aggregate sales by product types
+    preform_sales = (
+        Sales.objects.filter(product__name='Preform', created_at__month=selected_month, created_at__year=selected_year)
+        .values('product__name', 'product__preform_type__name', 'product__preform_type__size', 'product__product_type', 'product__color')
+        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
+    )
+
+    caps_sales = (
+        Sales.objects.filter(product__name='Cap', created_at__month=selected_month, created_at__year=selected_year)
+        .values('product__name', 'product__cap_type__size', 'product__product_type', 'product__color')
+        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
+    )
+
+    shrinkwrappers_sales = (
+        Sales.objects.filter(product__name='Shrinkwrapper', created_at__month=selected_month, created_at__year=selected_year)
+        .values('product__name', 'product__product_type')
+        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
+    )
+
+    bottle_sales = (
+        Sales.objects.filter(product__name='Bottle', created_at__month=selected_month, created_at__year=selected_year)
+        .values('product__name', 'product__bottle_type', 'product__product_type', 'product__color')
+        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
+    )
+
+    
+    total_sales_price = preform_sales.aggregate(total_price=Sum('total_price'))['total_price'] or 0
+    total_preforms__quantity = preform_sales.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
+    caps_sales_price = caps_sales.aggregate(total_price=Sum('total_price'))['total_price'] or 0
+    caps_preforms__quantity = caps_sales.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
+    shrinkwrappers_sales_price = shrinkwrappers_sales.aggregate(total_price=Sum('total_price'))['total_price'] or 0
+    shrinkwrappers_preforms__quantity = shrinkwrappers_sales.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
+    bottle_sales_price = bottle_sales.aggregate(total_price=Sum('total_price'))['total_price'] or 0
+    bottle_preforms__quantity = bottle_sales.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
+
+# PURCHASES VIEW
+    
+    # Filter and aggregate sales by product types
+    preform_purchases = (
+        StockItem.objects.filter(name='Preform', created_at__month=selected_month, created_at__year=selected_year)
+        .values('name', 'preform_type__name', 'preform_type__size', 'product_type', 'color__name')
+        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
+    ) 
+    cap_purchases = (
+        StockItem.objects.filter(name='Cap', created_at__month=selected_month, created_at__year=selected_year)
+        .values('name', 'preform_type__name', 'preform_type__size', 'product_type', 'color__name', 'cap_type__size')
+        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
+    ) 
+    shrinkwrappers_purchases = (
+        StockItem.objects.filter(name='Shrinkwrapper', created_at__month=selected_month, created_at__year=selected_year)
+        .values('name', 'preform_type__name', 'preform_type__size', 'product_type', 'color__name')
+        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
+    ) 
+    bottle_purchases = (
+        StockItem.objects.filter(name='Bottle', created_at__month=selected_month, created_at__year=selected_year)
+        .values('name', 'preform_type__name', 'preform_type__size', 'product_type', 'color__name')
+        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('price')))
+    ) 
+    
+    purchase_preforms_quantity = preform_purchases.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
+    purchase_preforms_price = preform_purchases.aggregate(total_price=Sum('total_price'))['total_price'] or 0
+    purchase_caps_quantity = cap_purchases.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
+    purchase_caps_price = cap_purchases.aggregate(total_price=Sum('total_price'))['total_price'] or 0
+    purchase_shrinkwrappers_quantity = shrinkwrappers_purchases.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
+    purchase_shrinkwrappers_price = shrinkwrappers_purchases.aggregate(total_price=Sum('total_price'))['total_price'] or 0
+
+
+
+    context = {
+        'purchase_shrinkwrappers_quantity':purchase_shrinkwrappers_quantity,
+        'purchase_shrinkwrappers_price':purchase_shrinkwrappers_price,
+        'cap_purchases':cap_purchases,
+        'preform_purchases':preform_purchases,
+        'bottle_purchases': bottle_purchases,
+        'shrinkwrappers_purchases':shrinkwrappers_purchases,
+        'purchase_caps_price':purchase_caps_price,
+        'purchase_caps_quantity':purchase_caps_quantity,
+        'purchase_preforms_price':purchase_preforms_price,
+        'purchase_preforms_quantity':purchase_preforms_quantity,
+        'bottle_preforms__quantity':bottle_preforms__quantity,
+        'bottle_sales_price':bottle_sales_price,
+        'shrinkwrappers_preforms__quantity':shrinkwrappers_preforms__quantity,
+        'shrinkwrappers_sales_price':shrinkwrappers_sales_price,
+        'caps_preforms__quantity':caps_preforms__quantity,
+        'caps_sales_price':caps_sales_price,
+        'total_sales_price':total_sales_price,
+        'total_preforms__quantity':total_preforms__quantity,
+        'preform_sales': preform_sales,
+        'caps_sales': caps_sales,
+        'shrinkwrappers_sales': shrinkwrappers_sales,
+        'bottle_sales': bottle_sales,
+        'total_units_preforms':total_units_preforms,
+        'total_quantity_preforms':total_quantity_preforms,
+        'total_units_caps':total_units_caps,
+        'total_quantity_caps':total_quantity_caps,
+        'total_units_shrinkwrappers':total_units_shrinkwrappers,
+        'total_units_bottles':total_units_bottles,
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,
+        'preform_stock': preform_stock,
+        'caps_stock': caps_stock,
+        'shrinkwrappers_stock': shrinkwrappers_stock,
+        'bottle_stock': bottle_stock,
+        'selected_month': int(selected_month),
+        'selected_year': int(selected_year),
+        'months': range(1, 13),
+        'years': range(2020, current_year + 1),
+    }
+    
+    return render(request, 'base/home.html', context)
 
 def csrf_failure_view(request, reason=""):
     # You can customize this view to render a custom template or redirect users
@@ -71,6 +226,21 @@ def cap(request):
     cap = Cap.objects.all()
     return render(request, ('products/cap/index.html'), {'caps':cap})
 
+
+@login_required
+def delete_cap(request, pk):
+    # Retrieve the Cap_name object to be deleted
+    cap = get_object_or_404(Cap, id=pk)
+    
+    if request.method == 'POST':
+        # Delete the Cap_name object
+        cap.delete()
+        # Redirect to the cap_name list page
+        return redirect('product')
+    
+    # Optionally, render a confirmation page
+    return render(request, 'settings/delete_cap.html', {'cap': cap})
+
 @login_required
 def create_cap(request):
     if request.method == "POST":
@@ -91,12 +261,49 @@ def preform_type(request):
     return render(request, ('products/cap/index.html'), {'preform_types':preform_type})
 
 
+@login_required
+def delete_preform_type(request, pk):
+    # Retrieve the Cap_name object to be deleted
+    preform_type = get_object_or_404(Preform_type, id=pk)
+    
+    if request.method == 'POST':
+        # Delete the Cap_name object
+        preform_type.delete()
+        # Redirect to the cap_name list page
+        return redirect('product')
+    
+    # Optionally, render a confirmation page
+    return render(request, 'settings/delete_preform_type.html', {'preform_type': preform_type})
 
             ############       Create Clients Views         ############   
 @login_required
 def supplier(request):
     supplier = Supplier.objects.all()
     return render(request, 'clients/supplier/index.html', {'suppliers':supplier})
+
+
+
+@login_required
+def update_supplier(request, pk):
+    supplier = get_object_or_404(Supplier, pk=pk)
+    if request.method == 'POST':
+        form = SupplierForm(request.POST, instance=supplier)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Supplier updated successfully.')
+            return redirect('supplier')
+    else:
+        form = SupplierForm(instance=supplier)
+    return render(request, 'clients/supplier/update_supplier.html', {'form': form, 'supplier': supplier})
+
+@login_required
+def delete_supplier(request, pk):
+    supplier = get_object_or_404(Supplier, pk=pk)
+    if request.method == 'POST':
+        supplier.delete()
+        messages.success(request, 'Supplier deleted successfully.')
+        return redirect('supplier')
+    return render(request, 'clients/supplier/delete_supplier.html', {'supplier': supplier})
 
 @login_required
 def create_supplier(request):
@@ -132,6 +339,28 @@ def create_customer(request):
         form = CustomerForm()
     return render(request, 'clients/customer/form.html', {'form':form})
 
+@login_required
+def update_customer(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Customer updated successfully.')
+            return redirect('customer')
+    else:
+        form = CustomerForm(instance=customer)
+    return render(request, 'clients/customer/update_customer.html', {'form': form, 'customer': customer})
+
+@login_required
+def delete_customer(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    if request.method == 'POST':
+        customer.delete()
+        messages.success(request, 'Customer deleted successfully.')
+        return redirect('customer')
+    return render(request, 'clients/customer/delete_customer.html', {'customer': customer})
+
 
                     ################    Stock Item    #######################
 @login_required
@@ -140,7 +369,7 @@ def add_stock_item(request):
     preform_type = Preform_type.objects.all()
     cap = Cap.objects.all()
     supplier = Supplier.objects.all()
-   
+    cap_name = Cap_name.objects.all()
     
     if request.method == 'POST':
         form = StockItemForm(request.POST)
@@ -187,13 +416,38 @@ def add_stock_item(request):
             return redirect('add_stock')
     else:
         color = Color.objects.all()
-        return render(request, 'store/add_stock/index.html', {'stock_form': stock_form, 'preform_types': preform_type, 'caps': cap, 'suppliers': supplier, 'color':color})
+        return render(request, 'store/add_stock/index.html', {'stock_form': stock_form, 'preform_types': preform_type, 'caps': cap, 'suppliers': supplier, 'color':color, 'cap_name':cap_name})
+
+@login_required
+def update_stock_item(request, pk):
+    stock_item = get_object_or_404(Stock, pk=pk)
+    if request.method == 'POST':
+        form = StockForm(request.POST, instance=stock_item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Stock item updated successfully.')
+            return redirect('stock_list')
+    else:
+        form = StockItemForm(instance=stock_item)
+    return render(request, 'stock/update_stock.html', {'form': form, 'stock_item': stock_item})
+
+@login_required
+def delete_stock_item(request, pk):
+    stock_item = get_object_or_404(Stock, pk=pk)
+    if request.method == 'POST':
+        stock_item.delete()
+        messages.success(request, 'Stock item deleted successfully.')
+        return redirect('stock_list')
+    return render(request, 'stock/delete_stock.html', {'stock_item': stock_item})
 
 
 @login_required
 def purchase_history(request):
     stock = StockItem.objects.order_by('-created_at')  # Order by the 'created_at' field in descending order
-    return render(request, 'store/add_stock/details.html', {'stock': stock})
+    paginator = Paginator(stock, 10)  # Show 10 records per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'store/add_stock/details.html', {'stock': stock,'page_obj':page_obj})
 
 threshold_values = {
             'Cap': 5000,
@@ -205,7 +459,8 @@ threshold_values = {
 @login_required
 def stock_detail(request):
     # Get all stock items
-    updated_stock_items = Stock.objects.all()
+     
+    updated_stock_items = Stock.objects.order_by('-created_at')
 
     # Iterate through each stock item
     for updated_stock_item in updated_stock_items:
@@ -225,6 +480,10 @@ def stock_detail(request):
             updated_stock_item.notification_sent = True  
             updated_stock_item.save()
 
+    paginator = Paginator(updated_stock_items, 10)  # Show 10 records per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     # Retrieve the updated stock items after deletion
     stock_items = Stock.objects.all().order_by('-id')
     notifications = Notification.objects.all()
@@ -233,7 +492,7 @@ def stock_detail(request):
     # Get the count of stock items
     stock_count = stock_items.count()
 
-    return render(request, 'stock/index.html', {'stock_item': stock_items, 'stock_count': stock_count,'unread_notifications_count':unread_notifications_count})
+    return render(request, 'stock/index.html', {'stock_item': stock_items, 'page_obj':page_obj, 'stock_count': stock_count, 'unread_notifications_count':unread_notifications_count})
 
 
 
@@ -305,6 +564,14 @@ def production(request):
                     bottle_unit=bottle_unit
                 )
 
+                # Create or update Bottle record
+                bottle, created = Bottle.objects.get_or_create(
+                    bottle_unit=bottle_unit,
+                    bottle_size=bottle_size,
+                    bottle_color=bottle_color,
+                    defaults={'quantity': good_bottle, 'created_at': created_at}
+                )
+
                  # Create or increment Bottle Stock
                 bottle_stock, created = Stock.objects.get_or_create(
                     name='Bottle',
@@ -327,20 +594,37 @@ def production(request):
         stock = Stock.objects.all()
         color = Color.objects.all()
         return render(request, 'production/index.html', {'stock': stock, 'color':color})
+    
+
 
 @login_required
 def production_record(request):
-    record = Production.objects.order_by('-created_at') 
+    production_records = Production.objects.order_by('-created_at')
+    paginator = Paginator(production_records, 5)  # Show 10 records per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     notifications = Notification.objects.all()
     unread_notifications_count = notifications.filter(is_read=False).count()
-    return render(request, 'production/summary.html', {'record': record,'unread_notifications_count':unread_notifications_count })
+
+    return render(request, 'production/summary.html', {
+        'page_obj': page_obj,
+        'unread_notifications_count': unread_notifications_count
+    })
+
+
 
 @login_required
 def sales_record(request):
     sales = Sales.objects.all()
+    paginator = Paginator(sales, 10)  # Show 10 records per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     notifications = Notification.objects.all()
     unread_notifications_count = notifications.filter(is_read=False).count()
-    return render(request, 'sales/index.html', {'sales': sales,'unread_notifications_count':unread_notifications_count})
+    return render(request, 'sales/index.html', {'sales': sales, 'page_obj': page_obj, 'unread_notifications_count':unread_notifications_count})
 
 
 @login_required
@@ -373,11 +657,25 @@ def sales_form(request):
                 messages.error(request, 'Insufficient stock quantity.')
                 return redirect('sales_form')
         
+        # Adjust quantity based on product type
+        
+        
         try:
             # Start a database transaction
             with transaction.atomic():
                 # Deduct product quantity used from stock
                 product.unit -= quantity
+                if product.name.lower() == 'preform':
+                    preform_type = product.preform_type
+                    adjusted_quantity = quantity / preform_type.quantity_per_bag
+                    product.quantity = adjusted_quantity
+                elif product.name.lower() == 'cap':
+                    cap_type = product.cap_type
+                    adjusted_quantity = quantity / cap_type.quantity_per_bag
+                    product.quantity = adjusted_quantity
+                else:
+                    product.quantity -= quantity
+
                 product.save()
 
                
@@ -490,6 +788,8 @@ def settings(request):
 
 
 
+
+
 @login_required
 def products(request):
     if request.method == 'POST':
@@ -504,24 +804,45 @@ def products(request):
                     size=preform_size,
                     quantity_per_bag=preform_quantity_per_bag
                 )
-                return redirect('product')
+                messages.success(request, 'Preform added successfully.')
+            else:
+                messages.error(request, 'Please fill in all the fields.')
+
         # Check if the form is for adding a new Cap type
         elif 'add_cap' in request.POST:
-            cap_name = request.POST.get('cap_name')
+            
             cap_size = request.POST.get('cap_size')
             cap_quantity_per_bag = request.POST.get('cap_quantity_per_bag')
-            if cap_name and cap_size and cap_quantity_per_bag:
+            if  cap_size and cap_quantity_per_bag:
                 Cap.objects.create(
-                    name=cap_name,
+                
                     size=cap_size,
                     quantity_per_bag=cap_quantity_per_bag
                 )
-                return redirect('product')
+                messages.success(request, 'Cap added successfully.')
+            else:
+                messages.error(request, 'Please fill in all the fields.')
+
+        # Check if the form is for adding a new Cap type name
+        elif 'add_cap_type' in request.POST:
+            cap_type_name = request.POST.get('cap_type_name')
+            if cap_type_name:
+                Cap_name.objects.create(name=cap_type_name)
+                messages.success(request, 'Cap type added successfully.')
+            else:
+                messages.error(request, 'Please provide a name.')
+
+        return redirect('product')
 
     preform_type = Preform_type.objects.all()
     cap = Cap.objects.all()
+    cap_name = Cap_name.objects.all()
 
-    return render(request, 'settings/product.html', {'preform_type': preform_type, 'cap': cap})
+    return render(request, 'settings/product.html', {
+        'preform_type': preform_type,
+        'cap': cap,
+        'cap_name': cap_name,
+    })
 
 @login_required
 def color(request):
@@ -809,4 +1130,254 @@ def ticket_report(request):
             'ticket_records': ticket_records,
             
         })
+
+
+def add_bottle(request):
+    if request.method == 'POST':
+        # Get form data
+        
+        created_at = request.POST.get('created_at')
+        name = request.POST.get('name', '')
+        bottle_color = request.POST.get('color', '')
+        good_bottle = request.POST.get('quantity', '')  
+        bottle_unit = request.POST.get('product_type', '') 
+        bottle_size = request.POST.get('bottle_size')
+
+        # Perform input validation for required fields
+        if not bottle_color or not bottle_size or not good_bottle:
+            messages.error(request, 'Please fill all required fields.')
+            return redirect('add_bottle')
+
+        try:
+            bottle_color = Color.objects.get(pk=bottle_color)
+        except Color.DoesNotExist:
+            messages.error(request, 'Invalid color selection.')
+            return redirect('add_bottle')
+
+        try:
+            quantity = int(good_bottle)
+            bottle_size = int(bottle_size)
+            
+        except ValueError:
+            messages.error(request, 'Quantity, bottle size, must be integers.')
+            return redirect('add_bottle')
+
+        # Optional fields handling
+        
+
+        try:
+            # Start a database transaction
+            with transaction.atomic():
+                # Create or increment Bottle Stock
+                bottle_stock, created = Stock.objects.get_or_create(
+                    name='Bottle',
+                    color=bottle_color,
+                    bottle_type=bottle_size,
+                    product_type=bottle_unit,
+                    quantity=good_bottle,
+                    unit=good_bottle,
+                    defaults={'created_at': created_at, }  # Set default unit if creating new
+                )
+                if not created:
+                    # Increment the quantity if the stock already exists
+                    Stock.objects.filter(pk=bottle_stock.pk).update(unit=quantity + quantity)
+
+                # Create StockItem entry
+                stock_item = StockItem.objects.create(
+                    name='Bottle',
+                    price=bottle_size,
+                    quantity=str(quantity),
+                    created_at=created_at,
+                
+                    color=bottle_color,
+                    product_type=bottle_unit,
+                   
+                    unit=quantity
+                )
+
+                # Update inventory
+                update_inventory(stock_item)
+
+                messages.success(request, 'Bottle stock updated successfully.')
+                return redirect('stock')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('add_stock')
+
+    else:
+        color = Color.objects.all()
+        
+        return render(request, 'store/add_stock/index.html', {
+            'color': color,
+           
+        })
     
+
+@login_required
+def remove_stock_item(request, item_id):
+    # Get the stock item to be removed
+    stock_item = get_object_or_404(StockItem, id=item_id)
+    preform_type = Preform_type.objects.all()
+    cap = Cap.objects.all()
+    supplier = Supplier.objects.all()
+    
+    if request.method == 'POST':
+        # Remove the stock item
+        try:
+            remove_from_inventory(stock_item)
+            stock_item.delete()
+            messages.success(request, 'Stock removed successfully.')
+            return redirect('stock')
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
+            return redirect('remove_stock', item_id=item_id)
+    else:
+        color = Color.objects.all()
+        stock_form = StockItemForm(instance=stock_item)
+        return render(request, 'settings/reverse_prompt.html', {'stock_form': stock_form, 'preform_types': preform_type, 'caps': cap, 'suppliers': supplier, 'color': color, 'stock_item': stock_item})
+
+def remove_from_inventory(stock_item):
+    try:
+        with transaction.atomic():
+            inventory_item = Stock.objects.filter(
+                name=stock_item.name,
+                color=stock_item.color,
+                product_type=stock_item.product_type,
+                cap_type=stock_item.cap_type,
+                preform_type=stock_item.preform_type,
+            ).first()
+
+            if inventory_item:
+                # Update quantity and unit
+                inventory_item.quantity = Decimal(inventory_item.quantity) - Decimal(stock_item.quantity)
+                inventory_item.unit = Decimal(inventory_item.unit) - Decimal(stock_item.unit)
+                
+                if inventory_item.unit < 0:
+                    raise ValueError("Insufficient stock item")
+                elif inventory_item.unit == 0:
+                    inventory_item.delete()
+                else:
+                    inventory_item.save()
+            else:
+                raise ValueError("Inventory item does not exist.")
+    except Exception as e:
+        # Handle exceptions
+        print(f"An error occurred: {e}")
+        raise
+
+
+@login_required
+def reverse_sale(request, sale_id):
+    # Get the sale to be reversed
+    sale = get_object_or_404(Sales, id=sale_id)
+    stock_item = sale.product
+
+    if request.method == 'POST':
+        # Reverse the sale
+        try:
+            reverse_sale_transaction(sale, stock_item)
+            sale.delete()
+            messages.success(request, 'Sale reversed successfully.')
+            return redirect('sales_record')
+        except Exception as e:
+            messages.error(request, f"An error occurred: {e}")
+            return redirect('reverse_sale', sale_id=sale_id)
+    else:
+        stock_form = StockItemForm(instance=stock_item)
+        return render(request, 'settings/reverse_sales.html', {'sale': sale, 'stock_form': stock_form, 'stock_item': stock_item})
+
+def reverse_sale_transaction(sale, stock_item):
+    try:
+        with transaction.atomic():
+            # Update inventory to reflect reversal
+            stock_item.unit = Decimal(stock_item.unit) + Decimal(sale.quantity)
+            stock_item.save()
+    except Exception as e:
+        # Handle exceptions
+        print(f"An error occurred: {e}")
+        raise
+
+
+
+@login_required
+def reverse_production(request, production_id):
+    try:
+        production_instance = Production.objects.get(pk=production_id)
+    except Production.DoesNotExist:
+        messages.error(request, 'Production record not found.')
+        return redirect('record')
+
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                # Revert the stock deduction
+                product = production_instance.product
+                product.unit += production_instance.product_quantity
+                product.save()
+
+                # Revert the bottle stock increment
+                try:
+                    bottle_stock = Stock.objects.get(
+                        name='Bottle',
+                        color=production_instance.bottle_color,
+                        bottle_type=production_instance.bottle_size,
+                        product_type=production_instance.bottle_unit
+                    )
+                except Stock.DoesNotExist:
+                    messages.error(request, 'Corresponding bottle stock not found.')
+                    return redirect('record')
+
+                bottle_stock.unit -= production_instance.good_bottle
+                if bottle_stock.unit < 0:
+                    messages.error(request, 'Bottle stock cannot be negative.')
+                    return redirect('record')
+                bottle_stock.save()
+
+                # Delete the production record
+                production_instance.delete()
+
+                messages.success(request, 'Production record reversed successfully.')
+                return redirect('record')
+
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('record')
+
+    else:
+        return render(request, 'settings/reverse_production.html', {'production': production_instance})
+    
+
+@login_required
+def cap_name(request):
+    if request.method == 'POST':
+        # Get the color name from the form data
+        cap_name = request.POST.get('name')
+
+        # Check if the color name is not empty
+        if cap_name:
+            # Create a new Color object and save it to the database
+            Color.objects.create(name=cap_name)
+            # Redirect to the same page after adding color
+            return redirect('cap_name')
+
+    # Retrieve all colors from the database
+    cap_name = Cap_name.objects.all()
+    
+    # Render the template with the list of colors
+    return render(request, 'color/index.html', {'cap_name': cap_name})
+
+
+@login_required
+def delete_cap_name(request, pk):
+    # Retrieve the Cap_name object to be deleted
+    cap_name = get_object_or_404(Cap_name, id=pk)
+    
+    if request.method == 'POST':
+        # Delete the Cap_name object
+        cap_name.delete()
+        # Redirect to the cap_name list page
+        return redirect('product')
+    
+    # Optionally, render a confirmation page
+    return render(request, 'settings/delete_cap_name.html', {'cap_name': cap_name})
+       

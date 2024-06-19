@@ -1,0 +1,54 @@
+{% extends "stock/base.html" %}
+
+{% block body %}
+<style>
+    .container{
+        background: white;
+        padding: 30px;
+    }
+
+    h2{
+        color: #0D6EFD;
+    }
+</style>
+<div class="container mt-5">
+    <h2 class="mb-4" >Update Stock Item</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+        </div>
+        <div class="mb-3">
+            {{ form.color.label_tag }}
+            {{ form.color }}
+        </div>
+        <div class="mb-3">
+            {{ form.cap_type.label_tag }}
+            {{ form.cap_type }}
+        </div>
+        <div class="mb-3">
+            {{ form.product_type.label_tag }}
+            {{ form.product_type }}
+        </div>
+        <div class="mb-3">
+            {{ form.bottle_type.label_tag }}
+            {{ form.bottle_type }}
+        </div>
+        <div class="mb-3">
+            {{ form.preform_type.label_tag }}
+            {{ form.preform_type }}
+        </div>
+        <div class="mb-3">
+            {{ form.unit.label_tag }}
+            {{ form.unit }}
+        </div>
+        <div class="mb-3">
+            {{ form.quantity.label_tag }}
+            {{ form.quantity }}
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+<!-- store/remove_stock/index.html -->
+{% extends 'settings/base.html' %}
+{% block body %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    {{message}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endfor %}
+{% endif %}
+  <h2>Remove Stock Item</h2>
+  <p>Are you sure you want to remove the stock item: {{ stock_item.name }}?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Remove</button>
+    <a href="{% url 'stock' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

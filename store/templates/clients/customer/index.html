@@ -70,6 +70,8 @@
             <th>Name</th>
             <th>Phone Number</th>
             <th>Email</th>
+            <th>Update</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -78,6 +80,16 @@
                         <td>{{customer.name}}</td>
                                 <td>{{customer.phone_number}}</td>
                                     <td>{{customer.email}}</td>
+                                    <td>
+                                      <a href="{% url 'update_customer' customer.pk %}" class="update-customer">
+                                          <i class='bx bx-edit' style="font-size: 1.5em;"></i>
+                                      </a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'delete_customer' customer.pk %}" class="delete-customer">
+                                            <i class='bx bx-trash' style="font-size: 1.5em; color: red;"></i>
+                                        </a>
+                                    </td>
             </tr>
             
             {% endfor %}

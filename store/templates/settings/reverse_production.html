@@ -1,0 +1,21 @@
+{% extends "settings/base.html" %}
+{% block body %}
+    <h1>Reverse Production</h1>
+    <p>Are you sure you want to reverse the following production record?</p>
+    <ul>
+        <li>Created At: {{ production.created_at }}</li>
+        <li>Product: {{ production.product.name }}</li>
+        <li>Quantity: {{ production.product_quantity }}</li>
+        <li>Damages: {{ production.damages }}</li>
+        <li>Waste Bottle: {{ production.waste_bottle }}</li>
+        <li>Good Bottle: {{ production.good_bottle }}</li>
+        <li>Bottle Size: {{ production.bottle_size }}</li>
+        <li>Bottle Color: {{ production.bottle_color.name }}</li>
+        <li>Bottle Unit: {{ production.bottle_unit }}</li>
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Confirm Reversal</button>
+    </form>
+    <a href="{% url 'record' %}">Cancel</a>
+{% endblock %}

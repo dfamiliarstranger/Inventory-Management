@@ -1,0 +1,72 @@
+{% extends "production/base.html" %}
+{% load custom_filters %}
+{% block body %}
+if request.method == 'POST':
+# Get month and year from POST data
+ # Get month and year from POST data and convert to integers
+selected_month = int(request.POST.get('month'))
+selected_year = int(request.POST.get('year'))
+else:
+# Default to current month and year
+current_date = datetime.now()
+selected_month = current_date.month
+selected_year = current_date.year
+
+# Calculate the first and last day of the selected month
+_, last_day = monthrange(selected_year, selected_month)
+first_day_of_month = datetime(selected_year, selected_month, 1)
+last_day_of_month = datetime(selected_year, selected_month, last_day)
+
+# Query Productions for the selected month
+productions = Production.objects.filter(
+created_at__gte=first_day_of_month,
+created_at__lte=last_day_of_month
+).select_related('product', 'bottle_color').prefetch_related('product__preform_type')
+
+# Aggregate production data
+production_summary = {}
+total_good_bottle = 0
+total_waste_bottle = 0
+total_damages = 0
+
+for production in productions:
+product_name = f"{production.product.name} - {production.product.color} - {production.product.product_type}"
+
+# Calculate totals
+total_good_bottle += production.good_bottle
+total_waste_bottle += production.waste_bottle if production.waste_bottle else 0
+total_damages += production.damages if production.damages else 0
+
+# Calculate total quantities per product
+if product_name in production_summary:
+    production_summary[product_name]['total_quantity'] += production.product_quantity
+else:
+    production_summary[product_name] = {
+        'total_quantity': production.product_quantity,
+        'bottle_type': production.product.bottle_type,
+        'color': production.bottle_color.name if production.bottle_color else None,
+        'product_type': production.product.product_type,
+        'preform_type': production.product.preform_type.name if production.product.preform_type else None,
+    }
+
+# Query for stock items
+stock_items = Stock.objects.filter(name='Bottle').values(
+'bottle_type', 'color', 'product_type'
+).annotate(
+total_units=Sum('unit')
+).order_by('bottle_type')
+
+stock_count = stock_items.count()
+
+
+stock_items': stock_items,
+        'stock_count': stock_count,
+        'production_summary': production_summary,
+        'total_good_bottle': total_good_bottle,
+        'total_waste_bottle': total_waste_bottle,
+        'total_damages': total_damages,
+        'selected_month': selected_month,
+        'selected_year': selected_year,
+
+
+{% endblock %}

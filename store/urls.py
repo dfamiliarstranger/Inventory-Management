@@ -65,7 +65,27 @@ urlpatterns = [
         path('sales_report/', views.sales_report, name='sales_report'),
         path('purchase_report/', views.purchase_report, name='purchase_report'),
         path('ticket_report/', views.ticket_report, name='ticket_report'),
-       
+
+        path('bottle/', views.add_bottle, name='add_bottle'),
+        path('remove-stock/<int:item_id>/', views.remove_stock_item, name='remove_stock'),
+        path('reverse_sale/<int:sale_id>/', views.reverse_sale, name='reverse_sale'),
+        path('production/reverse/<int:production_id>/', views.reverse_production, name='reverse_production'),
+
+        path('update_stock/<int:pk>/', views.update_stock_item, name='update_stock'),
+        path('delete_stock/<int:pk>/', views.delete_stock_item, name='delete_stock'),
+
+
+        path('update_supplier/<int:pk>/', views.update_supplier, name='update_supplier'),
+        path('delete_supplier/<int:pk>/', views.delete_supplier, name='delete_supplier'),
+
+
+        path('update_customer/<int:pk>/', views.update_customer, name='update_customer'),
+        path('delete_customer/<int:pk>/', views.delete_customer, name='delete_customer'),
+
+        path('cap_name/delete/<int:pk>/', views.delete_cap_name, name='delete_cap_name'),
+
+        path('cap/delete/<int:pk>/', views.delete_cap, name='delete_cap'),
+        path('preform_type/delete/<int:pk>/', views.delete_preform_type, name='delete_preform_type'),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,52 @@
+{% extends 'settings/base.html' %}
+
+{% block body %}
+<style>
+   
+    .container {
+        text-align: center;
+        background-color: #ffffff; /* White background for the container */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        
+    }
+    .alert {
+        margin-bottom: 20px;
+    }
+    button {
+        background-color: #dc3545; /* Bootstrap danger color */
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    a {
+        text-decoration: none;
+        color: #007bff; /* Bootstrap primary color */
+        margin: 10px;
+    }
+    button:hover, a:hover {
+        opacity: 0.8;
+    }
+</style>
+
+<div class="container">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %} 
+    <h1>Are you sure you want to delete "{{ cap_name.name }}"?</h1>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, delete</button>
+        <a href="{% url 'product' %}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

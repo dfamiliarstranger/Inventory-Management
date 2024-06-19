@@ -6,137 +6,588 @@
 <style>
   .delete-button {
     background: none;
-    border: none; /* Remove border */
+    border: none;
     cursor: pointer;
     padding: 0;
-    margin: 0;}
+    margin: 0;
+  }
     
   .delete-icon {
-    font-size: 24px; /* Adjust the font size as needed */
-    color: #FF0000; /* Change color if needed */
-    /* Add more styling properties as needed */
+    font-size: 24px;
+    color: #FF0000;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  /* Custom styles for tables */
+  table {
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+    padding: 10px 30px;
+  }
+
+  table thead {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: #fff;
+  }
+
+  table th, .data-table td {
+    padding: 10px;
+    text-align: center;
+  }
+
+
+  .box-info .text {
+  padding: 10px;
+  flex-grow: 1;
+}
+
+.box-info .vertical-line {
+  border-right: 1px solid #ddd; /* Change the color as needed */
+}
+
+.box-info .vertical-line:last-child {
+  border-right: none;
 }
 </style>
-  <div class="head-title">
-    <div class="left">
-      <h1>Dashboard</h1>
-      <ul class="breadcrumb">
-        <li>
-          <a href="#">Dashboard</a>
-        </li>
-        <li><i class='bx bx-chevron-right' ></i></li>
-        <li>
-          <a class="active" href="#">Home</a>
-        </li>
-      </ul>
-    </div>
-    <a href="{% url 'home' %}" class="btn-download">
-      <i class='bx bx-right-arrow-circle'></i>
-      <span class="text">Back</span>
-    </a>
+
+<div class="head-title">
+  <div class="left">
+    <h1>Dashboard</h1>
+    <ul class="breadcrumb">
+      <li><a href="#">Dashboard</a></li>
+      <li><i class='bx bx-chevron-right'></i></li>
+      <li><a class="active" href="#">Home</a></li>
+    </ul>
   </div>
-  {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      {{message}}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-  {% endif %} 
-  <ul class="box-info">
+  <a href="{% url 'home' %}" class="btn-download">
+    <i class='bx bx-right-arrow-circle'></i>
+    <span class="text">Back</span>
+  </a>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+{% endif %}
+
+<!-- Month and Year Selection Form -->
+<!-- Month and Year Selection Form -->
+<form method="get" action="" class="row g-3 align-items-center">
+  <div class="col-md-3">
+    <label for="month" class="form-label">Month</label>
+    <select id="month" name="month" class="form-select">
+      {% for month in months %}
+      <option value="{{ month }}" {% if month == selected_month %}selected{% endif %}>{{ month }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-3">
+    <label for="year" class="form-label">Year</label>
+    <select id="year" name="year" class="form-select">
+      {% for year in years %}
+      <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-6 d-flex justify-content-end align-items-end">
+    <button type="submit" class="btn btn-primary me-2">Filter</button>
+    <button type="button" id="stock-button" class="btn btn-secondary me-2" onclick="handleButtonClick('stock')">Stock</button>
+<button type="button" id="sales-button" class="btn btn-secondary me-2" onclick="handleButtonClick('sales')">Sales</button>
+<button type="button" id="purchases-button" class="btn btn-secondary" onclick="handleButtonClick('purchases')">Purchases</button>
+  </div>
+</form>
+
+
+
+<!-- ----   --------  ----------- ----- STOCK DISPLAY----------- ----------  ------    --------    ------  ------>
+<div id="stock-content" class="data-table">
+  <h3 style="font-weight: bold;color: #007BFF; margin-top: 30px;">Stock Summary</h3>
+  <ul class="box-info" style="padding-bottom: 15px;">
     <li>
-      <i class='bx bxs-shopping-bag-alt store' ></i>
-      <span class="text">
-        <h3>Stock</h3>
-        <p>{{ stock_count }}</p>
+      <i class='bx bxs-shopping-bag-alt store'></i>
+      <span class="text vertical-line">
+        <h5>Preform</h5>
+        <p>Total Bags: {{total_quantity_preforms|format_with_commas }}</p>
+        <p>Total Units(pcs): {{total_units_preforms|format_with_commas }}</p>
       </span>
-    </li>
-    <li>
-      <i class='bx bxs-wallet'></i>
-      <span class="text">
-        <h3>Sales</h3>
-        <p> {{total_sales_amount}}</p>
+      <span class="text vertical-line">
+        <h5>Cap</h5>
+        <p>Total Bags: {{total_quantity_caps|format_with_commas }}</p>
+        <p>Total Units(pcs): {{total_units_caps|format_with_commas  }}</p>
       </span>
-    </li>
-    <li>
-      <i class='bx bxs-dollar-circle' ></i>
+      <span class="text vertical-line">
+        <h5>Shrinkwrapper</h5>
+        <p>Total Units: {{total_units_shrinkwrappers|format_with_commas }}</p>
+      </span>
       <span class="text">
-        <h3>Purchases</h3>
-        <p> {{total_purchase_amount}}</p>
+        <h5>Bottle</h5>
+        <p>Total Units(pcs): {{total_units_bottles}}</p>
       </span>
     </li>
   </ul>
 
 
-  <div class="table-data">
-    <div class="order">
-      <div class="head">
-        <h3>Inventory Items</h3>
-        <i class='bx bx-search' ></i>
-        <i class='bx bx-filter' ></i>
-      </div>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Color</th>
-            <th>Product Types</th>
-            <th>Quantity </th> 
-          </tr>
-        </thead>
-        <tbody>
-            {% for stock_item in stock_item|slice:":5" %}
-            <tr>
-                <td>
-                  <p>{{stock_item.name}}</p>
-                </td>
-                <td><p>{{stock_item.color}}</p></td>
-                <td>
-                    {% if stock_item.preform_type %}
-                    {{ stock_item.preform_type.name }}
-                    {% elif stock_item.product_type %}
-                    {{ stock_item.product_type }}
-                    {% else %}
-                    N/A
-                    {% endif %}
-                </td>
-                <td>{{stock_item.unit}}</td>
-              </tr>
-            {% endfor %}
-         
-        </tbody>
-      </table>
+  <h5>Preform</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      {% for item in preform_stock %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td> 
+        <td><p>{{ item.name }}</p></td>
+        <td><p>{{ item.color }}</p></td>
+        <td><p>{{ item.preform_type__size }}</p></td>
+        <td><p>{{ item.preform_type__name }}</p></td>
+        <td><p>{{ item.total_quantity }}</p></td>
+        <td><p>{{ item.total_unit|format_with_commas }}</p></td>
+      </tr>
+    
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+  <h5>Caps</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in caps_stock %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td>
+        <td><p>{{ item.name }}</p></td>
+        <td><p>{{ item.color }}</p></td>
+        <td><p>{{ item.cap_type__size }}</p></td>
+        <td><p>{{ item.product_type }}</p></td>
+        
+        <td><p>{{ item.total_quantity }}</p></td>
+        <td><p>{{ item.total_unit|format_with_commas }}</p></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h5>Shrinkwrappers</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in shrinkwrappers_stock %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td>
+        <td><p>{{ item.name }}</p></td>
+       
+        <td><p>{{ item.product_type }}</p></td>
+        <td><p>{{ item.total_quantity }}</p></td>
+        <td><p>{{ item.total_unit|format_with_commas }}</p></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h5>Bottle</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in bottle_stock %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td>
+        <td><p>{{ item.name }}</p></td>
+        <td><p>{{ item.color }}</p></td>
+        <td><p>{{ item.bottle_type }} {{ item.product_type }}</p></td>
+        <td><p>{{ item.total_quantity }}</p></td>
+        <td><p>{{ item.total_unit|format_with_commas }}</p></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<!----  ----  ----------- ------------- STOCK MENU END  ---------------   ---------------     ---->
+
+
+
+<!------------        --------      ----------  SALES MUNU LAYOUT  ------        -----------------             --------  -->
+<div id="sales-content" class="hidden data-table">
+  <h3 style="margin-top: 30px; font-weight: bold;color: #007BFF;">Sales Summary</h3>
+ 
+  
+  <ul class="box-info" style="padding-bottom: 15px;">
+    <li>
+      <i class='bx bxs-wallet store'></i>
+      <span class="text vertical-line">
+        <h5>Preform</h5>
+        <p>Total Sales: &#x20A6;{{total_sales_price|format_with_commas }}</p>
+        <p>Total Units(pcs) sold: {{total_preforms__quantity|format_with_commas }}</p>
+      </span>
+      <span class="text vertical-line">
+        <h5>Cap</h5>
+        <p>Total sales: &#x20A6;{{caps_sales_price|format_with_commas }}</p>
+        <p>Total Units(pcs) Sold: {{caps_preforms__quantity|format_with_commas  }}</p>
+      </span>
+      <span class="text vertical-line">
+        <h5>Shrinkwrapper</h5>
+        <p>Total Sales: &#x20A6;{{shrinkwrappers_sales_price|format_with_commas }}</p>
+        <p>Total Units(pcs) Sold: {{shrinkwrappers_preforms__quantity|format_with_commas  }}</p>
+      </span>
+      <span class="text">
+        <h5>Bottle</h5>
+        <p>Total Sales: &#x20A6;{{bottle_sales_price|format_with_commas }}</p>
+        <p>Total Units(pcs) Sold: {{bottle_preforms__quantity|format_with_commas  }}</p>
+      </span>
+    </li>
+  </ul>
+
+
+  <h5>Preform</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Type</th>
+        <th>Units</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      {% for item in preform_sales %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td> 
+        <td><p>{{ item.product__name }}</p></td>
+        <td><p>{{ item.product__color }}</p></td>
+        <td><p>{{ item.product__preform_type__size }}</p></td>
+        <td><p>{{ item.product__preform_type__name }}</p></td>
+        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
+        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
+      </tr>
+    
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+  <h5>Caps</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in caps_sales %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td>
+        <td><p>{{ item.product__name }}</p></td>
+        <td><p>{{ item.product__color }}</p></td>
+        <td><p>{{ item.product__cap_type__size }}</p></td>
+        <td><p>{{ item.product__product_type }}</p></td>
+        
+        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
+        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h5>Shrinkwrappers</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in shrinkwrappers_sales %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td>
+        <td><p>{{ item.product__name }}</p></td>
+        
+        <td><p>{{ item.product__product_type }}</p></td>
+        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
+        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h5>Bottle</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in bottle_sales %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td>
+        <td><p>{{ item.product__name }}</p></td>
+        <td><p>{{ item.product__color }}</p></td>
+        <td><p>{{ item.product__bottle_type }} {{ item.product__product_type }}</p></td>
+        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
+        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!----  ----  ----------- ------------- SALES MENU END  ---------------   ---------------     ---->
+
+
+<!----  ----  ----------- ------------- PURCHASES MENU  ---------------   ---------------     ---->
+<div id="purchases-content" class="hidden data-table">
+  <h3 style="font-weight: bold;color: #007BFF; margin-top: 30px;">Purchase Summary</h3>
+ 
+  <ul class="box-info" style="padding-bottom: 15px;">
+    <li>
+      <i class='bx bxs-dollar-circle store' ></i>
+      <span class="text vertical-line">
+        <h5>Preform</h5>
+        <p>Total Purchases: &#x20A6; {{purchase_preforms_price|format_with_commas }}</p>
+        <p>Total Units(pcs) Purchased: {{purchase_preforms_quantity|format_with_commas }}</p>
+      </span>
+      <span class="text vertical-line">
+        <h5>Cap</h5>
+        <p>Total Purchases: &#x20A6; {{purchase_caps_price|format_with_commas }}</p>
+        <p>Total Units(pcs) Purchased: {{purchase_caps_quantity|format_with_commas  }}</p>
+      </span>
+      <span class="text vertical-line">
+        <h5>Shrinkwrapper</h5>
+        <p>Total Purchases: &#x20A6; {{purchase_shrinkwrappers_price|format_with_commas }}</p>
+        <p>Total Units(pcs) Purchased: {{purchase_shrinkwrappers_quantity|format_with_commas  }}</p>
+      </span>
+      <span class="text">
+        <h5>Bottle</h5>
+        <p>Total Units(pcs) Purchased: {{bottle_preforms__quantity|format_with_commas  }}</p>
+      </span>
+    </li>
+  </ul>
+
+
+  <h5>Preform</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Type</th>
+        <th>Units</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      {% for item in preform_purchases %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td> 
+        <td><p>{{ item.name }}</p></td>
+        <td><p>{{ item.color__name }}</p></td>
+        <td><p>{{ item.preform_type__size }}</p></td>
+        <td><p>{{ item.preform_type__name }}</p></td>
+        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
+        <td><p>&#x20A6; {{ item.total_price|format_with_commas }}</p></td>
+      </tr>
+    
+      {% endfor %}
+     
+    </tbody>
+  </table>
+
+  <h5>Caps</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cap_purchases %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td>
+        <td><p>{{ item.name }}</p></td>
+        <td><p>{{ item.color__name }}</p></td>
+        <td><p>{{ item.cap_type__size }}</p></td>
+        <td><p>{{ item.product_type }}</p></td>
+        
+        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
+        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h5>Shrinkwrappers</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        
+        <th>Type</th>
+        <th>Quantity</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in shrinkwrappers_purchases %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td>
+        <td><p>{{ item.name }}</p></td>
+        
+        <td><p>{{ item.product_type }}</p></td>
+        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
+        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h5>Bottle</h5>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>S/n</th>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Type</th>
+        <th>Quantity</th>
+       
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in bottle_purchases %}
+      <tr>
+        <td><p>{{ forloop.counter }}</p></td>
+        <td><p>{{ item.name }}</p></td>
+        <td><p>{{ item.color__name }}</p></td>
+        <td><p>{{ item.total_price}} {{ item.product_type }}</p></td>
+        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 
 
-    <div class="todo">
-      <div class="head">
-        <h3>Chats</h3>
-        <i class='bx bx-plus' ></i>
-        <i class='bx bx-filter' ></i>
-      </div>
-      <ul class="todo-list">
-        {% for notification in notifications|slice:":2" %} 
-          <a href="#">
-            <li class="completed" style="display: flex;flex-direction: column; align-items: flex-start; margin-bottom: 10px;" >
-              <p>{{ notification.timestamp }}</p>
-              <p>{{ notification.message }}</p>
-              <form action="{% url 'delete_notification' notification.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="delete-button">
-                    <i class='bx bx-trash delete-icon'></i> <!-- Replace 'bx-trash' with the desired trash icon from Boxicons -->
-                </button>
-              </form>
-            </li>
-          </a>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
+<!----  ----  ----------- ------------- PURCHASES MENU END  ---------------   ---------------     ---->
 
-<!-- MAIN -->
+<script>
+  // Function to initialize the default state
+  function initializeDefaultState() {
+    // Highlight the Stock button by default
+    document.getElementById('stock-button').classList.remove('btn-secondary');
+    document.getElementById('stock-button').classList.add('btn-primary');
 
-    
+    // Show the Stock content by default
+    showContent('stock');
+  }
 
+  function handleButtonClick(contentId) {
+    // Reset all button styles to default
+    document.getElementById('stock-button').classList.remove('btn-primary');
+    document.getElementById('stock-button').classList.add('btn-secondary');
+    document.getElementById('sales-button').classList.remove('btn-primary');
+    document.getElementById('sales-button').classList.add('btn-secondary');
+    document.getElementById('purchases-button').classList.remove('btn-primary');
+    document.getElementById('purchases-button').classList.add('btn-secondary');
+
+    // Highlight the selected button
+    document.getElementById(contentId + '-button').classList.remove('btn-secondary');
+    document.getElementById(contentId + '-button').classList.add('btn-primary');
+
+    // Implement logic to show corresponding content based on selected button
+    showContent(contentId);
+  }
+
+  function showContent(contentId) {
+    // Hide all content divs
+    document.getElementById('stock-content').classList.add('hidden');
+    document.getElementById('sales-content').classList.add('hidden');
+    document.getElementById('purchases-content').classList.add('hidden');
+
+    // Show the selected content div
+    document.getElementById(contentId + '-content').classList.remove('hidden');
+  }
+
+  // Call the initialization function when the page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    initializeDefaultState();
+  });
+</script>
 
 {% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'settings/base.html' %}
+
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="container mt-4">
+    <h3 class="mb-4">Are you sure you want to delete?</h3>
+    <h5> Cap Size: {{ cap.size }} </h5>
+    <h5>Cap unit: {{ cap.quantity_per_bag }}</h5>
+    <form method="post" class="d-flex flex-column gap-3" style="padding-top: 20px;">
+        {% csrf_token %}
+        <div>
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+            <a href="{% url 'product' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
