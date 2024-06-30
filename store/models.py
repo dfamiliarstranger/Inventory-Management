@@ -65,7 +65,7 @@ class Stock(models.Model):
     unit = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     notification_sent = models.BooleanField(default=False)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=5, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} - {self.color} - {self.product_type}"
@@ -74,7 +74,7 @@ class Stock(models.Model):
 class StockItem(models.Model):
     name = models.CharField(max_length=20, null=True)
     supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, blank=True) 
-    quantity = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=5, null=True, blank=True)
     price = models.IntegerField(null=True, blank=True)
     total = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     created_at = models.DateField(null=True, blank=True)

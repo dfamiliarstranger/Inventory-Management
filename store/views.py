@@ -1174,7 +1174,7 @@ def add_bottle(request):
                     color=bottle_color,
                     bottle_type=bottle_size,
                     product_type=bottle_unit,
-                    quantity=good_bottle,
+                    
                     unit=good_bottle,
                     defaults={'created_at': created_at, }  # Set default unit if creating new
                 )

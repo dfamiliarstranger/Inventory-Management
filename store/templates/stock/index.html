@@ -88,16 +88,23 @@
                     {% endif %}
                 </td>
                   <td>
-                      {% if stock_item.preform_type %}
-                      {{ stock_item.preform_type.name }}
-                      {% elif stock_item.product_type %}
-                      {{ stock_item.product_type }}
-                     
-                      {% else %}
-                      N/A
-                      {% endif %}
+                    {% if stock_item.name == "Bottle" %}
+                    N/A
+                    {% elif stock_item.preform_type %}
+                        {{ stock_item.preform_type.name }}
+                    {% elif stock_item.product_type %}
+                        {{ stock_item.product_type }}
+                    {% else %}
+                        N/A
+                    {% endif %}
                   </td>
-                  <td>{{stock_item.quantity}}</td>
+                  <td>
+                    {% if stock_item.name == "Bottle" or stock_item.name == "Shrinkwrapper" %}
+                      N/A
+                    {% else %}
+                      {{ stock_item.quantity|floatformat:2  }}
+                    {% endif %}
+                  </td>
                   <td>{{stock_item.unit|format_with_commas}}</td>
                   <td>
                     <a href="{% url 'update_stock' stock_item.pk %}">
