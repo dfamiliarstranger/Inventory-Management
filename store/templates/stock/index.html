@@ -102,7 +102,7 @@
                     {% if stock_item.name == "Bottle" or stock_item.name == "Shrinkwrapper" %}
                       N/A
                     {% else %}
-                      {{ stock_item.quantity|floatformat:2  }}
+                      {{ stock_item.quantity|floatformat:0|format_with_commas  }}
                     {% endif %}
                   </td>
                   <td>{{stock_item.unit|format_with_commas}}</td>

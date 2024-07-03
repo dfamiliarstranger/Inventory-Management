@@ -159,7 +159,9 @@
         <td><p>{{ item.color }}</p></td>
         <td><p>{{ item.preform_type__size }}</p></td>
         <td><p>{{ item.preform_type__name }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:2 }}</p></td>
+        
+        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}
+        </p></td>
         <td><p>{{ item.total_unit|format_with_commas }}</p></td>
       </tr>
     
@@ -190,7 +192,7 @@
         <td><p>{{ item.cap_type__size }}</p></td>
         <td><p>{{ item.product_type }}</p></td>
         
-        <td><p>{{ item.total_quantity|floatformat:2 }}</p></td>
+        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas  }}</p></td>
         <td><p>{{ item.total_unit|format_with_commas }}</p></td>
       </tr>
       {% endfor %}
@@ -216,7 +218,7 @@
         <td><p>{{ item.name }}</p></td>
        
         <td><p>{{ item.product_type }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:2}}</p></td>
+        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas}}</p></td>
         <td><p>{{ item.total_unit|format_with_commas }}</p></td>
       </tr>
       {% endfor %}
@@ -242,7 +244,7 @@
         <td><p>{{ item.name }}</p></td>
         <td><p>{{ item.color }}</p></td>
         <td><p>{{ item.bottle_type }} {{ item.product_type }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:2 }}</p></td>
+        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
         <td><p>{{ item.total_unit|format_with_commas }}</p></td>
       </tr>
       {% endfor %}
@@ -307,7 +309,7 @@
         <td><p>{{ item.product__color }}</p></td>
         <td><p>{{ item.product__preform_type__size }}</p></td>
         <td><p>{{ item.product__preform_type__name }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:2 }}</p></td>
+        <td><p>{{ item.total_quantity }}</p></td>
         <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
       </tr>
     
@@ -338,7 +340,7 @@
         <td><p>{{ item.product__cap_type__size }}</p></td>
         <td><p>{{ item.product__product_type }}</p></td>
         
-        <td><p>{{ item.total_quantity|floatformat:2 }}</p></td>
+        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
         <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
       </tr>
       {% endfor %}
@@ -453,7 +455,7 @@
         <td><p>{{ item.color__name }}</p></td>
         <td><p>{{ item.preform_type__size }}</p></td>
         <td><p>{{ item.preform_type__name }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:2 }}</p></td>
+        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
         <td><p>&#x20A6; {{ item.total_price|format_with_commas }}</p></td>
       </tr>
     
@@ -484,7 +486,7 @@
         <td><p>{{ item.cap_type__size }}</p></td>
         <td><p>{{ item.product_type }}</p></td>
         
-        <td><p>{{ item.total_quantity|floatformat:2 }}</p></td>
+        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
         <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
       </tr>
       {% endfor %}
@@ -510,7 +512,7 @@
         <td><p>{{ item.name }}</p></td>
         
         <td><p>{{ item.product_type }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:2 }}</p></td>
+        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
         <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
       </tr>
       {% endfor %}
@@ -536,7 +538,7 @@
         <td><p>{{ item.name }}</p></td>
         <td><p>{{ item.color__name }}</p></td>
         <td><p>{{ item.total_price}} {{ item.product_type }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:2 }}</p></td>
+        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
       </tr>
       {% endfor %}
     </tbody>
