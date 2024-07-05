@@ -64,19 +64,19 @@
                                 <div class="production-summary">    
                                     <div class="box">
                                         
-                                        <h5>Shrinkwrappers Total:  &#x20A6; {{total_shrinkwrapper}}</h5>
+                                        <h5>Shrinkwrappers Total:  &#x20A6; {{total_shrinkwrapper|floatformat:0|format_with_commas}}</h5>
                                     </div>
                                     
                                     <div class="box">
-                                        <h5>Caps Total: &#x20A6; {{ total_cap}}</h5>
+                                        <h5>Caps Total: &#x20A6; {{ total_cap|floatformat:0|format_with_commas}}</h5>
                                     </div>
                                     
                                     <div class="box">
-                                        <h5>Preform Total: &#x20A6; {{total_preform}}</h5>
+                                        <h5>Preform Total: &#x20A6; {{total_preform|floatformat:0|format_with_commas}}</h5>
                                     </div>
 
                                     <div class="box">
-                                        <h5>Purchases Total &#x20A6; {{total}}</h5>
+                                        <h5>Purchases Total &#x20A6; {{total|floatformat:0|format_with_commas}}</h5>
                                     </div>
                                 </div>     
                             </div>
@@ -121,7 +121,7 @@
                                                         {% endif %}
                                                     </td>
                                                     <td> {{ purchase_records.price }}</td>
-                                                    <td>{{ purchase_records.quantity }}</td>
+                                                    <td>{{ purchase_records.quantity|floatformat:0|format_with_commas }}</td>
                                                     
                                                     <td> {{ purchase_records.total }}</td>
                                                 </tr>

@@ -59,25 +59,25 @@
                                     <div class="box">
                                         
                                         <h5>Good Bottles</h5>
-                                        <p>{{ total_good_bottles }}</p>
+                                        <p>{{ total_good_bottles|floatformat:0|format_with_commas }}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Preforms used</h5>
-                                        <p>{{ total_preforms_used }}</p>
+                                        <p>{{ total_preforms_used|floatformat:0|format_with_commas }}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Damaged Preforms</h5>
-                                        <p>{{ total_damaged_preforms }}</p>
+                                        <p>{{ total_damaged_preforms|floatformat:0|format_with_commas }}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Waste Bottles</h5>
-                                        <p>{{ total_waste_bottles }}</p>
+                                        <p>{{ total_waste_bottles|floatformat:0|format_with_commas }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -107,7 +107,7 @@
                                                     <td>{{ production_records.product.preform_type.name }}</td>
                                                     <td>{{ production_records.product.preform_type.size }}</td>
                                                     <td>{{ production_records.product.color }}</td>
-                                                    <td>{{ production_records.product_quantity }}</td>
+                                                    <td>{{ production_records.product_quantity|floatformat:0|format_with_commas }}</td>
                                                     <td>{{ production_records.damages }}</td>
                                                     <td>{{ production_records.waste_bottle }}</td>
                                                     <td>{{ production_records.good_bottle }}</td>

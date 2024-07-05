@@ -65,59 +65,59 @@
                                     <div class="box">
                                         
                                         <h5>Bottles Quantity</h5>
-                                        <p>{{bottles_sold}}</p>
+                                        <p>{{bottles_sold|floatformat:0|format_with_commas}}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Preforms Quantity</h5>
-                                        <p>{{preforms_sold}}</p>
+                                        <p>{{preforms_sold|floatformat:0|format_with_commas}}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Shrinkwrappers Quantity</h5>
-                                        <p>{{shrinkwrappers_sold}}</p>
+                                        <p>{{shrinkwrappers_sold|floatformat:0|format_with_commas}}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Caps Quantity</h5>
-                                        <p>{{caps_sold}}</p>
+                                        <p>{{caps_sold|floatformat:0|format_with_commas}}</p>
                                     </div>
                                     <div class="box">
                                         
                                         <h5>Bottles Total</h5>
-                                        <p> &#x20A6; {{bottles_total}}</p>
+                                        <p> &#x20A6; {{bottles_total|floatformat:0|format_with_commas}}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Preforms Total</h5>
-                                        <p>&#x20A6; {{preforms_total}}</p>
+                                        <p>&#x20A6; {{preforms_total|floatformat:0|format_with_commas}}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Shrinkwrappers Total</h5>
-                                        <p> &#x20A6; {{shrinkwrappers_total}}</p>
+                                        <p> &#x20A6; {{shrinkwrappers_total|floatformat:0|format_with_commas}}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Caps Total</h5>
-                                        <p> &#x20A6; {{caps_total}}</p>
+                                        <p> &#x20A6; {{caps_total|floatformat:0|format_with_commas}}</p>
                                     </div>
                                     <div class="box">
                                         
                                         <h5>Sold Stock Quantity</h5>
-                                        <p>{{total_quantity_sold}}</p>
+                                        <p>{{total_quantity_sold|floatformat:0|format_with_commas}}</p>
                                     </div>
                                     
                                     <div class="box">
                                         
                                         <h5>Sold Stock Total</h5>
-                                        <p> &#x20A6; {{total_stk}}</p>
+                                        <p> &#x20A6; {{total_stk|floatformat:0|format_with_commas}}</p>
                                     </div>
                                 </div>
                                 
@@ -165,9 +165,9 @@
                                                     </td>
                                                     
                                                     <td>{{ sales_records.product.color }}</td>
-                                                    <td>{{ sales_records.quantity }}</td>
-                                                    <td>&#x20A6; {{ sales_records.price }}</td>
-                                                    <td>&#x20A6; {{ sales_records.total }}</td>
+                                                    <td>{{ sales_records.quantity|floatformat:0|format_with_commas }}</td>
+                                                    <td>&#x20A6; {{ sales_records.price|format_with_commas }}</td>
+                                                    <td>&#x20A6; {{ sales_records.total|format_with_commas }}</td>
                                                 </tr>
                                                 
                                             </td>
