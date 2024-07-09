@@ -135,8 +135,8 @@
                                                 <th class="fw-bold">Product size</th>
                                                 <th class="fw-bold">Product color</th>
                                                 <th class="fw-bold">Quantity</th>
-                                                <th class="fw-bold">Price</th>
-                                                <th class="fw-bold">Total</th>
+                                                <th class="fw-bold">Price &#x20A6;</th>
+                                                <th class="fw-bold">Total &#x20A6;</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -144,7 +144,9 @@
                                                 <tr>
                                                     <td>{{ sales_records.created_at|date:"d/m/Y" }}</td>
                                                     <td>{{ sales_records.product.name }}</td>
-                                                    <td>{% if sales_records.product.preform_type %}
+                                                    <td>{% if sales_records.product.bottle_type %}
+                                                        {{ sales_records.product.bottle_type }} {{ sales_records.product.product_type }}
+                                                        {% elif sales_records.product.preform_type %}
                                                         {{ sales_records.product.preform_type.name }}
                                                         {% elif sales_records.product.product_type %}
                                                         {{ sales_records.product.product_type }}
@@ -166,8 +168,8 @@
                                                     
                                                     <td>{{ sales_records.product.color }}</td>
                                                     <td>{{ sales_records.quantity|floatformat:0|format_with_commas }}</td>
-                                                    <td>&#x20A6; {{ sales_records.price|format_with_commas }}</td>
-                                                    <td>&#x20A6; {{ sales_records.total|format_with_commas }}</td>
+                                                    <td> {{ sales_records.price|format_with_commas }}</td>
+                                                    <td> {{ sales_records.total|format_with_commas }}</td>
                                                 </tr>
                                                 
                                             </td>

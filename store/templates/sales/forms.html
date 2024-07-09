@@ -55,15 +55,19 @@
                         {% for stock in stock %}
                         <option value="{{ stock.id }}">   
                             <p>{{ stock.name }} - 
-                            {% if stock.product_type %}
+                            {% if stock.bottle_type %}
+                              {{ stock.bottle_type }} {{ stock.product_type }}
+                            {% elif stock.product_type %}
                                 {{ stock.product_type }}
                             {% elif stock.cap_type %}
                                 {{ stock.cap_type }}
                             {% elif stock.preform_type %}
                                 {{ stock.preform_type }}
+                            
                             {% else %}
                                 N/A
                             {% endif %}
+                            
                             - {{ stock.color }}
                             </p>
                         </option>
