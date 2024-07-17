@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %} 
+<div class="head-title">
+    <div class="left">
+        <h1>Update Color</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#"> Color</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'color_list' %}">Color</a>
+          </li>
+        </ul>
+    </div>
+    <a href="{% url 'color_list' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">Back</span>
+    </a>
+</div>
+<div class="container mt-5">
+    <div id="forms" class="col-md-6 mb-3 mt-5">
+        <!-- purchase/templates/purchase/purchase_form.html -->
+        <form  method="POST" action="{% url 'color_update' color.id %}" class="shadow p-3 form-display">
+            {% csrf_token %}
+            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Update Color</h2>
+        
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" name="name" id="name" 
+                       value="{{ color.name }}" placeholder="Product Type" required>
+            </div>
+        
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Update Color</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

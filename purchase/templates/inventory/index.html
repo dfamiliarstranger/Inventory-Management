@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %} 
+
+
+
+<div class="head-title">
+    <div class="left">
+        <h1>Store</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Store</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'inventory_list' %}">Purchase</a>
+          </li>
+        </ul>
+    </div>
+    <a href="{% url 'home' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">back</span>
+    </a>
+</div>
+
+<div class="table-data">
+    <div class="order">
+      <div class="head">
+        <h3>STORE</h3>
+        <i class='bx bx-search' ></i>
+        <i class='bx bx-filter' ></i>
+      </div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Product Type</th>
+            <th>Color</th>
+            <th>Size </th>
+            <th>Unit</th> 
+            <th>pcs </th> 
+            
+             
+            
+          </tr>
+        </thead>
+        <tbody>
+            {% for inventory in  page_obj%}
+            <tr>
+                <td>{{inventory.product.name}}</td>
+                <td>{{inventory.product.type}}</td>
+                <td>{{inventory.product.color}}</td>
+                <td>{{inventory.product.size}}</td>
+                <td>{{inventory.product.unit}}</td>
+                <td>{{inventory.unit}}</td> 
+              </tr>
+            {% endfor %}
+         
+        </tbody>
+    </table>
+  
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo; First</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">Previous</span>
+                </a>
+            </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">Next</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">Last &raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+      </nav>
+ 
+  </div> 
+       
+{% endblock%}

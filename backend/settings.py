@@ -42,8 +42,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+  
     
     # CUSTOM APPS
+    
+    'purchase.apps.PurchaseConfig',
+    'product',
+    'old_stock.apps.OldStockAppConfig',
+    'sale.apps.SaleConfig',
+    'option',
     'store',
 ]
 
@@ -56,7 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'store.middleware.HandlePageNotFoundMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -64,7 +71,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -163,3 +170,26 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 LOGIN_REDIRECT_URL = 'home'  # or any other URL where you want to redirect after login
 LOGIN_URL = 'user_login'  # URL name of your login page
+
+# settings.py
+
+# Other settings...
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],  # Adjust this path if necessary
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                # other context processors...
+            ],
+        },
+    },
+]
+
+
+# Other settings...

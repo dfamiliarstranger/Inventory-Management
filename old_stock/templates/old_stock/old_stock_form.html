@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %} 
+<div class="head-title">
+    <div class="left">
+        <h1>Old Stock</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Old Stock</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'stock_list' %}">Old Stock</a>
+          </li>
+        </ul>
+    </div>
+    <a href="{% url 'stock_list' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">Back</span>
+    </a>
+</div>
+<div class="container mt-5">
+   
+    <div id="forms" class="col-md-6 mb-3 mt-5">
+        <form id="oldstockform" method="POST" action="{% url 'old_stock' %}" class="shadow p-3 form-display">
+            {% csrf_token %}
+            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Add Old Stock</h2>
+            
+            <div class="mb-3">
+                <label for="product" class="form-label">Product</label>
+                <select name="product" class="form-select" id="product">
+                    <option value="" selected>Select</option> <!-- Default option -->
+                    {% for product in products %}
+                    <option value="{{ product.id }}">
+                        {{ product.name }}
+                        {% if product.type %} - {{ product.type.name }}{% endif %}
+                        
+                        {% if product.color %} - {{ product.color.name }}{% endif %}
+                        {% if product.size %} - {{ product.size }}{% endif %}
+                        {% if product.unit %} - {{ product.unit }}{% endif %}
+                        
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <div class="mb-3">
+                <label for="unit" class="form-label">Unit</label>
+                <input type="text" class="form-control" name="unit" id="unit" placeholder="Enter unit">
+            </div>
+        
+            <div class="mb-3">
+                <label for="created_at" class="form-label">Created At</label>
+                <input type="datetime-local" class="form-control" name="created_at" id="created_at">
+            </div>
+        
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Add Old Stock</button>
+            </div>
+        
+           
+        </form>
+        
+    </div>
+</div>
+
+
+{% endblock %}

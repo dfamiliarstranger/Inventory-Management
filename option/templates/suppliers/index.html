@@ -1,0 +1,113 @@
+{% extends "../base.html" %}
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %} 
+<div class="head-title">
+    <div class="left">
+        <h1>Supplier</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Supplier</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'supplier_list' %}">Supplier</a>
+          </li>
+        </ul>
+    </div>
+    <a href="{% url 'supplier_create' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">Add Supplier</span>
+    </a>
+</div>
+<div class="table-data">
+    <div class="order">
+      <div class="head">
+        <h3>Supplier List</h3>
+        <i class='bx bx-search' ></i>
+        <i class='bx bx-filter' ></i>
+      </div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Mobile</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Update</th> 
+            <th>Delete</th> 
+             
+            
+          </tr>
+        </thead>
+        <tbody>
+            {% for suppliers in  suppliers %}
+            <tr>
+                <td>{{suppliers.name}}</td>
+                <td>{{suppliers.mobile_1}}</td>
+                <td>{{suppliers.mobile_2}}</td>
+                <td>{{suppliers.email}}</td>
+                <td>{{suppliers.contact_info}}</td>
+                
+                <td>
+                    <a href="{% url 'supplier_update' id=suppliers.id %}">
+                        <i class='bx bx-edit' style="font-size: 1.5em;"></i>
+                    </a>
+                </td>
+                <td>
+                    <form action="{% url 'supplier_delete' id=suppliers.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="border:none; background:none;">
+                            <i class='bx bx-trash' style="font-size: 1.5em; color: red;"></i>
+                        </button>
+                    </form>
+                </td>
+                
+              </tr>
+            {% endfor %}
+         
+        </tbody>
+    </table>
+  
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo; First</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">Previous</span>
+                </a>
+            </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">Next</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">Last &raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+      </nav>
+ 
+  </div> 
+       
+{% endblock%}

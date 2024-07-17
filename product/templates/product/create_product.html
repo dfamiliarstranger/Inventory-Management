@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %} 
+<div class="head-title">
+    <div class="left">
+        <h1>Add Product</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Create Products</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'product_list' %}">Product</a>
+          </li>
+        </ul>
+    </div>
+    <a href="{% url 'product_list' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">back</span>
+    </a>
+</div>
+<div class="container mt-5">
+   
+    <div id="forms" class="col-md-6 mb-3 mt-5">
+        
+        <form id="preform" method="POST" action="{% url 'create_product' %}" class="shadow p-3 form-display">
+            {% csrf_token %}
+            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Add Product</h2>
+            <div class="mb-3">
+                <label for="name" class="text form-label">Product Name</label>
+                <select name="name" class="form-select" id="name">
+                    <option value="" selected>Select</option> <!-- Default option -->
+                    {% for value, label in product_names %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="type" class="form-label">Product Type</label>
+                <select name="type" class="form-select" id="type">
+                    <option value="" selected>Select</option> <!-- Default option -->
+                    {% for type in type %}
+                    <option value="{{ type.id }}">{{ type.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="size" class="form-label">Size</label>
+                <input type="number" class="form-control" name="size" id="size" step="0.01" placeholder="Product Size">
+            </div>
+
+            <div class="form-group">
+                <label for="color" class="form-label">Color</label>
+                <select name="color" class="form-select" id="color">
+                    <option value="" selected>Select</option> <!-- Default option -->
+                    {% for color in color %}
+                    <option value="{{ color.id }}">{{ color.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="unit" class="form-label">Unit</label>
+                <select name="unit" class="form-select" id="unit">
+                    <option value="" selected>Select</option> <!-- Default option -->
+                    {% for value, label in product_units %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" name="quantity" id="quantity" step="0.01" placeholder="quantity per bag" >
+            </div>
+
+           
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Add Item</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}

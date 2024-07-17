@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %} 
+<div class="container mt-5">
+    <div id="forms" class="col-md-6 mb-3 mt-5">
+        <!-- purchase/templates/purchase/purchase_form.html -->
+        <form id="preform" method="POST" action="{% url 'update_purchase' purchase.pk %}" class="shadow p-3 form-display">
+            {% csrf_token %}
+            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Update Purchase</h2>
+            
+            <div class="mb-3">
+                <label for="product" class="text form-label">Product</label>
+                <select name="product" class="form-select" id="product" required>
+                    {% for product in product %}
+                    <option value="{{ product.id }}" {% if purchase.product_id == product.id %} selected {% endif %}>
+                        {{ product.name }}
+                        {% if product.type %} - {{ product.type.name }}{% endif %}
+                        {% if product.size %} - {{ product.size }}{% endif %}
+                        {% if product.color %} - {{ product.color.name }}{% endif %}
+                        {% if product.unit %} - {{ product.unit }}{% endif %}
+                        {% if product.quantity %} - {{ product.quantity }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="supplier" class="text form-label">Supplier</label>
+                <select name="supplier" class="form-select" id="supplier" required>
+                    {% for supplier in supplier %}
+                        <option value="{{ supplier.id }}" {% if purchase.supplier_id == supplier.id %} selected {% endif %}>{{ supplier.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" name="quantity" id="quantity" step="0.01" placeholder="Product quantity" value="{{ purchase.quantity }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="unit" class="form-label">Unit</label>
+                <input type="number" class="form-control" name="unit" id="unit" step="0.01" placeholder="Product Unit" value="{{ purchase.unit }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Price</label>
+                <input type="number" class="form-control" name="price" id="price" step="0.01" placeholder="Product price" value="{{ purchase.price }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="total" class="form-label">Total</label>
+                <input type="number" class="form-control" name="total" id="total" step="0.01" placeholder="Total cost" value="{{ purchase.total }}" required>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Update Item</button>
+            </div>
+        </form>
+ 
+    </div>
+</div>
+
+
+{% endblock %}

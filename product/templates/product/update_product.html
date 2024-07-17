@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %} 
+<div class="head-title">
+    <div class="left">
+        <h1>Product</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Update Product</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'product_list' %}">Product</a>
+          </li>
+        </ul>
+    </div>
+    <a href="{% url 'product_list' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">Back</span>
+    </a>
+</div>
+<div class="container mt-5">
+   
+    <div id="forms" class="col-md-6 mb-3 mt-5">
+        
+        <form id="edit_form" method="POST" action="{% url 'update_product' product.id %}" class="shadow p-3 form-display">
+            {% csrf_token %}
+            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Edit Product</h2>
+            
+            <div class="mb-3">
+                <label for="name" class="form-label">Product Name</label>
+                <select name="name" class="form-select" id="name">
+                    {% for value, label in product_names %}
+                        <option value="{{ value }}" {% if value == product.name %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <div class="mb-3">
+                <label for="type" class="form-label">Product Type</label>
+                <select name="type" class="form-select" id="type">
+                    {% for type_obj in type %}
+                        <option value="{{ type_obj.id }}" {% if type_obj.id == product.type_id %}selected{% endif %}>{{ type_obj.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <div class="mb-3">
+                <label for="size" class="form-label">Size</label>
+                <input type="number" class="form-control" name="size" id="size" step="0.01" value="{{ product.size }}" placeholder="Product Size">
+            </div>
+        
+            <div class="mb-3">
+                <label for="color" class="form-label">Color</label>
+                <select name="color" class="form-select" id="color">
+                    {% for color_obj in color %}
+                        <option value="{{ color_obj.id }}" {% if color_obj.id == product.color_id %}selected{% endif %}>{{ color_obj.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <div class="mb-3">
+                <label for="unit" class="form-label">Unit</label>
+                <select name="unit" class="form-select" id="unit">
+                    {% for value, label in product_units %}
+                        <option value="{{ value }}" {% if value == product.unit %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" name="quantity" id="quantity" step="1" value="{{ product.quantity }}" placeholder="Product quantity">
+            </div>
+        
+        
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+        
+    </div>
+</div>
+
+
+{% endblock %}

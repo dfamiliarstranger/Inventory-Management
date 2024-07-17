@@ -1,8 +1,8 @@
-{% extends "base/base.html" %}
+{% extends "base.html" %}
 {% load custom_filters %}
 {% block body %}
 
-<!-- MAIN -->
+<!-- MAIN -
 <style>
   .delete-button {
     background: none;
@@ -54,7 +54,7 @@
 .box-info .vertical-line:last-child {
   border-right: none;
 }
-</style>
+</style>-->
 
 <div class="head-title">
   <div class="left">
@@ -70,7 +70,7 @@
     <span class="text">Back</span>
   </a>
 </div>
-
+<!---
 {% if messages %}
   {% for message in messages %}
   <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -80,8 +80,8 @@
   {% endfor %}
 {% endif %}
 
-<!-- Month and Year Selection Form -->
-<!-- Month and Year Selection Form -->
+Month and Year Selection Form
+Month and Year Selection Form 
 <form method="get" action="" class="row g-3 align-items-center">
   <div class="col-md-3">
     <label for="month" class="form-label">Month</label>
@@ -109,7 +109,7 @@
 
 
 
-<!-- ----   --------  ----------- ----- STOCK DISPLAY----------- ----------  ------    --------    ------  ------>
+ ----   --------  ----------- ----- STOCK DISPLAY---------
 <div id="stock-content" class="data-table">
   <h3 style="font-weight: bold;color: #007BFF; margin-top: 30px;">Stock Summary</h3>
   <ul class="box-info" style="padding-bottom: 15px;">
@@ -251,11 +251,11 @@
     </tbody>
   </table>
 </div>
-<!----  ----  ----------- ------------- STOCK MENU END  ---------------   ---------------     ---->
+  ----  ----------- ------------- STOCK MENU END  ---------------   ---------------     ----
 
 
 
-<!------------        --------      ----------  SALES MUNU LAYOUT  ------        -----------------             --------  -->
+---------        --------      ----------  SALES MUNU LAYOUT  ------        -----------------             --------
 <div id="sales-content" class="hidden data-table">
   <h3 style="margin-top: 30px; font-weight: bold;color: #007BFF;">Sales Summary</h3>
  
@@ -403,7 +403,7 @@
 <!----  ----  ----------- ------------- SALES MENU END  ---------------   ---------------     ---->
 
 
-<!----  ----  ----------- ------------- PURCHASES MENU  ---------------   ---------------     ---->
+<!----  ----  ----------- ------------- PURCHASES MENU  ---------------   ---------------     ---
 <div id="purchases-content" class="hidden data-table">
   <h3 style="font-weight: bold;color: #007BFF; margin-top: 30px;">Purchase Summary</h3>
  
@@ -546,7 +546,7 @@
 </div>
 
 
-<!----  ----  ----------- ------------- PURCHASES MENU END  ---------------   ---------------     ---->
+<!----  ----  ----------- ------------- PURCHASES MENU END  ---------------   ---------------     ----
 
 <script>
   // Function to initialize the default state
@@ -586,10 +586,11 @@
     document.getElementById(contentId + '-content').classList.remove('hidden');
   }
 
-  // Call the initialization function when the page loads
   document.addEventListener('DOMContentLoaded', function() {
     initializeDefaultState();
   });
-</script>
+</script>-->
+
+<h1>DASHBOARD DEVELOPMENT IN PROGRESS</h1>
 
 {% endblock %}

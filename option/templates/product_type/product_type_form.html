@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %} 
+<div class="head-title">
+    <div class="left">
+        <h1>Product Type </h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Add Product Type</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'product_type_list' %}">Product type</a>
+          </li>
+        </ul>
+    </div>
+    <a href="{% url 'product_type_list' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">Back</span>
+    </a>
+</div>
+<div class="container mt-5">
+    <div id="forms" class="col-md-6 mb-3 mt-5">
+        <!-- purchase/templates/purchase/purchase_form.html -->
+
+<form  method="POST" action="{% url 'product_type_create' %}" class="shadow p-3 form-display">
+    {% csrf_token %}
+    <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Product Type Form</h2>
+
+
+    <div class="mb-3">
+        <label for="total" class="form-label">Name</label>
+        <input type="text" class="form-control" name="name" id="name" splaceholder="Product Type" required>
+    </div>
+
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Add Product Type</button>
+    </div>
+</form>
+ 
+    </div>
+</div>
+
+
+ 
+
+
+{% endblock %}
