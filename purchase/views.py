@@ -134,4 +134,4 @@ def inventory_list(request):
     paginator = Paginator(inventory, 10) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'Inventory/index.html', {'page_obj': page_obj})
+    return render(request, 'inventory/index.html', {'page_obj': page_obj})
