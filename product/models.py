@@ -23,12 +23,12 @@ class Product(models.Model):
     )
 
     PRODUCT_UNIT = (
-    ("grams", "Grams"),
-    ("kilogram", "Kilogram"),
-    ("millilitre", "Millilitre"),
-    ("centilitre", "Centilitre"),
-    ("litre", "Litre"),
-    ("millimeter", "Millemeter"),
+    ("g", "g"),
+    ("kg", "Kg"),
+    ("mm", "mm"),
+    ("cl", "Cl"),
+    ("l", "L"),
+    ("ml", "ml"),
     )
 
     name = models.CharField(max_length=100, choices=PRODUCT_NAME)

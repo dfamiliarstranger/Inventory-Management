@@ -13,7 +13,7 @@
         <h1>Add Product</h1>
         <ul class="breadcrumb">
           <li>
-            <a href="#">Create Products</a>
+            <a href="#">Register Products</a>
           </li>
           <li><i class='bx bx-chevron-right' ></i></li>
           <li>
@@ -32,7 +32,7 @@
         
         <form id="preform" method="POST" action="{% url 'create_product' %}" class="shadow p-3 form-display">
             {% csrf_token %}
-            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Add Product</h2>
+            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Register Product</h2>
             <div class="mb-3">
                 <label for="name" class="text form-label">Product Name</label>
                 <select name="name" class="form-select" id="name">
