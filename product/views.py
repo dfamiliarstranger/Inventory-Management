@@ -7,7 +7,9 @@ from django.http import HttpResponseBadRequest
 from django.utils import timezone
 
 from .models import Product, Color, Product_type
-
+from django.db.models.signals import post_save, pre_delete
+from old_stock.signals import update_inventory, reverse_inventory
+from old_stock.models import Old_Stock
 
 @login_required
 # PRODUCT VIEWS
@@ -119,13 +121,23 @@ def product_update(request, product_id):
 @login_required
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
+    
+    # Temporarily disconnect the signals
+    pre_delete.disconnect(reverse_inventory, sender=Old_Stock)
+    post_save.disconnect(update_inventory, sender=Old_Stock)
+    
+    # Delete related Old_Stock entries if needed
+    Old_Stock.objects.filter(product=product).delete()
+    
+    # Delete the product
+    product.delete()
+    
+    # Reconnect the signals
+    pre_delete.connect(reverse_inventory, sender=Old_Stock)
+    post_save.connect(update_inventory, sender=Old_Stock)
 
-    if request.method == 'POST':
-        product.delete()
-        messages.success(request, 'Product deleted successfully.')
-        return redirect('product_list')  # Redirect to product list or another page after deletion
+    return redirect('product_list') 
 
-    return redirect(request, 'product_list', {'product': product})
 
 @login_required
 def product_list(request):

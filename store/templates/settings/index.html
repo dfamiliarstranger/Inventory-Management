@@ -1,4 +1,4 @@
-{% extends "settings/base.html" %}
+{% extends "base.html" %}
 {% block body %}
 <div class="head-title">
     <div class="left">
@@ -36,7 +36,7 @@
         </span>
       </li>
     </a>
-    <a href="{% url 'report' %}">
+    <a href="#">
         <li>
           <i class='bx bxs-group'></i>
           <span class="text">
@@ -48,7 +48,7 @@
     
      
      
-      <a href="{% url 'product' %}">
+      <a href="{% url 'product_list' %}">
         <li>
           <i class='bx bxs-cylinder'></i>
           <span class="text">
@@ -57,7 +57,7 @@
           </span>
         </li>
       </a>
-      <a href="{% url 'ticket_form' %}">
+      <a href="#">
         <li>
           <i class='bx bxs-file'></i>
           <span class="text">
@@ -66,7 +66,7 @@
           </span>
         </li>
       </a>
-      <a href="{% url 'color' %}">
+      <a href="{% url 'color_list' %}">
         <li>
           <i class='bx bxs-palette'></i>
           <span class="text">
@@ -75,12 +75,39 @@
           </span>
         </li>
       </a>
-      <a href="#">
+      <a href="{% url 'invoice' %}">
         <li>
           <i class='bx bxs-dollar-circle' ></i>
           <span class="text">
-            <h3>Transaction</h3>
-            <p>Reverse Transaction</p>
+            <h3>Invoice</h3>
+            <p>Generate inventory</p>
+          </span>
+        </li>
+      </a>
+      <a href="{% url 'supplier_list' %}">
+        <li>
+          <i class='bx bxs-dollar-circle' ></i>
+          <span class="text">
+            <h3>Supplier</h3>
+            <p>Supplier details</p>
+          </span>
+        </li>
+      </a>
+      <a href="{% url 'customer_list' %}">
+        <li>
+          <i class='bx bxs-dollar-circle' ></i>
+          <span class="text">
+            <h3>Customer</h3>
+            <p>Customer details</p>
+          </span>
+        </li>
+      </a>
+      <a href="{% url 'product_type_list' %}">
+        <li>
+          <i class='bx bxs-dollar-circle' ></i>
+          <span class="text">
+            <h3>Product Type</h3>
+            <p>Add Product Type</p>
           </span>
         </li>
       </a>

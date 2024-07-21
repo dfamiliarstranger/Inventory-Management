@@ -1,3 +1,4 @@
+{% load custom_filters %}
 {% load custom_tags %}
 {% load static %}
 <!DOCTYPE html>
@@ -37,7 +38,7 @@
 	<section id="sidebar">
 		<a href="#" class="brand mt-5">
 			<i class='bx bx-recycle'></i>
-			<span class="text"> TRIPLE T Royal Ventures
+			<span class="text"> TRIPLE T Royal Ventures...
 			
 			</span>
 
@@ -49,10 +50,10 @@
 					<span class="text">Dashboard</span>
 				</a>
 			</li>
-			<!-- <li class="{% active_class 'home' %}">
-				<a href="#">
+			<!-- <li class="{% active_class 'invoice' %}">
+				<a href="{% url 'invoice' %}">
 					<i class='bx bxs-shopping-bag-alt store' ></i>
-					<span class="text">My Store</span>
+					<span class="text">Invoice</span>
 				</a>
 			</li> -->
 			<li class="{% active_class 'product_list' %}">
@@ -91,7 +92,7 @@
 					<span class="text">Sales</span>
 				</a>
 			</li>
-			<li class="{% active_class 'color_list' %}">
+			<!-- <li class="{% active_class 'color_list' %}">
 				<a href="{% url 'color_list' %}">
 					<i class='bx bxs-group'></i>
 					<span class="text">Color</span>
@@ -102,8 +103,8 @@
 					<i class='bx bxs-group'></i>
 					<span class="text">Product Type</span>
 				</a>
-			</li>
-			<li class="{% active_class 'supplier_list' %}">
+			</li> -->
+			<!-- <li class="{% active_class 'supplier_list' %}">
 				<a href="{% url 'supplier_list' %}">
 					<i class='bx bxs-group'></i>
 					<span class="text">Supplier</span>
@@ -114,7 +115,7 @@
 					<i class='bx bxs-group'></i>
 					<span class="text">Customer</span>
 				</a>
-			</li>
+			</li> -->
 			<!-- <li class="{% active_class 'home' %}">
 				<a href="#">
 					<i class='bx bxs-receipt'></i>
@@ -124,8 +125,8 @@
 		</ul>
 		<ul class="side-menu">
 			{% if request.user.is_superuser %}
-			<li>
-				<a href="#" >
+			<li class="{% active_class 'customer_list' %}">
+				<a href="{% url 'settings' %}" >
 					<i class='bx bxs-cog' ></i>
 					<span class="text">Settings</span>
 				</a>
@@ -141,7 +142,7 @@
 	</section>
 	<!-- SIDEBAR -->
 
-
+	
 
 	<!-- CONTENT -->
 	<section id="content">
@@ -166,7 +167,7 @@
 		<!-- NAVBAR -->
 	<main>
         {% block body %}
-		         
+		{% load custom_filters %}     
 		{% endblock%}
 	</main>
 	</section>

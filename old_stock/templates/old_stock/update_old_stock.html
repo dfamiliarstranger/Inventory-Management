@@ -28,7 +28,7 @@
 
     <div class="mb-3">
         <label for="unit" class="form-label">Unit</label>
-        <input type="text" class="form-control" name="unit" id="unit" value="{{ old_stock.unit }}" placeholder="Enter unit">
+        <input type="text" class="form-control" name="unit" id="unit" value="{{ old_stock.unit|format_with_commas }}" placeholder="Enter unit">
     </div>
 
     <div class="mb-3">

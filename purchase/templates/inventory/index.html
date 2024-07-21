@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %} 
 {% block body %}
 {% if messages %}
     {% for message in messages %}
@@ -59,7 +60,7 @@
                 <td>{{inventory.product.color}}</td>
                 <td>{{inventory.product.size}}</td>
                 <td>{{inventory.product.unit}}</td>
-                <td>{{inventory.unit}}</td> 
+                <td>{{inventory.unit|format_with_commas}}</td> 
               </tr>
             {% endfor %}
          

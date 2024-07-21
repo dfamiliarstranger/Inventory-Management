@@ -10,7 +10,7 @@
 {% endif %} 
 <div class="head-title">
     <div class="left">
-        <h1>Add Product</h1>
+        <h1>Register Product</h1>
         <ul class="breadcrumb">
           <li>
             <a href="#">Register Products</a>
@@ -38,7 +38,7 @@
                 <select name="name" class="form-select" id="name">
                     <option value="" selected>Select</option> <!-- Default option -->
                     {% for value, label in product_names %}
-                    <option value="{{ value }}">{{ label }}</option>
+                    <option value="{{ value }}"> {{ label }} </option>
                     {% endfor %}
                 </select>
             </div>
@@ -57,7 +57,7 @@
                 <label for="size" class="form-label">Size</label>
                 <input type="number" class="form-control" name="size" id="size" step="0.01" placeholder="Product Size">
             </div>
-
+            
             <div class="form-group">
                 <label for="color" class="form-label">Color</label>
                 <select name="color" class="form-select" id="color">

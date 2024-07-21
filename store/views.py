@@ -1,22 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Cap, Color , Preform_type, Supplier, Ticket_Records, Customer, StockItem, update_inventory, Production, Stock, Sales, Notification, Cap_name, Bottle
+from .models import Ticket_Records, Notification
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib import messages
-from .forms import CapForm,CustomerForm, SupplierForm, StockItemForm, StockForm
+from sale.models import Sale
+from sale.models import Customer
+
 from django.utils import timezone
 import datetime
-import json
-from django.core.paginator import Paginator
-from django.http import JsonResponse
+
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
-from django.db import transaction
-from django.db.models import F, Sum, Count
-from django.contrib.auth.models import User
-from .notification import notify_stock_threshold
-from django.http import HttpResponseBadRequest
+
 from datetime import datetime
 from django.middleware.csrf import rotate_token
 from datetime import datetime
@@ -31,159 +26,9 @@ from calendar import monthrange
 
 def home(request):
     notifications = Notification.objects.order_by('-timestamp').all()
-    unread_notifications_count = notifications.filter(is_read=False).count()
-    current_month = datetime.now().month
-    current_year = datetime.now().year
-
-    # Get month and year from query parameters, or use default values
-    selected_month = request.GET.get('month', current_month)
-    selected_year = request.GET.get('year', current_year)
-
-    # Filter and annotate stock items by the selected month and year
-    preform_stock = (
-        Stock.objects.filter(name='Preform', created_at__month=selected_month, created_at__year=selected_year)
-        .values('name', 'color', 'preform_type__size', 'preform_type__name', 'product_type')
-        .annotate(total_quantity=Sum('quantity'), total_unit=Sum('unit'))
-    )
-
-    caps_stock = (
-        Stock.objects.filter(name='Cap', created_at__month=selected_month, created_at__year=selected_year)
-        .values('name', 'color', 'cap_type__size', 'product_type')
-        .annotate(total_quantity=Sum('quantity'), total_unit=Sum('unit'))
-    )
-
-    shrinkwrappers_stock = (
-        Stock.objects.filter(name='Shrinkwrapper', created_at__month=selected_month, created_at__year=selected_year)
-        .values('name', 'color', 'product_type')
-        .annotate(total_quantity=Sum('quantity'), total_unit=Sum('unit'))
-    )
-
-    bottle_stock = (
-        Stock.objects.filter(name='Bottle', created_at__month=selected_month, created_at__year=selected_year)
-        .values('name', 'color', 'bottle_type', 'product_type')
-        .annotate(total_quantity=Sum('quantity'), total_unit=Sum('unit'))
-    )
-
-
-    total_units_preforms = preform_stock.aggregate(total_units=Sum('total_unit'))['total_units'] or 0
-    total_quantity_preforms = preform_stock.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
-
-    total_units_caps = caps_stock.aggregate(total_units=Sum('total_unit'))['total_units'] or 0
-    total_quantity_caps = caps_stock.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
-
-    total_units_shrinkwrappers = shrinkwrappers_stock.aggregate(total_units=Sum('total_unit'))['total_units'] or 0
-   
-    total_units_bottles = bottle_stock.aggregate(total_units=Sum('total_unit'))['total_units'] or 0
-
-# SALES VIEW
-    
-    # Filter and aggregate sales by product types
-    preform_sales = (
-        Sales.objects.filter(product__name='Preform', created_at__month=selected_month, created_at__year=selected_year)
-        .values('product__name', 'product__preform_type__name', 'product__preform_type__size', 'product__product_type', 'product__color')
-        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
-    )
-
-    caps_sales = (
-        Sales.objects.filter(product__name='Cap', created_at__month=selected_month, created_at__year=selected_year)
-        .values('product__name', 'product__cap_type__size', 'product__product_type', 'product__color')
-        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
-    )
-
-    shrinkwrappers_sales = (
-        Sales.objects.filter(product__name='Shrinkwrapper', created_at__month=selected_month, created_at__year=selected_year)
-        .values('product__name', 'product__product_type')
-        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
-    )
-
-    bottle_sales = (
-        Sales.objects.filter(product__name='Bottle', created_at__month=selected_month, created_at__year=selected_year)
-        .values('product__name', 'product__bottle_type', 'product__product_type', 'product__color')
-        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
-    )
-
-    
-    total_sales_price = preform_sales.aggregate(total_price=Sum('total_price'))['total_price'] or 0
-    total_preforms__quantity = preform_sales.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
-    caps_sales_price = caps_sales.aggregate(total_price=Sum('total_price'))['total_price'] or 0
-    caps_preforms__quantity = caps_sales.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
-    shrinkwrappers_sales_price = shrinkwrappers_sales.aggregate(total_price=Sum('total_price'))['total_price'] or 0
-    shrinkwrappers_preforms__quantity = shrinkwrappers_sales.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
-    bottle_sales_price = bottle_sales.aggregate(total_price=Sum('total_price'))['total_price'] or 0
-    bottle_preforms__quantity = bottle_sales.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
-
-# PURCHASES VIEW
-    
-    # Filter and aggregate sales by product types
-    preform_purchases = (
-        StockItem.objects.filter(name='Preform', created_at__month=selected_month, created_at__year=selected_year)
-        .values('name', 'preform_type__name', 'preform_type__size', 'product_type', 'color__name')
-        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
-    ) 
-    cap_purchases = (
-        StockItem.objects.filter(name='Cap', created_at__month=selected_month, created_at__year=selected_year)
-        .values('name', 'preform_type__name', 'preform_type__size', 'product_type', 'color__name', 'cap_type__size')
-        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
-    ) 
-    shrinkwrappers_purchases = (
-        StockItem.objects.filter(name='Shrinkwrapper', created_at__month=selected_month, created_at__year=selected_year)
-        .values('name', 'preform_type__name', 'preform_type__size', 'product_type', 'color__name')
-        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('quantity') * F('price')))
-    ) 
-    bottle_purchases = (
-        StockItem.objects.filter(name='Bottle', created_at__month=selected_month, created_at__year=selected_year)
-        .values('name', 'preform_type__name', 'preform_type__size', 'product_type', 'color__name')
-        .annotate(total_quantity=Sum('quantity'), total_price=Sum(F('price')))
-    ) 
-    
-    purchase_preforms_quantity = preform_purchases.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
-    purchase_preforms_price = preform_purchases.aggregate(total_price=Sum('total_price'))['total_price'] or 0
-    purchase_caps_quantity = cap_purchases.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
-    purchase_caps_price = cap_purchases.aggregate(total_price=Sum('total_price'))['total_price'] or 0
-    purchase_shrinkwrappers_quantity = shrinkwrappers_purchases.aggregate(total_quantity=Sum('total_quantity'))['total_quantity'] or 0
-    purchase_shrinkwrappers_price = shrinkwrappers_purchases.aggregate(total_price=Sum('total_price'))['total_price'] or 0
-
-
 
     context = {
-        'purchase_shrinkwrappers_quantity':purchase_shrinkwrappers_quantity,
-        'purchase_shrinkwrappers_price':purchase_shrinkwrappers_price,
-        'cap_purchases':cap_purchases,
-        'preform_purchases':preform_purchases,
-        'bottle_purchases': bottle_purchases,
-        'shrinkwrappers_purchases':shrinkwrappers_purchases,
-        'purchase_caps_price':purchase_caps_price,
-        'purchase_caps_quantity':purchase_caps_quantity,
-        'purchase_preforms_price':purchase_preforms_price,
-        'purchase_preforms_quantity':purchase_preforms_quantity,
-        'bottle_preforms__quantity':bottle_preforms__quantity,
-        'bottle_sales_price':bottle_sales_price,
-        'shrinkwrappers_preforms__quantity':shrinkwrappers_preforms__quantity,
-        'shrinkwrappers_sales_price':shrinkwrappers_sales_price,
-        'caps_preforms__quantity':caps_preforms__quantity,
-        'caps_sales_price':caps_sales_price,
-        'total_sales_price':total_sales_price,
-        'total_preforms__quantity':total_preforms__quantity,
-        'preform_sales': preform_sales,
-        'caps_sales': caps_sales,
-        'shrinkwrappers_sales': shrinkwrappers_sales,
-        'bottle_sales': bottle_sales,
-        'total_units_preforms':total_units_preforms,
-        'total_quantity_preforms':total_quantity_preforms,
-        'total_units_caps':total_units_caps,
-        'total_quantity_caps':total_quantity_caps,
-        'total_units_shrinkwrappers':total_units_shrinkwrappers,
-        'total_units_bottles':total_units_bottles,
-        'notifications': notifications,
-        'unread_notifications_count': unread_notifications_count,
-        'preform_stock': preform_stock,
-        'caps_stock': caps_stock,
-        'shrinkwrappers_stock': shrinkwrappers_stock,
-        'bottle_stock': bottle_stock,
-        'selected_month': int(selected_month),
-        'selected_year': int(selected_year),
-        'months': range(1, 13),
-        'years': range(2020, current_year + 1),
+        
     }
     
     return render(request, 'base/home.html', context)
@@ -228,9 +73,7 @@ def invoice(request):
     error = None
     sales_data = None
     customers = Customer.objects.all()
-    notifications = Notification.objects.all()
-    unread_notifications_count = notifications.filter(is_read=False).count()
-
+    
     if request.method == 'GET':
         customer_str = request.GET.get('customer')
         start_date_str = request.GET.get('start_date')
@@ -241,7 +84,7 @@ def invoice(request):
                 start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
                 end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
                 
-                sales_data = Sales.objects.filter(customer__name=customer_str)
+                sales_data = Sale.objects.filter(customer__name=customer_str)
                 
                 if start_date:
                     sales_data = sales_data.filter(created_at__gte=start_date)
@@ -253,15 +96,15 @@ def invoice(request):
             except ValueError:
                 error = 'Invalid date format. Please use YYYY-MM-DD.'
 
-    return render(request, 'invoice/base.html', {'sales_data': sales_data, 'customers': customers, 'error': error,'unread_notifications_count':unread_notifications_count})
+    return render(request, 'invoice/base.html', {'sales_data': sales_data, 'customers': customers, 'error': error})
 
 @login_required  
 def print_invoice(request):
     if request.method == 'GET':
         selected_sales_ids = request.GET.getlist('selected_sales')  # Get selected sales IDs from the query parameters
-        sales_data = Sales.objects.filter(id__in=selected_sales_ids) 
+        sales_data = Sale.objects.filter(id__in=selected_sales_ids) 
         
-         # Calculate the sum total
+        # Calculate the sum total
         sum_total = sum(sale.total for sale in sales_data) 
         # Filter sales data based on selected IDs
         return render(request, 'invoice/index.html', {'sales_data': sales_data, 'sum_total': sum_total})
@@ -275,65 +118,6 @@ def settings(request):
     notifications = Notification.objects.all()
     unread_notifications_count = notifications.filter(is_read=False).count()
     return render(request, 'settings/index.html',{'unread_notifications_count':unread_notifications_count})
-
-
-
-
-
-@login_required
-# View for rendering the form
-def ticket_form(request):
-    stocks = Stock.objects.all()
-    return render(request, 'settings/ticket.html', {'stocks': stocks})
-
-@login_required
-def ticket_update(request, stock_id):
-    stock = get_object_or_404(Stock, id=stock_id)
-    
-    if request.method == 'POST':
-        # Get form data
-        stock_id = request.POST.get('stock_id')
-        option = request.POST.get('option')
-        quantity = int(request.POST.get('quantity'))
-        
-        # Check if the stock is sufficient for deduction
-        if option == 'shortage' and stock.unit < quantity:
-            messages.error(request, 'Insufficient stock for deduction')
-            return redirect('ticket_form')
-        
-        # Update stock unit based on selected option
-        if option == 'excess':
-            stock.unit += quantity
-        elif option == 'shortage':
-            stock.unit -= quantity
-        
-        # Save the updated stock
-        stock.save()
-        
-        # Determine product type for the record
-        product_type = None
-        if stock.preform_type:
-            product_type = stock.preform_type
-        elif stock.cap_type:
-            product_type = stock.cap_type
-        elif stock.product_type:
-            product_type = stock.product_type
-        elif stock.bottle_type:
-            product_type = stock.bottle_type
-        
-        # Create a record for the stock update
-        record = Ticket_Records.objects.create(
-            product=stock,
-            product_type=product_type,
-            action=option,
-            quantity=quantity,
-          # Use timezone.now() for the current datetime
-        )
-        
-        # Redirect to the stock detail page or any other appropriate page
-        return redirect('ticket_update', stock_id=stock.id)
-   
-    return redirect('stock_list')
 
 @login_required
 def search_view(request):
@@ -378,146 +162,7 @@ def search_view(request):
     else:
         return render(request, 'settings/reports.html')
 
-  
-@login_required
-def production_report(request):
-    if request.method == 'GET':
-        # Retrieve parameters from the URL
-        queryset = request.GET.get('queryset')
-        start_date_str = request.GET.get('start_date')
-        end_date_str = request.GET.get('end_date')
-
-        # Remove time part from the date strings
-        start_date_str = start_date_str.split()[0]
-        end_date_str = end_date_str.split()[0]
-
-        # Convert start_date and end_date strings to datetime objects
-        start_date = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
-        end_date = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'))
-
-        # Retrieve production records based on the specified date range
-        production_records = Production.objects.filter(created_at__range=[start_date, end_date])
-
-        # Calculate totals for each production summary item
-        total_good_bottles = production_records.aggregate(Sum('good_bottle'))['good_bottle__sum']  
-        total_preforms_used = production_records.aggregate(Sum('product_quantity'))['product_quantity__sum']
-        total_damaged_preforms = production_records.aggregate(Sum('damages'))['damages__sum']
-        total_waste_bottles = production_records.aggregate(Sum('waste_bottle'))['waste_bottle__sum']
-
-        # Render the production report template with the retrieved data
-        return render(request, 'settings/production_report.html', {'queryset': queryset, 'start_date': start_date, 'end_date': end_date, 'production_records': production_records, 'total_good_bottles': total_good_bottles, 'total_preforms_used': total_preforms_used, 'total_damaged_preforms': total_damaged_preforms,'total_waste_bottles': total_waste_bottles,})
-
-
-@login_required
-def sales_report(request):
-    if request.method == 'GET':
-        # Retrieve parameters from the URL
-        queryset = request.GET.get('queryset')
-        start_date_str = request.GET.get('start_date')
-        end_date_str = request.GET.get('end_date')
-
-        # Remove time part from the date strings
-        start_date_str = start_date_str.split()[0]
-        end_date_str = end_date_str.split()[0]
-
-        # Convert start_date and end_date strings to datetime objects
-        start_date = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
-        end_date = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'))
-
-        # Retrieve production records based on the specified date range
-        sales_records = Sales.objects.filter(created_at__range=[start_date, end_date])
-
-        # Initialize variables to hold aggregate values
-        bottles_sold = Decimal(0)
-        preforms_sold = Decimal(0)
-        shrinkwrappers_sold = Decimal(0)
-        caps_sold = Decimal(0)
-        bottles_total = Decimal(0)
-        preforms_total = Decimal(0)
-        shrinkwrappers_total = Decimal(0)
-        caps_total = Decimal(0)
-
-        # Calculate total quantities sold for each product type
-        bottles_sold = sales_records.filter(product__name='Bottle').aggregate(total_sold=Sum('quantity'))['total_sold'] or Decimal(0)
-        preforms_sold = sales_records.filter(product__name='Preform').aggregate(total_sold=Sum('quantity'))['total_sold'] or Decimal(0)
-        shrinkwrappers_sold = sales_records.filter(product__name='Shrinkwrapper').aggregate(total_sold=Sum('quantity'))['total_sold'] or Decimal(0)
-        caps_sold = sales_records.filter(product__name='Cap').aggregate(total_sold=Sum('quantity'))['total_sold'] or Decimal(0)
-
-        # Calculate the sum of all totals
-        total_quantity_sold = bottles_sold + preforms_sold + shrinkwrappers_sold + caps_sold
-
-        # Calculate total quantities sold for each product type
-        bottles_total = sales_records.filter(product__name='Bottle').aggregate(total_sold=Sum('total'))['total_sold'] or Decimal(0)
-        preforms_total = sales_records.filter(product__name='Preform').aggregate(total_sold=Sum('total'))['total_sold'] or Decimal(0)
-        shrinkwrappers_total = sales_records.filter(product__name='Shrinkwrapper').aggregate(total_sold=Sum('total'))['total_sold'] or Decimal(0)
-        caps_total = sales_records.filter(product__name='Cap').aggregate(total_sold=Sum('total'))['total_sold'] or Decimal(0)
-
-        # Calculate the sum of all totals
-        total_stk = bottles_total + preforms_total + shrinkwrappers_total + caps_total
-
-        # Render the production report template with the retrieved data
-        return render(request, 'settings/sale_report.html', {
-            'queryset': queryset,
-            'start_date': start_date,
-            'end_date': end_date,
-            'sales_records': sales_records,
-            'caps_total': caps_total,
-            'preforms_total': preforms_total,
-            'bottles_total': bottles_total,
-            'shrinkwrappers_total': shrinkwrappers_total,
-            'total_stk': total_stk,
-            'bottles_sold': bottles_sold,
-            'preforms_sold': preforms_sold,
-            'shrinkwrappers_sold': shrinkwrappers_sold,
-            'caps_sold': caps_sold,
-            'total_quantity_sold': total_quantity_sold
-        })
-    
-
-@login_required
-def purchase_report(request):
-    if request.method == 'GET':
-        # Retrieve parameters from the URL
-        queryset = request.GET.get('queryset')
-        start_date_str = request.GET.get('start_date')
-        end_date_str = request.GET.get('end_date')
-
-        # Remove time part from the date strings
-        start_date_str = start_date_str.split()[0]
-        end_date_str = end_date_str.split()[0]
-
-        # Convert start_date and end_date strings to datetime objects
-        start_date = timezone.make_aware(datetime.strptime(start_date_str, '%Y-%m-%d'))
-        end_date = timezone.make_aware(datetime.strptime(end_date_str, '%Y-%m-%d'))
-
-        # Retrieve production records based on the specified date range
-        purchase_records = StockItem.objects.filter(created_at__range=[start_date, end_date])
-
-         # Filter records for products 'preform', 'cap', and 'shrinkwrapper'
-        preform_records = purchase_records.filter(name='Preform')
-        cap_records = purchase_records.filter(name='Cap')
-        shrinkwrapper_records = purchase_records.filter(name='Shrinkwrapper')
-
-        # Calculate totals for each product category
-        total_preform = preform_records.aggregate(Sum('total'))['total__sum'] or 0
-        total_cap = cap_records.aggregate(Sum('total'))['total__sum'] or 0
-        total_shrinkwrapper = shrinkwrapper_records.aggregate(Sum('total'))['total__sum'] or 0
-
-        # Calculate totals for each production summary item
-        total = purchase_records.aggregate(Sum('total'))['total__sum']  
-        
-
-        # Render the production report template with the retrieved data
-        return render(request, 'settings/purchase_report.html', {
-            'queryset': queryset,
-            'start_date': start_date,
-            'end_date': end_date,
-            'total_preform':total_preform,
-            'total_cap':total_cap,
-            'total_shrinkwrapper':total_shrinkwrapper,
-            'purchase_records': purchase_records,
-            'total':total
-        })
+ 
 
 @login_required
 def ticket_report(request):

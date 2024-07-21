@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 {% block body %}
 {% if messages %}
     {% for message in messages %}
@@ -56,10 +57,10 @@
             <tr>
                 <td>{{purchase.product}}</td>
                 <td>{{purchase.supplier}}</td>
-                <td>{{purchase.quantity}}</td>
-                <td>{{purchase.unit}}</td>
-                <td>{{purchase.price}}</td>
-                <td>{{purchase.total}}</td>
+                <td>{{purchase.quantity|format_with_commas}}</td>
+                <td>{{purchase.unit|format_with_commas}}</td>
+                <td>{{purchase.price|format_with_commas}}</td>
+                <td>{{purchase.total|format_with_commas}}</td>
                 <!-- <td>
                     <a href="{% url 'update_purchase' pk=purchase.pk %}">
                         <i class='bx bx-edit' style="font-size: 1.5em;"></i>
