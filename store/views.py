@@ -52,7 +52,7 @@ def user_login(request):
         
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('inventory_list')
         else:
             return render(request, 'base/login.html', {'error_message': 'Invalid username or password'})
     else:
