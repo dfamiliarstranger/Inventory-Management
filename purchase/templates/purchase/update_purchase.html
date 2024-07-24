@@ -14,6 +14,10 @@
         <form id="preform" method="POST" action="{% url 'update_purchase' purchase.pk %}" class="shadow p-3 form-display">
             {% csrf_token %}
             <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Update Purchase</h2>
+            <div class="mb-3">
+                <label for="created_at" class="form-label">Date</label>
+                <input type="datetime-local" class="form-control" name="created_at" id="created_at" value="{{ purchase.created_at|date:'Y-m-d\TH:i' }}">
+            </div>
             
             <div class="mb-3">
                 <label for="product" class="text form-label">Product</label>

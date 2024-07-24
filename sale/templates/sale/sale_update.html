@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+<div class="head-title">
+    <div class="left">
+        <h1>Edit Sale</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Edit Sale</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'sale_list' %}">Sales</a>
+          </li>
+        </ul>
+    </div>
+    <a href="{% url 'sale_list' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">Back</span>
+    </a>
+</div>
+<div class="container mt-5">
+    <div id="forms" class="col-md-6 mb-3 mt-5">
+        <form id="preform" method="POST" action="{% url 'sale_update' sale.pk %}" class="shadow p-3 form-display">
+            {% csrf_token %}
+            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">EDIT SALE</h2>
+            <div class="mb-3">
+                <label for="date" class="form-label">Date</label>
+                <input type="datetime-local" class="form-control" name="date" id="date" value="{{ sale.created_at|date:'Y-m-d\TH:i' }}">
+            </div>
+            <div class="mb-3">
+                <label for="product" class="text form-label">Product</label>
+                <select name="product" class="form-select" id="product" required>
+                    <option value="" selected>Select</option> <!-- Default option -->
+                    {% for product in products %}
+                    <option value="{{ product.id }}" {% if product.id == sale.product.id %}selected{% endif %}>
+                        {{ product.name }}
+                        {% if product.type %} - {{ product.type.name }}{% endif %}
+                        {% if product.color %} - {{ product.color.name }}{% endif %}
+                        {% if product.size %} - {{ product.size }}{% endif %}
+                        {% if product.unit %} - {{ product.unit }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="customer" class="text form-label">Customer</label>
+                <select name="customer" class="form-select" id="customer" required>
+                    <option value="" selected>Select</option> <!-- Default option -->
+                    {% for customer in customers %}
+                    <option value="{{ customer.id }}" {% if customer.id == sale.customer.id %}selected{% endif %}>{{ customer.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="unit" class="form-label">Unit</label>
+                <input type="number" class="form-control" name="unit" id="quantity" step="0.01" value="{{ sale.unit }}" placeholder="Enter in Product units/pcs" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Price</label>
+                <input type="number" class="form-control" name="price" id="price" step="0.01" value="{{ sale.price }}" placeholder="Product price" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="total" class="form-label">Total</label>
+                <input type="number" class="form-control" name="total" id="total" step="0.01" value="{{ sale.total }}" placeholder="Total cost" required>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Update Sale</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('quantity').addEventListener('input', () => calculateTotal('quantity', 'price', 'total'));
+    document.getElementById('price').addEventListener('input', () => calculateTotal('quantity', 'price', 'total'));
+
+    function calculateTotal(quantityId, priceId, totalId) {
+        const quantity = document.getElementById(quantityId).value;
+        const price = document.getElementById(priceId).value;
+        const total = parseFloat(quantity) * parseFloat(price);
+        if (!isNaN(total)) {
+            document.getElementById(totalId).value = total.toFixed(2);
+        } else {
+            document.getElementById(totalId).value = '';
+        }
+    }
+</script>
+{% endblock %}

@@ -24,7 +24,7 @@ class Purchase(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     pid = ShortUUIDField(unique=True, length=5, prefix="pur-")
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
 
     def __str__(self):
         return f"Purchase {self.pid} - {self.product.name}"

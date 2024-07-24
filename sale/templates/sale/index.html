@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% load custom_filters %}
+
+
 {% block body %}
 {% if messages %}
     {% for message in messages %}
@@ -48,6 +51,7 @@
             <th>Unit</th>
             <th>Price</th> 
             <th>Total </th> 
+            <th>Update </th> 
             <th>Delete</th> 
              
             
@@ -64,10 +68,16 @@
                 <td>{{sale.product.unit}}</td>
                 <td>{{sale.product.color}}</td>
                 <td>{{sale.customer}}</td>
-                <td>{{sale.quantity}}</td>
-                <td>{{sale.unit}}</td>
-                <td>{{sale.price}}</td>
-                <td>{{sale.total}}</td>
+                <td>{{sale.quantity|format_with_commas}}</td>
+                <td>{{sale.unit|format_with_commas}}</td>
+                <td>{{sale.price|format_with_commas}}</td>
+                <td>{{sale.total|format_with_commas}}</td>
+                <td>
+                    <a href="{% url 'sale_update' pk=sale.pk %}">
+                        <i class='bx bx-edit' style="font-size: 1.5em;"></i>
+                    </a>
+                </td>
+                
               
                 <td>
                     <form action="{% url 'sale_delete' pk=sale.pk %}" method="post" style="display:inline;">

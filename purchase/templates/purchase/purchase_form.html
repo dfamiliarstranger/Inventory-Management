@@ -35,7 +35,10 @@
 <form id="preform" method="POST" action="{% url 'purchase_form' %}" class="shadow p-3 form-display">
     {% csrf_token %}
     <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Add Stock Purchase</h2>
-    
+    <div class="mb-3">
+        <label for="date" class="form-label">Date</label>
+        <input type="datetime-local" class="form-control" name="date" id="date">
+    </div>
     <div class="mb-3">
         <label for="product" class="text form-label">Product</label>
         <select name="product" class="form-select" id="product" required>

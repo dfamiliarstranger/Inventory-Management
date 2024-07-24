@@ -48,6 +48,7 @@
             <th>Unit</th>
             <th>Price</th> 
             <th>Total </th> 
+            <th>Update</th>
             <th>Delete</th> 
              
             
@@ -63,11 +64,11 @@
                 <td>{{purchase.unit|format_with_commas}}</td>
                 <td>{{purchase.price|format_with_commas}}</td>
                 <td>{{purchase.total|format_with_commas}}</td>
-                <!-- <td>
+                <td>
                     <a href="{% url 'update_purchase' pk=purchase.pk %}">
                         <i class='bx bx-edit' style="font-size: 1.5em;"></i>
                     </a>
-                </td> -->
+                </td>
                 <td>
                     <form action="{% url 'purchase_delete' pk=purchase.pk %}" method="post" style="display:inline;">
                         {% csrf_token %}

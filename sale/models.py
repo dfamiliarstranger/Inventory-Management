@@ -25,7 +25,7 @@ class Sale(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     pid = ShortUUIDField(unique=True, length=5, prefix="sls-")
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
     
     def clean(self):
         # Ensure the product exists in the inventory and validate the sale
@@ -46,10 +46,8 @@ class Sale(models.Model):
         inventory_item.unit -= self.unit
         inventory_item.save()
 
-        # Calculate total price
-        self.total = self.quantity * self.price
-
         super(Sale, self).save(*args, **kwargs)
 
     def __str__(self):
         return f"Sales {self.pid} - {self.customer}"
+

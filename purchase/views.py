@@ -17,6 +17,7 @@ def purchase_create_view(request):
         quantity = request.POST.get('quantity')
         price = request.POST.get('price')
         total = request.POST.get('total')
+        created_at = request.POST.get('date')
 
         # Validate data
         if not product_id or not supplier_id or not quantity  or not price or not total:
@@ -51,7 +52,8 @@ def purchase_create_view(request):
             supplier=supplier,
             quantity=quantity,
             price=price,
-            total=total
+            total=total,
+            created_at=created_at
         )
         purchase.save()
         messages.success(request, 'Purchase created successfully.')
@@ -76,7 +78,7 @@ def update_purchase(request, pk):
         unit = request.POST.get('unit')
         price = request.POST.get('price')
         total = request.POST.get('total')
-        
+        created_at = request.POST.get('date')
 
         # Add validation logic here
         try:
@@ -94,6 +96,7 @@ def update_purchase(request, pk):
         purchase.quantity = quantity
         purchase.unit = unit
         purchase.price = price
+        purchase.created_at = created_at
         purchase.total = total
         purchase.save()  # Save the updated product
         messages.success(request, 'Purchase updated successfully.') 
