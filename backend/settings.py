@@ -50,8 +50,10 @@ INSTALLED_APPS = [
     'product',
     'old_stock.apps.OldStockAppConfig',
     'sale.apps.SaleConfig',
+    'production.apps.ProductionConfig',
     'option',
     'store',
+  
 ]
 
 MIDDLEWARE = [

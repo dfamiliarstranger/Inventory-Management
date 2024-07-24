@@ -37,14 +37,17 @@
       <table class="table table-striped">
         <thead>
           <tr>
+            <th>Date</th>
             <th>Name</th>
             <th>Type</th>
             <th>Size</th>
+            <th>Unit</th>
             <th>Color</th>
-            <th>Unit</th> 
+          
             <th>Pcs</th> 
             <th>Quantity </th> 
-            <!-- <th>Update </th>  -->
+            <th>Price </th> 
+            <th>Update</th> 
             <th>Delete</th> 
              
             
@@ -53,18 +56,21 @@
         <tbody>
             {% for old_stock in  page_obj%}
             <tr>
+                <td>{{old_stock.created_at|date:"d/m/y" }}</td>
                 <td>{{old_stock.product.name}}</td>
                 <td>{{old_stock.product.type}}</td>
                 <td>{{old_stock.product.size}}</td>
-                <td>{{old_stock.product.color}}</td>
                 <td>{{old_stock.product.unit}}</td>
+                <td>{{old_stock.product.color}}</td>
+                
                 <td>{{old_stock.unit|format_with_commas}}</td>
                 <td>{{old_stock.quantity|format_with_commas}}</td>
-                <!-- <td>
+                <td>{{old_stock.price|format_with_commas}}</td>
+                <td>
                     <a href="{% url 'update_old_stock' oid=old_stock.oid %}">
                         <i class='bx bx-edit' style="font-size: 1.5em;"></i>
                     </a>
-                </td> -->
+                </td>
                 <td>
                     <form action="{% url 'delete_old_stock' pk=old_stock.pk %}" method="post" style="display:inline;">
                         {% csrf_token %}

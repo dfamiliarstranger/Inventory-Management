@@ -58,7 +58,8 @@
 			</li> -->
 			<li class="{% active_class 'product_list' %}">
 				<a href="{% url 'product_list' %}">
-					<i class='bx bxs-shopping-bag-alt store' ></i>
+					<i class='bx bxs-box'></i>
+					
 					<span class="text">Product</span>
 				</a>
 			</li>
@@ -70,25 +71,25 @@
 			</li> -->
 			<li class="{% active_class 'inventory_list' %}">
 				<a href="{% url 'inventory_list' %}">
-					<i class='bx bxs-wallet'></i>
+					<i class='bx bxs-store'></i>
 					<span class="text">Store</span>
 				</a>
 			</li>
 			<li class="{% active_class 'purchase_list' %}">
 				<a href="{% url 'purchase_list' %}">
-					<i class='bx bxs-wallet'></i>
+					<i class='bx bxs-cart'></i>
 					<span class="text">Purchases</span>
 				</a>
 			</li>
 			<li class="{% active_class 'stock_list' %}">
 				<a href="{% url 'stock_list' %}">
-					<i class='bx bxs-wallet'></i>
+					<i class='bx bxs-archive'></i>
 					<span class="text">Old Stock</span>
 				</a>
 			</li>
 			<li class="{% active_class 'sale_list' %}">
 				<a href="{% url 'sale_list' %}">
-					<i class='bx bxs-wallet'></i>
+					<i class='bx bxs-dollar-circle'></i>
 					<span class="text">Sales</span>
 				</a>
 			</li>
@@ -116,12 +117,14 @@
 					<span class="text">Customer</span>
 				</a>
 			</li> -->
-			<!-- <li class="{% active_class 'home' %}">
-				<a href="#">
-					<i class='bx bxs-receipt'></i>
-					<span class="text">Invoice</span>
+
+			<li class="{% active_class 'production_list' %}">
+				<a href="{% url 'production_list' %}">
+					<i class='bx bxs-cog'></i>
+					<span class="text">Production</span>
 				</a>
-			</li> -->
+			</li>
+
 		</ul>
 		<ul class="side-menu">
 			{% if request.user.is_superuser %}

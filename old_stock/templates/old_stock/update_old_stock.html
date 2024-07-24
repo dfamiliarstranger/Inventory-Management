@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
+{% load custom_filters %}
 {% if messages %}
     {% for message in messages %}
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -13,7 +14,7 @@
     <div id="forms" class="col-md-6 mb-3 mt-5">
         <!-- update_old_stock.html -->
 
-<form id="updateoldstockform" method="POST" action="{% url 'update_old_stock' old_stock.id %}" class="shadow p-3 form-display">
+<form id="updateoldstockform" method="POST" action="{% url 'update_old_stock' oid=old_stock.oid %}" class="shadow p-3 form-display">
     {% csrf_token %}
     <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Update Old Stock</h2>
     
@@ -34,6 +35,11 @@
     <div class="mb-3">
         <label for="created_at" class="form-label">Created At</label>
         <input type="datetime-local" class="form-control" name="created_at" id="created_at" value="{{ old_stock.created_at|date:'Y-m-d' }}T{{ old_stock.created_at|time:'H:i' }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="price" class="form-label">Price</label>
+        <input type="price" class="form-control" name="price" id="price" value="{{ old_stock.price|format_with_commas }}" step="0.01" placeholder="Total cost of old Stock" required>
     </div>
 
     <div class="mb-3">

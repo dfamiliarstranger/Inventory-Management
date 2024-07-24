@@ -21,9 +21,10 @@ def old_stock_create_view(request):
         product_id = request.POST.get('product')
         unit = request.POST.get('unit')
         created_at_str = request.POST.get('created_at')
+        price = request.POST.get('price')
 
         # Validate data
-        if not product_id or not unit or not created_at_str:
+        if not product_id or not unit or not price or not created_at_str:
             messages.error(request, 'All fields are required.')
             return render(request, 'old_stock_form.html', {'products': products})
 
@@ -59,7 +60,8 @@ def old_stock_create_view(request):
             product=product,
             unit=unit,
             quantity=quantity,
-            created_at=created_at
+            created_at=created_at,
+            price=price
         )
         old_stock.save()
         messages.success(request, 'Old Stock created successfully.')
@@ -80,16 +82,19 @@ def update_old_stock(request, oid):
         product_id = request.POST.get('product')
         unit = request.POST.get('unit')
         created_at_str = request.POST.get('created_at')
-
+        price = request.POST.get('price')
         # Validate and update old_stock
         try:
-            product = Product.objects.get(oid=oid)
+            product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
             messages.error(request, 'Invalid product.')
             return render(request, 'old_stock/update_old_stock.html', {'old_stock': old_stock})
 
         try:
-            unit = Decimal(unit)
+            if unit:
+                unit = Decimal(unit.replace(',', ''))  # Remove any commas if present
+            else:
+                raise ValueError('Unit cannot be empty.')
         except ValueError:
             messages.error(request, 'Unit must be a decimal number.')
             return render(request, 'old_stock/update_old_stock.html', {'old_stock': old_stock})
@@ -110,6 +115,7 @@ def update_old_stock(request, oid):
         old_stock.unit = unit
         old_stock.quantity = quantity
         old_stock.created_at = created_at
+        old_stock.price = price
         old_stock.save()
 
         messages.success(request, 'Old Stock updated successfully.')

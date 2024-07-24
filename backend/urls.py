@@ -26,6 +26,7 @@ urlpatterns = [
     path('old_stock/', include('old_stock.urls')),
     path('option/', include('option.urls')),
     path('sale/', include('sale.urls')),
+    path('production/', include('production.urls')),
     
 ]
 

@@ -39,7 +39,7 @@ class Inventory(models.Model):
     
 
     def __str__(self):
-        return f"{self.product.name} - {self.quantity} {self.unit}"
+        return f"{self.product.name} - {self.unit}"
  
     class Meta:
    
