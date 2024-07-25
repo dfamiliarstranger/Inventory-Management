@@ -78,7 +78,7 @@ def update_purchase(request, pk):
         unit = request.POST.get('unit')
         price = request.POST.get('price')
         total = request.POST.get('total')
-        created_at = request.POST.get('date')
+        created_at = request.POST.get('created_at')
 
         # Add validation logic here
         try:
@@ -89,7 +89,10 @@ def update_purchase(request, pk):
         except ValueError:
             messages.error(request, 'Invalid input for quantity. Please enter a valid number.')
             return render(request, 'purchase/update_purchase.html', {'purchase': purchase})
-
+        # Check if created_at is empty or None
+        if not created_at:
+            messages.error(request, 'Date cannot be empty.')
+            return render(request, 'purchase/update_purchase.html', {'purchase': purchase, 'product': product, 'supplier': supplier})
         # Update the purchase instance
         purchase.product_id = product_id
         purchase.supplier_id = supplier_id
