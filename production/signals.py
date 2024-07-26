@@ -15,10 +15,15 @@ def update_inventory_on_production_save(sender, instance, created, **kwargs):
         preform_inventory.save()
 
         # Update inventory for produced bottles
-        bottle_inventory, created = Inventory.objects.get_or_create(product=instance.produced_bottle_product)
-        bottle_inventory.unit = F('unit') + instance.produced_bottles
+        bottle_inventory, created = Inventory.objects.get_or_create(
+            product=instance.produced_bottle_product,
+            defaults={'unit': 0}
+        )
+        if not created:
+            bottle_inventory.unit = F('unit') + instance.produced_bottles
+        else:
+            bottle_inventory.unit = instance.produced_bottles
         bottle_inventory.save()
-
 
 
 @receiver(post_delete, sender=Production)
