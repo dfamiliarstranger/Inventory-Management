@@ -4,7 +4,6 @@ from product.models import Product
 from decimal import Decimal
 
 
-
 class Supplier(models.Model):
     name = models.CharField(max_length=100)
     mobile_1 = models.CharField(max_length=100)

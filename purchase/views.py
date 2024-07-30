@@ -60,7 +60,7 @@ def purchase_create_view(request):
         # Redirect to purchase list view upon successful creation
         return redirect('purchase_list')
 
-    # Render the form template for GET requests
+# Render the form template for GET requests
     return render(request, 'purchase/purchase_form.html', {'product': product,
         'supplier': supplier,})
 

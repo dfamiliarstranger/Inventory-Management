@@ -6,9 +6,9 @@
       <h1>Invoice</h1>
       <ul class="breadcrumb">
         <li>
-            <a  href="#">Dashboard</a>
+            <a href="#">Dashboard</a>
         </li>
-        <li><i class='bx bx-chevron-right' ></i></li>
+        <li><i class='bx bx-chevron-right'></i></li>
         <li>
             <a class="active" href="{% url 'invoice' %}">Invoice</a>
         </li>
@@ -20,28 +20,23 @@
     </a>
 </div>
 
-
-<form id="searchForm" method="GET" class="row g-3"> <!-- Added method attribute and Bootstrap row class -->
-  <div class="form-group">
+<form id="searchForm" method="GET" class="row g-3">
+  <div class="form-group col-md-6">
     <label for="customer" class="form-label">Customer</label>
     <select name="customer" class="form-select" id="customer" required>
-      <option value="" selected>Select</option> <!-- Default option -->
-      {% for customers in customers %}
-      <option value="{{ customers.name }}"><p>{{ customers.name }}</p></option>
+      <option value="" selected>Select</option>
+      {% for customer in customers %}
+      <option value="{{ customer.name }}">{{ customer.name }}</option>
       {% endfor %}
     </select>
   </div>
-    <div class="col-md-4"> <!-- Adjusted column width for better layout -->
-        <label for="start_date" class="form-label">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" class="form-control"> <!-- Added form-control class for input styling -->
-    </div>
-    <div class="col-md-4"> <!-- Adjusted column width for better layout -->
-        <label for="end_date" class="form-label">End Date:</label>
-        <input type="date" id="end_date" name="end_date" class="form-control"> <!-- Added form-control class for input styling -->
-    </div>
-    <div class="col-12"> <!-- Full-width column for button -->
-        <button type="submit" class="btn btn-primary">Search</button> <!-- Added btn and btn-primary classes for button styling -->
-    </div>
+  <div class="form-group col-md-6">
+    <label for="transaction_date" class="form-label">Transaction Date</label>
+    <input type="date" id="transaction_date" name="transaction_date" class="form-control">
+  </div>
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </div>
 </form>
 
 {% if sales_data %}
@@ -49,8 +44,8 @@
   <div class="order">
     <div class="head">
       <h3>Search Results</h3>
-      <i class='bx bx-search' ></i>
-      <i class='bx bx-filter' ></i>
+      <i class='bx bx-search'></i>
+      <i class='bx bx-filter'></i>
     </div>
     <table class="table table-striped">
       <thead>
@@ -58,37 +53,29 @@
           <th>Date</th>
           <th>Product</th>
           <th>Customer</th>
-          <th>quantity</th>
+          <th>Quantity</th>
           <th>Price</th>
           <th>Total</th>
-           
         </tr>
       </thead>
       <tbody>
         {% for sale in sales_data %}
-            <tr>
-              <td><p>{{sale.created_at}}</p></td>
-              <td>
-                <p>{{sale.product.name}}</p>
-              </td>
-              <td><p>{{sale.customer.name}}</p></td>
-              <td>{{sale.quantity}}</td>
-              <td>{{sale.price}}</td>
-                
-              <td>{{sale.total}}</td>
-            </tr>
+        <tr>
+          <td>{{ sale.created_at }}</td>
+          <td>{{ sale.product.name }}</td>
+          <td>{{ sale.customer.name }}</td>
+          <td>{{ sale.quantity }}</td>
+          <td>{{ sale.price }}</td>
+          <td>{{ sale.total }}</td>
+        </tr>
         {% endfor %}
-       
       </tbody>
     </table>
-
   </div>
 </div>
 {% else %}
 <p>No sales found for the selected criteria.</p>
 {% endif %}
-
-
 
 <div class="invoice-foot text-center">
     <div class="invoice-btns">
@@ -98,8 +85,6 @@
             </span>
             <span>Print</span>
         </a>
-        
-      
     </div>
 </div>
 
