@@ -42,7 +42,7 @@
             <option value="" selected>Select</option> <!-- Default option -->
             {% for inventory in inventories %}
             <option value="{{ inventory.id }}">
-                {{ inventory.product.name }} - {{ inventory.unit }}
+                {{ inventory.product.name }} - {{inventory.product.type}} - {{inventory.product.size}} - {{inventory.product.color}} - {{ inventory.unit }}
             </option>
             {% endfor %}
         </select>
