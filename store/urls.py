@@ -17,7 +17,7 @@ urlpatterns = [
         path('report/', views.search_view, name='report'),
 
         path('create-ticket/', views.inventory_ticket_create_view, name='inventory_ticket_form'),
-        path('generate-report/', views.generate_report_view, name='generate_report'),
+      
         
 ]
 
