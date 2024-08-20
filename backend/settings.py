@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'production.apps.ProductionConfig',
     'option',
     'store',
+    'report',
   
 ]
 
