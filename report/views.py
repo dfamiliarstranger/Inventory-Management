@@ -10,7 +10,6 @@ from purchase.models import Purchase
 from old_stock.models import Old_Stock
 
 
-
 def business_statement(request):
     # Get the date range from the request, convert them to timezone-aware datetimes
     start_date_str = request.GET.get('start_date')
@@ -64,10 +63,14 @@ def business_statement(request):
         ).aggregate(total_units=Sum('produced_bottles'))['total_units'] or 0
         
         # Calculate the balance
-        balance_units = total_purchased_units + total_oldstock_units - total_sold_units - total_used_in_production
+        balance_units = total_purchased_units + total_oldstock_units + total_produced_units - total_sold_units - total_used_in_production
         
         statement.append({
             'product': product.name,
+            'product_type': product.type.name if product.type else 'N/A',
+            'size': product.size,
+            'color': product.color.name if product.color else 'N/A',
+            'unit': product.unit,
             'purchased_units': total_purchased_units,
             'oldstock_units': total_oldstock_units,
             'sold_units': total_sold_units,

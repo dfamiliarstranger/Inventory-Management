@@ -33,6 +33,9 @@
             <thead class="table-dark">
                 <tr>
                     <th scope="col">Product</th>
+                    <th scope="col">Color</th>
+                    <th scope="col">Product Type</th>
+                    <th scope="col">Size</th>
                     <th scope="col">Purchased Units</th>
                     <th scope="col">Old Stock Units</th>
                     <th scope="col">Sold Units</th>
@@ -45,12 +48,15 @@
                 {% for item in statement %}
                 <tr>
                     <td class="text-wrap">{{ item.product }}</td>
-                    <td class="text-wrap">{{ item.purchased_units }}</td>
-                    <td class="text-wrap">{{ item.oldstock_units }}</td>
-                    <td class="text-wrap">{{ item.sold_units }}</td>
-                    <td class="text-wrap">{{ item.used_in_production_units }}</td>
-                    <td class="text-wrap">{{ item.produced_units }}</td>
-                    <td class="text-wrap">{{ item.balance_units }}</td>
+                    <td class="text-wrap">{{ item.color }}</td>
+                    <td class="text-wrap">{{ item.product_type }}</td>
+                    <td class="text-wrap">{{ item.size }} {{ item.unit }}</td>
+                    <td class="text-wrap">{{ item.purchased_units|format_with_commas }}</td>
+                    <td class="text-wrap">{{ item.oldstock_units|format_with_commas }}</td>
+                    <td class="text-wrap">{{ item.sold_units|format_with_commas }}</td>
+                    <td class="text-wrap">{{ item.used_in_production_units|format_with_commas }}</td>
+                    <td class="text-wrap">{{ item.produced_units|format_with_commas }}</td>
+                    <td class="text-wrap">{{ item.balance_units|format_with_commas }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
