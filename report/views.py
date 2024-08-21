@@ -1,12 +1,10 @@
 from django.shortcuts import render
-
-from django.db.models import Sum, F, DecimalField, ExpressionWrapper
-from django.shortcuts import render
+from django.db.models import Sum
 from django.utils import timezone
 from product.models import Product
 from sale.models import Sale
 from production.models import Production
-from purchase.models import Purchase
+from purchase.models import Purchase, Inventory
 from old_stock.models import Old_Stock
 
 
@@ -15,7 +13,6 @@ def business_statement(request):
     start_date_str = request.GET.get('start_date')
     end_date_str = request.GET.get('end_date')
     
-    # If dates are provided, convert them to datetime objects and make them timezone-aware
     if start_date_str:
         start_date = timezone.make_aware(timezone.datetime.strptime(start_date_str, '%Y-%m-%d'), timezone.get_current_timezone())
     else:
@@ -65,11 +62,18 @@ def business_statement(request):
         # Calculate the balance
         balance_units = total_purchased_units + total_oldstock_units + total_produced_units - total_sold_units - total_used_in_production
         
+        # Get inventory units from the Inventory model
+        try:
+            inventory = Inventory.objects.get(product=product)
+            inventory_units = inventory.unit
+        except Inventory.DoesNotExist:
+            inventory_units = 0
+        
         statement.append({
             'product': product.name,
-            'product_type': product.type.name if product.type else 'N/A',
+            'product_type': product.type.name if product.type else '',
             'size': product.size,
-            'color': product.color.name if product.color else 'N/A',
+            'color': product.color.name if product.color else '',
             'unit': product.unit,
             'purchased_units': total_purchased_units,
             'oldstock_units': total_oldstock_units,
@@ -77,6 +81,7 @@ def business_statement(request):
             'used_in_production_units': total_used_in_production,
             'produced_units': total_produced_units,
             'balance_units': balance_units,
+            'inventory_units': inventory_units,
         })
     
     context = {

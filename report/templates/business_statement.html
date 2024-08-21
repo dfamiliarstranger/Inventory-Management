@@ -3,6 +3,7 @@
 
 {% block body %}
 <div class="container mt-4">
+
     {% if messages %}
         {% for message in messages %}
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -42,6 +43,7 @@
                     <th scope="col">Units Used in Production</th>
                     <th scope="col">Produced Units</th>
                     <th scope="col">Balance Units</th>
+                    <th scope="col">Inventory Units</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,10 +59,14 @@
                     <td class="text-wrap">{{ item.used_in_production_units|format_with_commas }}</td>
                     <td class="text-wrap">{{ item.produced_units|format_with_commas }}</td>
                     <td class="text-wrap">{{ item.balance_units|format_with_commas }}</td>
+                    <td class="text-wrap" style="background-color: {% if item.balance_units == item.inventory_units %}green{% else %}red{% endif %}; color: white;">
+                        {{ item.inventory_units|format_with_commas }}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+</div>
 </div>
 {% endblock %}
