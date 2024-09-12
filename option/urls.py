@@ -25,4 +25,11 @@ urlpatterns = [
     path('customers/create/', views.customer_create, name='customer_create'),
     path('customers/<int:id>/update/', views.customer_update, name='customer_update'),
     path('customers/<int:id>/delete/', views.customer_delete, name='customer_delete'),
+
+
+    #Staff
+    path('staff_create/', views.staff_creation_view, name='staff_creation'),
+    path('staff_list/', views.staff_list_view, name='staff_list'),
+    path('staff_reveal/<str:username>/', views.reveal_password_view, name='reveal_password'),
+     path('delete_user/<int:pk>/', views.delete_user, name='delete_user'),
 ]

@@ -23,6 +23,8 @@ class InventoryTicket(models.Model):
         return f"{self.inventory.product.name} - {self.quantity} - {self.reason}"
     
 class Expense(models.Model):
-    quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    reason = models.CharField(max_length=10)
-    created_at = models.DateTimeField(auto_now_add=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    category = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
+    created_at = models.DateTimeField()
+

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container mt-4">
+    <h2>Create Staff User</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" id="name" name="name" class="form-control" required>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" id="is_superuser" name="is_superuser" class="form-check-input">
+            <label for="is_superuser" class="form-check-label">Superuser Status</label>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Create User</button>
+    </form>
+    <a href="{% url 'staff_list' %}" class="btn btn-secondary mt-3">Back to Staff List</a>
+</div>
+{% endblock %}

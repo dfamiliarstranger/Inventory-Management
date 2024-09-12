@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block body %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="head-title">
+    <div class="left">
+        <h1>Generate Report</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Reports</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'business_report' %}"> Generate Report</a>
+          </li>
+        </ul>
+    </div>
+</div>
+
+<div class="table-data">
+    <div class="order">
+      <div class="head">
+        <h3>Generate Monthly Report</h3>
+        <i class='bx bx-search'></i>
+        <i class='bx bx-filter'></i>
+      </div>
+
+      <!-- Report Generation Form -->
+      <form method="post" action="{% url 'business_report' %}" class="mb-4 row g-3">
+        {% csrf_token %}
+
+        <!-- Month Dropdown -->
+        <div class="col-md-4">
+            <label for="month" class="form-label">Month</label>
+            <select id="month" name="month" class="form-select" required>
+                {% for month in months %}
+                    <option value="{{ month.value }}">{{ month.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Year Dropdown -->
+        <div class="col-md-4">
+            <label for="year" class="form-label">Year</label>
+            <select id="year" name="year" class="form-select" required>
+                {% for year in years %}
+                    <option value="{{ year }}" {% if year == current_year %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Report Type Dropdown -->
+        <div class="col-md-4">
+            <label for="report_type" class="form-label">Report Type</label>
+            <select id="report_type" name="report_type" class="form-select" required>
+                <option value="sales">Sales Summary</option>
+                <option value="purchases">Purchases Summary</option>
+                <option value="production">Production Summary</option>
+                <option value="business">Business Summary</option>
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-12 d-flex justify-content-center mt-3">
+            <button type="submit" class="btn btn-primary">Generate Report</button>
+        </div>
+      </form>
+
+    </div>
+</div>
+
+{% endblock %}

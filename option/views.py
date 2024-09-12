@@ -2,6 +2,73 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product_type, Color, Supplier, Customer
 from django.contrib import messages
 # Create your views here.
+import random
+import string
+
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.hashers import make_password, check_password
+
+def generate_password(length=8):
+    """Generate a random alphanumeric password with the specified length."""
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(length))
+def generate_username():
+    """Generate a username in the format TRV-random_alpha_digits-STF."""
+    # Randomly generate a 5-character alphanumeric string
+    random_part = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+    # Construct the username
+    username = f'TRV-{random_part}-STF'
+    return username
+
+def delete_user(request, pk):
+    if request.method == 'POST':
+        user = get_object_or_404(User, pk=pk)
+        user.delete()
+        return redirect('staff_list')  # Redirect to a list view or another appropriate page
+    return redirect('staff_list')
+
+def staff_creation_view(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        is_superuser = request.POST.get('is_superuser') == 'on'
+        
+        # Authenticate the superuser
+        if request.user.is_superuser:
+            # Generate username and password
+            username = generate_username()
+            password = generate_password(length=8)
+
+            # Create the user
+            user = User.objects.create_user(username=username, password=password, first_name=name)
+            user.is_superuser = is_superuser
+            user.save()
+
+            messages.success(request, f'User created: {username}')
+            return redirect('staff_list')  # Redirect to staff list after creation
+        else:
+            messages.error(request, 'You are not authorized to create users.')
+            return redirect('staff_creation')  # Redirect back to form if unauthorized
+
+    return render(request, 'staff/staff_creation.html')
+
+def staff_list_view(request):
+    users = User.objects.exclude(username=request.user.username)  # Exclude the currently logged-in user
+    return render(request, 'staff/staff_list.html', {'users': users})
+
+def reveal_password_view(request, username):
+    user = User.objects.filter(username=username).first()
+    if user and request.method == 'POST':
+        password = request.POST.get('password')
+        if request.user.is_superuser:
+            if check_password(password, user.password):
+                messages.success(request, f'Password for {username}: {user.password}')
+                return redirect('staff_list')
+            else:
+                messages.error(request, 'Incorrect password.')
+        else:
+            messages.error(request, 'You are not authorized to reveal passwords.')
+    return render(request, 'staff/reveal_password.html', {'username': username})
 
 
 def product_type_create(request):

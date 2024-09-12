@@ -56,6 +56,7 @@
 					<span class="text">Invoice</span>
 				</a>
 			</li> -->
+	
 			<li class="{% active_class 'product_list' %}">
 				<a href="{% url 'product_list' %}">
 					<i class='bx bxs-box'></i>
@@ -63,12 +64,9 @@
 					<span class="text">Product</span>
 				</a>
 			</li>
-			<!-- <li class="{% active_class 'home' %}">
-				<a class="nav-link" href="#">
-					<i class='bx bxs-factory'></i>
-					<span class="text">Production</span>
-				</a>
-			</li> -->
+
+			
+			
 			<li class="{% active_class 'inventory_list' %}">
 				<a href="{% url 'inventory_list' %}">
 					<i class='bx bxs-store'></i>
@@ -81,6 +79,16 @@
 					<span class="text">Purchases</span>
 				</a>
 			</li>
+
+			<li class="{% active_class 'expense_list' %}">
+				<a href="{% url 'expense_list' %}">
+					<i class='bx bxs-shopping-bag-alt store' ></i>
+
+					
+					<span class="text">Expense</span>
+				</a>
+			</li>
+
 			<li class="{% active_class 'stock_list' %}">
 				<a href="{% url 'stock_list' %}">
 					<i class='bx bxs-archive'></i>
@@ -105,7 +113,7 @@
 					<span class="text">Product Type</span>
 				</a>
 			</li> -->
-			<!-- <li class="{% active_class 'supplier_list' %}">
+			<li class="{% active_class 'supplier_list' %}">
 				<a href="{% url 'supplier_list' %}">
 					<i class='bx bxs-group'></i>
 					<span class="text">Supplier</span>
@@ -116,7 +124,7 @@
 					<i class='bx bxs-group'></i>
 					<span class="text">Customer</span>
 				</a>
-			</li> -->
+			</li>
 
 			<li class="{% active_class 'production_list' %}">
 				<a href="{% url 'production_list' %}">

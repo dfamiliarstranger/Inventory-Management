@@ -39,14 +39,14 @@
         <i class='bx bx-filter' ></i>
       </div>
       <table class="table table-striped">
-        <thead>
+        <thead class="text-center align-middle">
           <tr>
-            <th>Product</th>
-            <th>Product Type</th>
-            <th>Color</th>
-            <th>Size </th>
-            <th>Unit</th> 
-            <th>pcs </th> 
+            <th scope="col">Product</th>
+            <th scope="col">Product Type</th>
+            <th scope="col">Color</th>
+            <th scope="col">Size </th>
+            <th scope="col">Unit</th> 
+            <th scope="col">pcs </th> 
             
              
             
@@ -55,12 +55,12 @@
         <tbody>
             {% for inventory in  page_obj%}
             <tr>
-                <td>{{inventory.product.name}}</td>
-                <td>{{inventory.product.type}}</td>
-                <td>{{inventory.product.color}}</td>
-                <td>{{inventory.product.size}}</td>
-                <td>{{inventory.product.unit}}</td>
-                <td>{{inventory.unit|format_with_commas}}</td> 
+                <td class="text-wrap">{{inventory.product.name}}</td>
+                <td class="text-wrap">{{inventory.product.type}}</td>
+                <td class="text-wrap">{{inventory.product.color}}</td>
+                <td class="text-wrap">{{inventory.product.size}}</td>
+                <td class="text-wrap">{{inventory.product.unit}}</td>
+                <td class="text-wrap">{{inventory.unit|format_with_commas}}</td> 
               </tr>
             {% endfor %}
          

@@ -1,0 +1,267 @@
+{% load custom_filters %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Invoice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/invoice.css' %}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark-color);
+            font-size: 14px;
+        }
+
+        .excess{
+            color: green;
+            font-weight: bold;
+        }
+
+        .shortage{
+            color: red;
+            font-weight: bold;
+        }
+
+        .invoice {
+            max-width: 100%;
+            margin: auto;
+            background-color: var(--white-color);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            padding: 20px;
+        }
+        .invoice-wrapper{
+            
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        .invoice-body {
+            overflow-x: auto; /* Enables horizontal scroll */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* Ensures table fits container */
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            /* word-wrap: break-word; */
+        }
+
+        th {
+            background-color: #f9f9f9;
+        }
+
+        .invoice-body table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .invoice-btns {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .invoice-btns button{
+            padding: 10px;
+        }
+
+
+        @media screen and (max-width: 768px) {
+            .invoice {
+                padding: 10px;
+            }
+
+            .invoice-head-middle, .invoice-head-bottom {
+                display: block;
+                text-align: center;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                size: A4 landscape; /* Set page size to landscape */
+                margin: 0; /* Remove default margins */
+            }
+
+            body, html {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: visible; /* Prevent overflow issues */
+            }
+
+          
+
+            .invoice {
+                padding: 0;
+                border: none; /* Remove borders for printing */
+            }
+
+            .invoice-body {
+                overflow: visible; /* Ensure all content is printed */
+            }
+
+            .invoice-btns {
+                display: none; /* Hide buttons when printing */
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-wrapper" id="print-area">
+        <div class="invoice">
+            <div class="text-center">
+                <h1><span style="color: green;">TRIPPLE T</span> Royal Ventures</h1>
+                <p style="color: green;font-style: italic; font-size: 12px;">Olota Estate Ofatedo, Osogbo, Osun State</p>
+                <span style="color: green;font-style: italic; font-size: 12px;">trippletroyalventures@yahoo.com</span>
+                <span style="color: green;font-style: italic; font-size: 12px;">+234 9031381364</span>
+               
+                <div class="hr"></div>
+                <div class="hr"></div>
+                <div class="invoice-head-middle">
+                    <div class="invoice-head-middle-left text-start">
+                        <p><span class="text-bold">Date</span>: {% now "Y-m-d" %}</p>
+                    </div>
+                    <div class="invoice-head-middle-right text-end">
+                        <p><span class="text-bold">Comprehensive Report</span> </p>
+                    </div>
+                </div>
+                <div class="hr"></div>
+            </div>
+            <div class="invoice-body">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="1" class="group-header">S/N</th>
+                            <th colspan="4" class="group-header">Product</th>
+                            <th class="group-header">Inventory</th>
+                            <th colspan="2" class="group-header">Purchase</th>
+                            <th colspan="2" class="group-header">Sales</th>
+                            <th colspan="4" class="group-header">Production</th>
+                            <th colspan="1" class="group-header">Ticket</th>
+                        </tr>
+                        <tr>
+                            <td class="text-bold">S/N</td>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Color</th>
+                            <th>Size</th>
+                            <th>Quantity</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Used Preform</th>
+                            <th>Defective Preform</th>
+                            <th>Bottles Produced</th>
+                            <th>Defective Bottle</th>
+                            <th>E/S</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in report_data %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ data.product.name }}</td>
+                            <td>{{ data.product.type }}</td>
+                            <td>{{ data.product.color }}</td>
+                            <td>{{ data.product.size }} {{ data.product.unit }}</td>
+                            <td>{{ data.inventory|format_with_commas }}</td>
+                            <td>{{ data.total_purchased|format_with_commas }}</td>
+                            <td>{{ data.total_purchase_price|format_with_commas }}</td>
+                            <td>{{ data.total_sold|format_with_commas }}</td>
+                            <td>{{ data.total_sales_price|format_with_commas }}</td>
+                            <td>{{ data.total_used|format_with_commas }}</td>
+                            <td>{{ data.total_defective_preforms|format_with_commas }}</td>
+                            <td>{{ data.total_produced|format_with_commas }}</td>
+                            <td>{{ data.total_defective_bottles|format_with_commas }}</td>
+                            <td>
+                                {% if data.excesses %}
+                                <span class="excess">{{ data.excesses|format_with_commas }}</span>
+                                {% elif data.shortages %}
+                                <span class="shortage">{{ data.shortages|format_with_commas }}</span>
+                                {% else %}
+                                <span>0</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        
+                        {% endfor %}
+                        <!-- Sum Totals -->
+                        <tr>
+                            <td colspan="4"><strong>Total</strong></td>
+                            <td> <strong> {{ inventory_sum|format_with_commas }} </strong></td>
+                            <td> <strong> {{ purchased_sum|format_with_commas }} </strong></td>
+                            <td> <strong> {{ purchase_price_sum|format_with_commas }} </strong></td>
+                            <td> <strong> {{ sold_sum|format_with_commas }} </strong></td>
+                            <td> <strong> {{ sales_price_sum|format_with_commas }} </strong></td>
+                            <td> <strong> {{ used_sum|format_with_commas }} </strong></td>
+                            <td> <strong> {{ defective_preforms_sum|format_with_commas }} </strong></td>
+                            <td> <strong> {{ produced_sum|format_with_commas }} </strong></td>
+                            <td> <strong> {{ defective_bottles_sum|format_with_commas }} </strong></td>
+                            <td>
+                                {% if excesses_sum %}
+                                <span > <strong> </strong>{{ excesses_sum|format_with_commas }}</span>
+                                {% elif shortages_sum %}
+                                <span > <strong> </strong>{{ shortages_sum|format_with_commas }}</span>
+                                {% else %}
+                                <span>0</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Invoice Summary -->
+                <div class="invoice-body-bottom">
+                    <div class="invoice-body-info-item">
+                        <div class="info-item-td text-end text-bold">Total Purchases:</div>
+                        <div class="info-item-td text-end text-bold">&#x20A6; {{ total_purchases_sum|format_with_commas }}</div>
+                    </div>
+                    <div class="hr"></div>
+                    <div class="invoice-body-info-item">
+                        <div class="info-item-td text-end text-bold">Total Expenses:</div>
+                        <div class="info-item-td text-end text-bold">&#x20A6; {{ total_expenses_sum|format_with_commas }}</div>
+                    </div>
+                    <div class="hr"></div>
+                    <div class="invoice-body-info-item">
+                        <div class="info-item-td text-end text-bold">Total Sales:</div>
+                        <div class="info-item-td text-end text-bold">&#x20A6; {{ total_sales_sum|format_with_commas }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="invoice-foot text-center">
+                <p><span class="text-bold">NOTE:</span> This is a computer-generated receipt and does not require a physical signature.</p>
+                <div class="invoice-btns">
+                    <button class="btn" onclick="printInvoice()">Print</button>
+                    <a class="btn" href = "{% url 'business_report' %}">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function printInvoice() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

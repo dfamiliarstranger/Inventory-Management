@@ -1,596 +1,572 @@
 {% extends "base.html" %}
 {% load custom_filters %}
 {% block body %}
-
-<!-- MAIN -
 <style>
-  .delete-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    margin: 0;
-  }
-    
-  .delete-icon {
-    font-size: 24px;
-    color: #FF0000;
-  }
+.container-fluid {
+    padding: 0 2rem;
+}
 
-  .hidden {
-    display: none;
-  }
+.d-sm-flex {
+    display: flex !important;
+}
 
-  /* Custom styles for tables */
-  table {
-    border-radius: 10px;
-    background-color: #f8f9fa;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    overflow: hidden;
-    padding: 10px 30px;
-  }
+.align-items-center {
+    align-items: center !important;
+}
 
-  table thead {
-    background-color: #007bff; /* Bootstrap primary color */
-    color: #fff;
-  }
+.justify-content-between {
+    justify-content: space-between !important;
+}
 
-  table th, .data-table td {
-    padding: 10px;
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.h3 {
+    font-size: 1.75rem;
+    font-weight: 400;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+.d-none {
+    display: none !important;
+}
+
+.d-sm-inline-block {
+    display: inline-block !important;
+}
+
+.btn {
+    display: inline-block;
+    font-weight: 400;
     text-align: center;
-  }
-
-
-  .box-info .text {
-  padding: 10px;
-  flex-grow: 1;
+    vertical-align: middle;
+    user-select: none;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: 0.35rem;
 }
 
-.box-info .vertical-line {
-  border-right: 1px solid #ddd; /* Change the color as needed */
+.btn-primary {
+    color: #fff;
+    background-color: #4e73df;
+    border-color: #4e73df;
 }
 
-.box-info .vertical-line:last-child {
-  border-right: none;
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
-</style>-->
 
-<div class="head-title">
-  <div class="left">
-    <h1>Dashboard</h1>
-    <ul class="breadcrumb">
-      <li><a href="#">Dashboard</a></li>
-      <li><i class='bx bx-chevron-right'></i></li>
-      <li><a class="active" href="#">Home</a></li>
-    </ul>
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.col-xl-3, .col-md-6 {
+    position: relative;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.card {
+    border: none;
+    border-radius: 0.35rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.shadow {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+}
+
+.h-100 {
+    height: 100% !important;
+}
+
+.py-2 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    padding: 1.25rem;
+}
+
+.row.no-gutters {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.align-items-center {
+    align-items: center !important;
+}
+
+.text-xs {
+    font-size: 0.7rem;
+}
+
+.font-weight-bold {
+    font-weight: 700 !important;
+}
+
+.text-uppercase {
+    text-transform: uppercase !important;
+}
+
+.text-primary {
+    color: #4e73df !important;
+}
+
+.h5 {
+    font-size: 1.25rem;
+    font-weight: 400;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+.col-auto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+}
+
+.fa-2x {
+    font-size: 2em;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+.card-header {
+    padding: 1rem 1.25rem;
+    margin-bottom: 0;
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 10rem;
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    font-size: 1rem;
+    color: #858796;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.35rem;
+}
+
+.dropdown-divider {
+    height: 0;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    border-top: 1px solid #e3e6f0;
+}
+
+.chart-area {
+    position: relative;
+    height: 320px;
+}
+
+.chart-pie {
+    position: relative;
+    height: 320px;
+    margin: auto;
+}
+
+.progress {
+    display: flex;
+    height: 1rem;
+    overflow: hidden;
+    line-height: 0;
+    font-size: 0.75rem;
+    background-color: #e9ecef;
+    border-radius: 0.35rem;
+}
+
+.progress-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #4e73df;
+    transition: width 0.6s ease;
+}
+
+.bg-info {
+    background-color: #36b9cc !important;
+}
+
+.bg-success {
+    background-color: #1cc88a !important;
+}
+
+.bg-danger {
+    background-color: #e74a3b !important;
+}
+
+.bg-warning {
+    background-color: #f6c23e !important;
+}
+
+</style>
+<div class="container-fluid">
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+      <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+      <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+              class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
   </div>
-  <a href="{% url 'home' %}" class="btn-download">
-    <i class='bx bx-right-arrow-circle'></i>
-    <span class="text">Back</span>
-  </a>
+
+  <!-- Content Row -->
+  <div class="d-flex">
+
+      <!-- Earnings (Monthly) Card Example -->
+      <div class="col-xl-3 col-md-6 mb-4 flex-fill border p-2">
+          <div class="card border-left-primary shadow h-100 py-2">
+              <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                          <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                              Earnings (Monthly)</div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-800">$40,000</div>
+                      </div>
+                      <div class="col-auto">
+                          <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Earnings (Monthly) Card Example -->
+      <div class="col-xl-3 col-md-6 mb-4 flex-fill border p-2" >
+          <div class="card border-left-success shadow h-100 py-2">
+              <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                          <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                              Earnings (Annual)</div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-800">$215,000</div>
+                      </div>
+                      <div class="col-auto">
+                          <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Earnings (Monthly) Card Example -->
+      <div class="col-xl-3 col-md-6 mb-4 flex-fill border p-2">
+          <div class="card border-left-info shadow h-100 py-2">
+              <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                          <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tasks
+                          </div>
+                          <div class="row no-gutters align-items-center">
+                              <div class="col-auto">
+                                  <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
+                              </div>
+                              <div class="col">
+                                  <div class="progress progress-sm mr-2">
+                                      <div class="progress-bar bg-info" role="progressbar"
+                                          style="width: 50%" aria-valuenow="50" aria-valuemin="0"
+                                          aria-valuemax="100"></div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="col-auto">
+                          <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Pending Requests Card Example -->
+      <div class="col-xl-3 col-md-6 mb-4 flex-fill border p-2">
+          <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                          <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                              Pending Requests</div>
+                          <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                      </div>
+                      <div class="col-auto">
+                          <i class="fas fa-comments fa-2x text-gray-300"></i>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Content Row -->
+
+  <div class="row">
+
+      <!-- Area Chart -->
+      <div class="col-xl-8 col-lg-7">
+          <div class="card shadow mb-4">
+              <!-- Card Header - Dropdown -->
+              <div
+                  class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
+                  <div class="dropdown no-arrow">
+                      <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                          aria-labelledby="dropdownMenuLink">
+                          <div class="dropdown-header">Dropdown Header:</div>
+                          <a class="dropdown-item" href="#">Action</a>
+                          <a class="dropdown-item" href="#">Another action</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="#">Something else here</a>
+                      </div>
+                  </div>
+              </div>
+              <!-- Card Body -->
+              <div class="card-body">
+                  <div class="chart-area">
+                      <canvas id="myAreaChart"></canvas>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Pie Chart -->
+      <div class="col-xl-4 col-lg-5">
+          <div class="card shadow mb-4">
+              <!-- Card Header - Dropdown -->
+              <div
+                  class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Revenue Sources</h6>
+                  <div class="dropdown no-arrow">
+                      <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                          aria-labelledby="dropdownMenuLink">
+                          <div class="dropdown-header">Dropdown Header:</div>
+                          <a class="dropdown-item" href="#">Action</a>
+                          <a class="dropdown-item" href="#">Another action</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="#">Something else here</a>
+                      </div>
+                  </div>
+              </div>
+              <!-- Card Body -->
+              <div class="card-body">
+                  <div class="chart-pie pt-4 pb-2">
+                      <canvas id="myPieChart"></canvas>
+                  </div>
+                  <div class="mt-4 text-center small">
+                      <span class="mr-2">
+                          <i class="fas fa-circle text-primary"></i> Direct
+                      </span>
+                      <span class="mr-2">
+                          <i class="fas fa-circle text-success"></i> Social
+                      </span>
+                      <span class="mr-2">
+                          <i class="fas fa-circle text-info"></i> Referral
+                      </span>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+
+      <!-- Content Column -->
+      <div class="col-lg-6 mb-4">
+
+          <!-- Project Card Example -->
+          <div class="card shadow mb-4">
+              <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Projects</h6>
+              </div>
+              <div class="card-body">
+                  <h4 class="small font-weight-bold">Server Migration <span
+                          class="float-right">20%</span></h4>
+                  <div class="progress mb-4">
+                      <div class="progress-bar bg-danger" role="progressbar" style="width: 20%"
+                          aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <h4 class="small font-weight-bold">Sales Tracking <span
+                          class="float-right">40%</span></h4>
+                  <div class="progress mb-4">
+                      <div class="progress-bar bg-warning" role="progressbar" style="width: 40%"
+                          aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <h4 class="small font-weight-bold">Customer Database <span
+                          class="float-right">60%</span></h4>
+                  <div class="progress mb-4">
+                      <div class="progress-bar" role="progressbar" style="width: 60%"
+                          aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <h4 class="small font-weight-bold">Payout Details <span
+                          class="float-right">80%</span></h4>
+                  <div class="progress mb-4">
+                      <div class="progress-bar bg-info" role="progressbar" style="width: 80%"
+                          aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <h4 class="small font-weight-bold">Account Setup <span
+                          class="float-right">Complete!</span></h4>
+                  <div class="progress">
+                      <div class="progress-bar bg-success" role="progressbar" style="width: 100%"
+                          aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Color System -->
+          <div class="row">
+              <div class="col-lg-6 mb-4">
+                  <div class="card bg-primary text-white shadow">
+                      <div class="card-body">
+                          Primary
+                          <div class="text-white-50 small">#4e73df</div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6 mb-4">
+                  <div class="card bg-success text-white shadow">
+                      <div class="card-body">
+                          Success
+                          <div class="text-white-50 small">#1cc88a</div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6 mb-4">
+                  <div class="card bg-info text-white shadow">
+                      <div class="card-body">
+                          Info
+                          <div class="text-white-50 small">#36b9cc</div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6 mb-4">
+                  <div class="card bg-warning text-white shadow">
+                      <div class="card-body">
+                          Warning
+                          <div class="text-white-50 small">#f6c23e</div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6 mb-4">
+                  <div class="card bg-danger text-white shadow">
+                      <div class="card-body">
+                          Danger
+                          <div class="text-white-50 small">#e74a3b</div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6 mb-4">
+                  <div class="card bg-secondary text-white shadow">
+                      <div class="card-body">
+                          Secondary
+                          <div class="text-white-50 small">#858796</div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6 mb-4">
+                  <div class="card bg-light text-black shadow">
+                      <div class="card-body">
+                          Light
+                          <div class="text-black-50 small">#f8f9fc</div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-lg-6 mb-4">
+                  <div class="card bg-dark text-white shadow">
+                      <div class="card-body">
+                          Dark
+                          <div class="text-white-50 small">#5a5c69</div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+
+      <div class="col-lg-6 mb-4">
+
+          <!-- Illustrations -->
+          <div class="card shadow mb-4">
+              <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Illustrations</h6>
+              </div>
+              <div class="card-body">
+                  <div class="text-center">
+                      <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;"
+                          src="img/undraw_posting_photo.svg" alt="...">
+                  </div>
+                  <p>Add some quality, svg illustrations to your project courtesy of <a
+                          target="_blank" rel="nofollow" href="https://undraw.co/">unDraw</a>, a
+                      constantly updated collection of beautiful svg images that you can use
+                      completely free and without attribution!</p>
+                  <a target="_blank" rel="nofollow" href="https://undraw.co/">Browse Illustrations on
+                      unDraw &rarr;</a>
+              </div>
+          </div>
+
+          <!-- Approach -->
+          <div class="card shadow mb-4">
+              <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Development Approach</h6>
+              </div>
+              <div class="card-body">
+                  <p>SB Admin 2 makes extensive use of Bootstrap 4 utility classes in order to reduce
+                      CSS bloat and poor page performance. Custom CSS classes are used to create
+                      custom components and custom utility classes.</p>
+                  <p class="mb-0">Before working with this theme, you should become familiar with the
+                      Bootstrap framework, especially the utility classes.</p>
+              </div>
+          </div>
+
+      </div>
+  </div>
+
 </div>
-<!---
-{% if messages %}
-  {% for message in messages %}
-  <div class="alert alert-warning alert-dismissible fade show" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {% endfor %}
-{% endif %}
-
-Month and Year Selection Form
-Month and Year Selection Form 
-<form method="get" action="" class="row g-3 align-items-center">
-  <div class="col-md-3">
-    <label for="month" class="form-label">Month</label>
-    <select id="month" name="month" class="form-select">
-      {% for month in months %}
-      <option value="{{ month }}" {% if month == selected_month %}selected{% endif %}>{{ month }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="col-md-3">
-    <label for="year" class="form-label">Year</label>
-    <select id="year" name="year" class="form-select">
-      {% for year in years %}
-      <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="col-md-6 d-flex justify-content-end align-items-end">
-    <button type="submit" class="btn btn-primary me-2">Filter</button>
-    <button type="button" id="stock-button" class="btn btn-secondary me-2" onclick="handleButtonClick('stock')">Stock</button>
-<button type="button" id="sales-button" class="btn btn-secondary me-2" onclick="handleButtonClick('sales')">Sales</button>
-<button type="button" id="purchases-button" class="btn btn-secondary" onclick="handleButtonClick('purchases')">Purchases</button>
-  </div>
-</form>
-
-
-
- ----   --------  ----------- ----- STOCK DISPLAY---------
-<div id="stock-content" class="data-table">
-  <h3 style="font-weight: bold;color: #007BFF; margin-top: 30px;">Stock Summary</h3>
-  <ul class="box-info" style="padding-bottom: 15px;">
-    <li>
-      <i class='bx bxs-shopping-bag-alt store'></i>
-      <span class="text vertical-line">
-        <h5>Preform</h5>
-        <p>Total Bags: {{total_quantity_preforms|format_with_commas }}</p>
-        <p>Total Units(pcs): {{total_units_preforms|format_with_commas }}</p>
-      </span>
-      <span class="text vertical-line">
-        <h5>Cap</h5>
-        <p>Total Bags: {{total_quantity_caps|format_with_commas }}</p>
-        <p>Total Units(pcs): {{total_units_caps|format_with_commas  }}</p>
-      </span>
-      <span class="text vertical-line">
-        <h5>Shrinkwrapper</h5>
-        <p>Total Units: {{total_units_shrinkwrappers|format_with_commas }}</p>
-      </span>
-      <span class="text">
-        <h5>Bottle</h5>
-        <p>Total Units(pcs): {{total_units_bottles|format_with_commas }}</p>
-      </span>
-    </li>
-  </ul>
-
-
-  <h5>Preform</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Size</th>
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Unit</th>
-      </tr>
-    </thead>
-    <tbody>
-      
-      {% for item in preform_stock %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td> 
-        <td><p>{{ item.name }}</p></td>
-        <td><p>{{ item.color }}</p></td>
-        <td><p>{{ item.preform_type__size }}</p></td>
-        <td><p>{{ item.preform_type__name }}</p></td>
-        
-        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}
-        </p></td>
-        <td><p>{{ item.total_unit|format_with_commas }}</p></td>
-      </tr>
-    
-      {% endfor %}
-     
-    </tbody>
-  </table>
-
-  <h5>Caps</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Size</th>
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Unit</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in caps_stock %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td>
-        <td><p>{{ item.name }}</p></td>
-        <td><p>{{ item.color }}</p></td>
-        <td><p>{{ item.cap_type__size }}</p></td>
-        <td><p>{{ item.product_type }}</p></td>
-        
-        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas  }}</p></td>
-        <td><p>{{ item.total_unit|format_with_commas }}</p></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h5>Shrinkwrappers</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Unit</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in shrinkwrappers_stock %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td>
-        <td><p>{{ item.name }}</p></td>
-       
-        <td><p>{{ item.product_type }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas}}</p></td>
-        <td><p>{{ item.total_unit|format_with_commas }}</p></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h5>Bottle</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Unit</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in bottle_stock %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td>
-        <td><p>{{ item.name }}</p></td>
-        <td><p>{{ item.color }}</p></td>
-        <td><p>{{ item.bottle_type }} {{ item.product_type }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
-        <td><p>{{ item.total_unit|format_with_commas }}</p></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-  ----  ----------- ------------- STOCK MENU END  ---------------   ---------------     ----
-
-
-
----------        --------      ----------  SALES MUNU LAYOUT  ------        -----------------             --------
-<div id="sales-content" class="hidden data-table">
-  <h3 style="margin-top: 30px; font-weight: bold;color: #007BFF;">Sales Summary</h3>
- 
-  
-  <ul class="box-info" style="padding-bottom: 15px;">
-    <li>
-      <i class='bx bxs-wallet store'></i>
-      <span class="text vertical-line">
-        <h5>Preform</h5>
-        <p>Total Sales: &#x20A6;{{total_sales_price|format_with_commas }}</p>
-        <p>Total Units(pcs) sold: {{total_preforms__quantity|format_with_commas }}</p>
-      </span>
-      <span class="text vertical-line">
-        <h5>Cap</h5>
-        <p>Total sales: &#x20A6;{{caps_sales_price|format_with_commas }}</p>
-        <p>Total Units(pcs) Sold: {{caps_preforms__quantity|format_with_commas  }}</p>
-      </span>
-      <span class="text vertical-line">
-        <h5>Shrinkwrapper</h5>
-        <p>Total Sales: &#x20A6;{{shrinkwrappers_sales_price|format_with_commas }}</p>
-        <p>Total Units(pcs) Sold: {{shrinkwrappers_preforms__quantity|format_with_commas  }}</p>
-      </span>
-      <span class="text">
-        <h5>Bottle</h5>
-        <p>Total Sales: &#x20A6;{{bottle_sales_price|format_with_commas }}</p>
-        <p>Total Units(pcs) Sold: {{bottle_preforms__quantity|format_with_commas  }}</p>
-      </span>
-    </li>
-  </ul>
-
-
-  <h5>Preform</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Size</th>
-        <th>Type</th>
-        <th>Units</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      
-      {% for item in preform_sales %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td> 
-        <td><p>{{ item.product__name }}</p></td>
-        <td><p>{{ item.product__color }}</p></td>
-        <td><p>{{ item.product__preform_type__size }}</p></td>
-        <td><p>{{ item.product__preform_type__name }}</p></td>
-        <td><p>{{ item.total_quantity }}</p></td>
-        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
-      </tr>
-    
-      {% endfor %}
-     
-    </tbody>
-  </table>
-
-  <h5>Caps</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Size</th>
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in caps_sales %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td>
-        <td><p>{{ item.product__name }}</p></td>
-        <td><p>{{ item.product__color }}</p></td>
-        <td><p>{{ item.product__cap_type__size }}</p></td>
-        <td><p>{{ item.product__product_type }}</p></td>
-        
-        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
-        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h5>Shrinkwrappers</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in shrinkwrappers_sales %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td>
-        <td><p>{{ item.product__name }}</p></td>
-        
-        <td><p>{{ item.product__product_type }}</p></td>
-        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
-        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h5>Bottle</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in bottle_sales %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td>
-        <td><p>{{ item.product__name }}</p></td>
-        <td><p>{{ item.product__color }}</p></td>
-        <td><p>{{ item.product__bottle_type }} {{ item.product__product_type }}</p></td>
-        <td><p>{{ item.total_quantity|format_with_commas }}</p></td>
-        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-<!----  ----  ----------- ------------- SALES MENU END  ---------------   ---------------     ---->
-
-
-<!----  ----  ----------- ------------- PURCHASES MENU  ---------------   ---------------     ---
-<div id="purchases-content" class="hidden data-table">
-  <h3 style="font-weight: bold;color: #007BFF; margin-top: 30px;">Purchase Summary</h3>
- 
-  <ul class="box-info" style="padding-bottom: 15px;">
-    <li>
-      <i class='bx bxs-dollar-circle store' ></i>
-      <span class="text vertical-line">
-        <h5>Preform</h5>
-        <p>Total Purchases: &#x20A6; {{purchase_preforms_price|format_with_commas }}</p>
-        <p>Total Units(pcs) Purchased: {{purchase_preforms_quantity|format_with_commas }}</p>
-      </span>
-      <span class="text vertical-line">
-        <h5>Cap</h5>
-        <p>Total Purchases: &#x20A6; {{purchase_caps_price|format_with_commas }}</p>
-        <p>Total Units(pcs) Purchased: {{purchase_caps_quantity|format_with_commas  }}</p>
-      </span>
-      <span class="text vertical-line">
-        <h5>Shrinkwrapper</h5>
-        <p>Total Purchases: &#x20A6; {{purchase_shrinkwrappers_price|format_with_commas }}</p>
-        <p>Total Units(pcs) Purchased: {{purchase_shrinkwrappers_quantity|format_with_commas  }}</p>
-      </span>
-      <span class="text">
-        <h5>Bottle</h5>
-        <p>Total Units(pcs) Purchased: {{bottle_preforms__quantity|format_with_commas  }}</p>
-      </span>
-    </li>
-  </ul>
-
-
-  <h5>Preform</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Size</th>
-        <th>Type</th>
-        <th>Units</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      
-      {% for item in preform_purchases %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td> 
-        <td><p>{{ item.name }}</p></td>
-        <td><p>{{ item.color__name }}</p></td>
-        <td><p>{{ item.preform_type__size }}</p></td>
-        <td><p>{{ item.preform_type__name }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
-        <td><p>&#x20A6; {{ item.total_price|format_with_commas }}</p></td>
-      </tr>
-    
-      {% endfor %}
-     
-    </tbody>
-  </table>
-
-  <h5>Caps</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Size</th>
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in cap_purchases %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td>
-        <td><p>{{ item.name }}</p></td>
-        <td><p>{{ item.color__name }}</p></td>
-        <td><p>{{ item.cap_type__size }}</p></td>
-        <td><p>{{ item.product_type }}</p></td>
-        
-        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
-        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h5>Shrinkwrappers</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        
-        <th>Type</th>
-        <th>Quantity</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in shrinkwrappers_purchases %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td>
-        <td><p>{{ item.name }}</p></td>
-        
-        <td><p>{{ item.product_type }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
-        <td><p>&#x20A6;{{ item.total_price|format_with_commas }}</p></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h5>Bottle</h5>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>S/n</th>
-        <th>Name</th>
-        <th>Color</th>
-        <th>Type</th>
-        <th>Quantity</th>
-       
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in bottle_purchases %}
-      <tr>
-        <td><p>{{ forloop.counter }}</p></td>
-        <td><p>{{ item.name }}</p></td>
-        <td><p>{{ item.color__name }}</p></td>
-        <td><p>{{ item.total_price}} {{ item.product_type }}</p></td>
-        <td><p>{{ item.total_quantity|floatformat:0|format_with_commas }}</p></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-
-<!----  ----  ----------- ------------- PURCHASES MENU END  ---------------   ---------------     ----
-
-<script>
-  // Function to initialize the default state
-  function initializeDefaultState() {
-    // Highlight the Stock button by default
-    document.getElementById('stock-button').classList.remove('btn-secondary');
-    document.getElementById('stock-button').classList.add('btn-primary');
-
-    // Show the Stock content by default
-    showContent('stock');
-  }
-
-  function handleButtonClick(contentId) {
-    // Reset all button styles to default
-    document.getElementById('stock-button').classList.remove('btn-primary');
-    document.getElementById('stock-button').classList.add('btn-secondary');
-    document.getElementById('sales-button').classList.remove('btn-primary');
-    document.getElementById('sales-button').classList.add('btn-secondary');
-    document.getElementById('purchases-button').classList.remove('btn-primary');
-    document.getElementById('purchases-button').classList.add('btn-secondary');
-
-    // Highlight the selected button
-    document.getElementById(contentId + '-button').classList.remove('btn-secondary');
-    document.getElementById(contentId + '-button').classList.add('btn-primary');
-
-    // Implement logic to show corresponding content based on selected button
-    showContent(contentId);
-  }
-
-  function showContent(contentId) {
-    // Hide all content divs
-    document.getElementById('stock-content').classList.add('hidden');
-    document.getElementById('sales-content').classList.add('hidden');
-    document.getElementById('purchases-content').classList.add('hidden');
-
-    // Show the selected content div
-    document.getElementById(contentId + '-content').classList.remove('hidden');
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    initializeDefaultState();
-  });
-</script>-->
-
-
+<!-- /.container-fluid -->
 
 {% endblock %}

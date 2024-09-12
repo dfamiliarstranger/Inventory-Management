@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block body %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="head-title">
+    <div class="left">
+        <h1>Add Expense</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Expense Form</a>
+          </li>
+          <li><i class='bx bx-chevron-right'></i></li>
+          <li>
+            <a class="active" href="{% url 'create_expense' %}">Expense</a>
+          </li>
+        </ul>
+    </div>
+    <a href="{% url 'expense_list' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">back</span>
+    </a>
+</div>
+
+<div class="container mt-5">
+    <div id="forms" class="col-md-6 mb-3 mt-5">
+        <!-- expenses/templates/expenses/create_expense.html -->
+
+        <form id="expense-form" method="POST" action="{% url 'create_expense' %}" class="shadow p-3 form-display">
+            {% csrf_token %}
+            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Add New Expense</h2>
+            <div class="mb-3">
+                <label for="created_at" class="form-label">Date Created</label>
+                <input type="datetime-local" class="form-control" name="created_at" id="created_at" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select name="category" class="form-select" id="category" required>
+                    <option value="" selected>Select Category</option>
+                    <!-- Example categories, replace with dynamic data from the view context if available -->
+                    <option value="Utilities">Utilities</option>
+                    <option value="Office Supplies">Office Supplies</option>
+                    <option value="Office Supplies">Salary/Wages</option>
+                    <option value="Office Supplies">Maintenance & repairs</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Miscellaneous">Miscellaneous</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Price</label>
+                <input type="number" class="form-control" name="price" id="price" step="0.01" placeholder="Enter price" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" name="description" id="description" rows="3" placeholder="Enter description" required></textarea>
+            </div>
+
+         
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Add Expense</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block body %}
+<div class="container mt-4">
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="head-title">
+        <div class="left">
+            <h1>Update Expense</h1>
+            <ul class="breadcrumb">
+              <li>
+                <a href="#">Expenses</a>
+              </li>
+              <li><i class='bx bx-chevron-right'></i></li>
+              <li>
+                <a class="active" href="{% url 'update_expense' expense.id %}">Update Expense</a>
+              </li>
+            </ul>
+        </div>
+        <a href="{% url 'expense_list' %}" class="btn-download">
+            <i class='bx bx-right-arrow-circle'></i>
+            <span class="text">Back to List</span>
+        </a>
+    </div>
+
+    <div class="col-md-6 mb-3 mt-5">
+        <form method="POST" action="{% url 'update_expense' expense.id %}" class="shadow p-3 form-display">
+            {% csrf_token %}
+            <h2 class="p-4 text-center" style="color: rgb(60,145,230);">Update Expense</h2>
+            
+            <!-- Render the form fields manually -->
+            <div class="mb-3">
+                <label for="price" class="form-label">Price</label>
+                <input type="number" class="form-control" name="price" id="price" value="{{ expense.price }}" step="0.01" required>
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <input type="text" class="form-control" name="category" id="category" value="{{ expense.category }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" name="description" id="description" rows="3" required>{{ expense.description }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="created_at" class="form-label">Created At</label>
+                <input type="datetime-local" class="form-control" name="created_at" id="created_at" value="{{ expense.created_at|date:'Y-m-d\TH:i' }}" required>
+            </div>
+            
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Update Expense</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

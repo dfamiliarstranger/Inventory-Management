@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block body %}
+<div class="container mt-4">
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="head-title">
+        <div class="left">
+            <h1>Expenses</h1>
+            <ul class="breadcrumb">
+              <li>
+                <a href="#">Expenses</a>
+              </li>
+              <li><i class='bx bx-chevron-right'></i></li>
+              <li>
+                <a class="active" href="{% url 'create_expense' %}"> Create Expense</a>
+              </li>
+            </ul>
+        </div>
+        <a href="{% url 'create_expense' %}" class="btn-download">
+            <i class='bx bx-right-arrow-circle'></i>
+            <span class="text">Create Expense</span>
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Price</th>   
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for expense in expenses %}
+                <tr>
+                    <td class="text-wrap">{{ expense.created_at|date:"d/m/y H:i" }}</td>
+                    <td class="text-wrap">{{ expense.category }}</td>
+                    <td class="text-wrap">{{ expense.description }}</td>
+                    <td class="text-wrap">{{ expense.price|format_with_commas }}</td>
+                    <td class="text-wrap">
+                        <a href="{% url 'update_expense' expense.id %}" class="btn btn-sm btn-warning">Edit</a>
+                        <!-- Delete button with confirmation dialog -->
+                        <form action="{% url 'delete_expense' expense.id %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this expense?');">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

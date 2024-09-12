@@ -217,6 +217,67 @@ def inventory_ticket_create_view(request):
 
 
 
+def inventory_ticket_list(request):
+    tickets = InventoryTicket.objects.select_related('inventory__product').order_by('-created_at')
+
+
+    context = {
+        'tickets': tickets,
+    }
+    return render(request, 'settings/inventory_ticket_list.html', context)
+
+
+                ###### EXPENSES   ########
+
+def create_expense(request):
+    if request.method == 'POST':
+        # Extract data from the form
+        created_at = request.POST.get('created_at')
+        price = request.POST.get('price')
+        category = request.POST.get('category')
+        description = request.POST.get('description')
+        
+        # Create a new Expense object and save it
+        expense = Expense(
+            price=price,
+            category=category,
+            description=description,
+            created_at=created_at  # Using current time for simplicity
+        )
+        expense.save()
+        return redirect('expense_list')  # Redirect to the list of expenses
+    
+    return render(request, 'expenses/create_expense.html')  
+
+def expense_list(request):
+    expenses = Expense.objects.all()  # Fetch all Expense objects
+    return render(request, 'expenses/expense_list.html', {'expenses': expenses})
+
+
+def update_expense(request, expense_id):
+    expense = get_object_or_404(Expense, id=expense_id)  # Fetch the Expense object
+
+    if request.method == 'POST':
+        # Update the Expense object with new data
+        expense.price = request.POST.get('price')
+        expense.category = request.POST.get('category')
+        expense.description = request.POST.get('description')  # Fix typo here
+        expense.created_at = request.POST.get('created_at')  # Add if necessary
+        expense.save()
+        return redirect('expense_list')  # Redirect to the list of expenses
+
+    return render(request, 'expenses/update_expense.html', {'expense': expense})
+
+def delete_expense(request, expense_id):
+    expense = get_object_or_404(Expense, id=expense_id)
+    
+    if request.method == 'POST':
+        expense.delete()
+        return redirect('expense_list')  # Redirect to the list of expenses
+
+    return render(request, 'expenses/expense_list.html', {'expense': expense})
+
+
 
 
 
