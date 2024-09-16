@@ -23,6 +23,8 @@ urlpatterns = [
         path('expense/create/', views.create_expense, name='create_expense'),
         path('update/<int:expense_id>/', views.update_expense, name='update_expense'),
         path('delete/<int:expense_id>/', views.delete_expense, name='delete_expense'),
+
+        path('chart/', views.sales_purchases_chart, name='sales_purchases_chart'),
         ]
 
 if settings.DEBUG:

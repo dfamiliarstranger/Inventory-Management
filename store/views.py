@@ -1,49 +1,184 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout 
 from django.contrib import messages
+from old_stock.models import Old_Stock
 from sale.models import Sale, Customer
-
+from django.db.models.functions import ExtractMonth
 from purchase.models import Inventory, Purchase
 from production.models import Production
 from .models import InventoryTicket, Expense
-from django.utils import timezone
-import datetime
+from datetime import datetime,  timedelta
+from django.utils import timezone  
 from decimal import Decimal, InvalidOperation
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.core.mail import EmailMessage
 from decimal import Decimal
-
 from django.middleware.csrf import rotate_token
-
 from django.urls import reverse
-
-from django.core.mail import EmailMessage
 from decimal import Decimal
-from .models import Inventory
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors
-from reportlab.graphics.shapes import Drawing
-from reportlab.graphics.charts.barcharts import VerticalBarChart
-from reportlab.graphics.charts.legends import Legend
-from reportlab.graphics.charts.textlabels import Label
-from reportlab.graphics import renderPDF
-import io
-from datetime import datetime, timedelta
-
-
+from datetime import datetime
 from calendar import monthrange
-
+import calendar
 ###############     Create your views here    ###############
 
+from django.db.models import Sum
+
+
 def home(request):
+    # Get the current date and time
+    now = datetime.now()
+    current_month = now.month
+    current_year = now.year
+    today = timezone.now()
+    
+
+    # Total sales, purchases, old stock, and other metrics for the current month
+    total_sales = Sale.objects.filter(created_at__year=current_year, created_at__month=current_month).aggregate(total_sales_price=Sum('total'))['total_sales_price'] or 0
+    total_purchases = Purchase.objects.filter(created_at__year=current_year, created_at__month=current_month).aggregate(total_purchase_price=Sum('total'))['total_purchase_price'] or 0
+    total_old_stock = Old_Stock.objects.filter(created_at__year=current_year, created_at__month=current_month).aggregate(total_old_stock_price=Sum('price'))['total_old_stock_price'] or 0
+    total_purchases += total_old_stock
+    total_produced_bottles = Production.objects.filter(production_date__year=current_year, production_date__month=current_month).aggregate(total_bottles=Sum('produced_bottles'))['total_bottles'] or 0
+    total_inventory = Inventory.objects.aggregate(total_products=Sum('unit'))['total_products'] or 0
+
+    # Specific product totals in inventory
+    total_preform_inventory = Inventory.objects.filter(product__name='preform').aggregate(total_preform=Sum('unit'))['total_preform'] or 0
+    total_cap_inventory = Inventory.objects.filter(product__name='cap').aggregate(total_cap=Sum('unit'))['total_cap'] or 0
+    total_bottle_inventory = Inventory.objects.filter(product__name='bottle').aggregate(total_bottle=Sum('unit'))['total_bottle'] or 0
+    total_shrinkwrapper_inventory = Inventory.objects.filter(product__name='shrinkwrapper').aggregate(total_shrinkwrapper=Sum('unit'))['total_shrinkwrapper'] or 0
+
+
+    today = timezone.now()
+    start_of_year = today.replace(month=1, day=1)
+    end_of_year = today.replace(month=12, day=31)
+
+    # Query for sales
+    sales = (Sale.objects
+             .filter(created_at__range=(start_of_year, end_of_year))
+             .annotate(month=ExtractMonth('created_at'))
+             .values('month')
+             .annotate(total_units=Sum('unit'))
+             .order_by('month'))
+
+    # Query for purchases
+    purchases = (Purchase.objects
+                 .filter(created_at__range=(start_of_year, end_of_year))
+                 .annotate(month=ExtractMonth('created_at'))
+                 .values('month')
+                 .annotate(total_units=Sum('unit'))
+                 .order_by('month'))
+
+    # Create a list of labels for each month of the year
+    sales_labels = [calendar.month_name[i] for i in range(1, 13)]
+    
+    # Create lists of sales and purchases data for each month
+    sales_data = [0] * 12
+    purchases_data = [0] * 12
+    
+    for sale in sales:
+        sales_data[sale['month'] - 1] = float(sale['total_units'])
+
+    for purchase in purchases:
+        purchases_data[purchase['month'] - 1] = float(purchase['total_units'])
+
+    low_inventory_items = Inventory.objects.filter(unit__lte=500).order_by('unit')[:5]
+
+    if not low_inventory_items.exists():
+        low_inventory_items = None
+
+
+
+     # Aggregate total units for each product using filter
+    product_totals = Inventory.objects.filter(product__name__in=['preform', 'cap', 'bottle', 'shrinkwrapper']) \
+        .values('product__name') \
+        .annotate(total_units=Sum('unit'))
+
+    # Initialize the totals for each product as Decimal
+    total_preform_inventory = Decimal(0)
+    total_cap_inventory = Decimal(0)
+    total_bottle_inventory = Decimal(0)
+    total_shrinkwrapper_inventory = Decimal(0)
+
+    # Assign totals from query result
+    for product in product_totals:
+        if product['product__name'] == 'preform':
+            total_preform_inventory = product['total_units']
+        elif product['product__name'] == 'cap':
+            total_cap_inventory = product['total_units']
+        elif product['product__name'] == 'bottle':
+            total_bottle_inventory = product['total_units']
+        elif product['product__name'] == 'shrinkwrapper':
+            total_shrinkwrapper_inventory = product['total_units']
+
+    # Data to be passed to template - converting to float
+    labels = ['Preform', 'Cap', 'Bottle', 'Shrinkwrapper']
+    data = [
+        float(total_preform_inventory),
+        float(total_cap_inventory),
+        float(total_bottle_inventory),
+        float(total_shrinkwrapper_inventory)
+    ]
+
     context = {
-    }  
+        'total_sales': total_sales,
+        'total_purchases': total_purchases,
+        'total_produced_bottles': total_produced_bottles,
+        'total_inventory': total_inventory,
+        'total_preform_inventory': total_preform_inventory,
+        'total_cap_inventory': total_cap_inventory,
+        'total_bottle_inventory': total_bottle_inventory,
+        'total_shrinkwrapper_inventory': total_shrinkwrapper_inventory,
+        'sales_labels': sales_labels,
+        'sales_data': sales_data,
+        'purchases_data': purchases_data,
+        'low_inventory_items': low_inventory_items,
+        'labels': labels,
+        'data': data
+    }
+
     return render(request, 'base/home.html', context)
 
+
+def sales_purchases_chart(request):
+     # Aggregate total units for each product using filter
+    product_totals = Inventory.objects.filter(product__name__in=['preform', 'cap', 'bottle', 'shrinkwrapper']) \
+        .values('product__name') \
+        .annotate(total_units=Sum('unit'))
+
+    # Initialize the totals for each product as Decimal
+    total_preform_inventory = Decimal(0)
+    total_cap_inventory = Decimal(0)
+    total_bottle_inventory = Decimal(0)
+    total_shrinkwrapper_inventory = Decimal(0)
+
+    # Assign totals from query result
+    for product in product_totals:
+        if product['product__name'] == 'preform':
+            total_preform_inventory = product['total_units']
+        elif product['product__name'] == 'cap':
+            total_cap_inventory = product['total_units']
+        elif product['product__name'] == 'bottle':
+            total_bottle_inventory = product['total_units']
+        elif product['product__name'] == 'shrinkwrapper':
+            total_shrinkwrapper_inventory = product['total_units']
+
+    # Data to be passed to template - converting to float
+    labels = ['Preform', 'Cap', 'Bottle', 'Shrinkwrapper']
+    data = [
+        float(total_preform_inventory),
+        float(total_cap_inventory),
+        float(total_bottle_inventory),
+        float(total_shrinkwrapper_inventory)
+    ]
+
+    # Pass labels and data to the template
+    context = {
+        'labels': labels,
+        'data': data
+    }
+
+
+    return render(request, 'base/chart.html', context)
 
 def csrf_failure_view(request, reason=""):
     # You can customize this view to render a custom template or redirect users
@@ -61,7 +196,7 @@ def user_login(request):
         
         if user is not None:
             login(request, user)
-            return redirect('inventory_list')
+            return redirect('home')
         else:
             return render(request, 'base/login.html', {'error_message': 'Invalid username or password'})
     else:

@@ -41,5 +41,4 @@ class Inventory(models.Model):
         return f"{self.product.name} - {self.unit}"
  
     class Meta:
-   
         verbose_name_plural = "Inventory"

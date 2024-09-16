@@ -1,72 +1,109 @@
-{% extends "production/base.html" %}
-{% load custom_filters %}
-{% block body %}
-if request.method == 'POST':
-# Get month and year from POST data
- # Get month and year from POST data and convert to integers
-selected_month = int(request.POST.get('month'))
-selected_year = int(request.POST.get('year'))
-else:
-# Default to current month and year
-current_date = datetime.now()
-selected_month = current_date.month
-selected_year = current_date.year
+<!-- 
+def home(request):
+    # Get the current date and time
+    now = datetime.now()
+    current_month = now.month
+    current_year = now.year
+    today = timezone.now()
+    three_months_ago = today - timedelta(days=90)
 
-# Calculate the first and last day of the selected month
-_, last_day = monthrange(selected_year, selected_month)
-first_day_of_month = datetime(selected_year, selected_month, 1)
-last_day_of_month = datetime(selected_year, selected_month, last_day)
+    # Total sales, purchases, old stock, and other metrics for the current month
+    total_sales = Sale.objects.filter(created_at__year=current_year, created_at__month=current_month).aggregate(total_sales_price=Sum('total'))['total_sales_price'] or 0
+    total_purchases = Purchase.objects.filter(created_at__year=current_year, created_at__month=current_month).aggregate(total_purchase_price=Sum('total'))['total_purchase_price'] or 0
+    total_old_stock = Old_Stock.objects.filter(created_at__year=current_year, created_at__month=current_month).aggregate(total_old_stock_price=Sum('price'))['total_old_stock_price'] or 0
+    total_purchases += total_old_stock
+    total_produced_bottles = Production.objects.filter(production_date__year=current_year, production_date__month=current_month).aggregate(total_bottles=Sum('produced_bottles'))['total_bottles'] or 0
+    total_inventory = Inventory.objects.aggregate(total_products=Sum('unit'))['total_products'] or 0
 
-# Query Productions for the selected month
-productions = Production.objects.filter(
-created_at__gte=first_day_of_month,
-created_at__lte=last_day_of_month
-).select_related('product', 'bottle_color').prefetch_related('product__preform_type')
+    # Specific product totals in inventory
+    total_preform_inventory = Inventory.objects.filter(product__name='preform').aggregate(total_preform=Sum('unit'))['total_preform'] or 0
+    total_cap_inventory = Inventory.objects.filter(product__name='cap').aggregate(total_cap=Sum('unit'))['total_cap'] or 0
+    total_bottle_inventory = Inventory.objects.filter(product__name='bottle').aggregate(total_bottle=Sum('unit'))['total_bottle'] or 0
+    total_shrinkwrapper_inventory = Inventory.objects.filter(product__name='shrinkwrapper').aggregate(total_shrinkwrapper=Sum('unit'))['total_shrinkwrapper'] or 0
 
-# Aggregate production data
-production_summary = {}
-total_good_bottle = 0
-total_waste_bottle = 0
-total_damages = 0
 
-for production in productions:
-product_name = f"{production.product.name} - {production.product.color} - {production.product.product_type}"
+    today = timezone.now()
+    start_of_year = today.replace(month=1, day=1)
+    end_of_year = today.replace(month=12, day=31)
 
-# Calculate totals
-total_good_bottle += production.good_bottle
-total_waste_bottle += production.waste_bottle if production.waste_bottle else 0
-total_damages += production.damages if production.damages else 0
+    # Query for sales
+    sales = (Sale.objects
+             .filter(created_at__range=(start_of_year, end_of_year))
+             .annotate(month=ExtractMonth('created_at'))
+             .values('month')
+             .annotate(total_units=Sum('unit'))
+             .order_by('month'))
 
-# Calculate total quantities per product
-if product_name in production_summary:
-    production_summary[product_name]['total_quantity'] += production.product_quantity
-else:
-    production_summary[product_name] = {
-        'total_quantity': production.product_quantity,
-        'bottle_type': production.product.bottle_type,
-        'color': production.bottle_color.name if production.bottle_color else None,
-        'product_type': production.product.product_type,
-        'preform_type': production.product.preform_type.name if production.product.preform_type else None,
+    # Query for purchases
+    purchases = (Purchase.objects
+                 .filter(created_at__range=(start_of_year, end_of_year))
+                 .annotate(month=ExtractMonth('created_at'))
+                 .values('month')
+                 .annotate(total_units=Sum('unit'))
+                 .order_by('month'))
+
+    # Create a list of labels for each month of the year
+    sales_labels = [calendar.month_name[i] for i in range(1, 13)]
+    
+    # Create lists of sales and purchases data for each month
+    sales_data = [0] * 12
+    purchases_data = [0] * 12
+    
+    for sale in sales:
+        sales_data[sale['month'] - 1] = float(sale['total_units'])
+
+    for purchase in purchases:
+        purchases_data[purchase['month'] - 1] = float(purchase['total_units'])
+
+    low_inventory_items = Inventory.objects.order_by('unit')[:6]
+
+
+     # Aggregate total units for each product using filter
+    product_totals = Inventory.objects.filter(product__name__in=['preform', 'cap', 'bottle', 'shrinkwrapper']) \
+        .values('product__name') \
+        .annotate(total_units=Sum('unit'))
+
+    # Initialize the totals for each product as Decimal
+    total_preform_inventory = Decimal(0)
+    total_cap_inventory = Decimal(0)
+    total_bottle_inventory = Decimal(0)
+    total_shrinkwrapper_inventory = Decimal(0)
+
+    # Assign totals from query result
+    for product in product_totals:
+        if product['product__name'] == 'preform':
+            total_preform_inventory = product['total_units']
+        elif product['product__name'] == 'cap':
+            total_cap_inventory = product['total_units']
+        elif product['product__name'] == 'bottle':
+            total_bottle_inventory = product['total_units']
+        elif product['product__name'] == 'shrinkwrapper':
+            total_shrinkwrapper_inventory = product['total_units']
+
+    # Data to be passed to template - converting to float
+    labels = ['Preform', 'Cap', 'Bottle', 'Shrinkwrapper']
+    data = [
+        float(total_preform_inventory),
+        float(total_cap_inventory),
+        float(total_bottle_inventory),
+        float(total_shrinkwrapper_inventory)
+    ]
+
+    context = {
+        'total_sales': total_sales,
+        'total_purchases': total_purchases,
+        'total_produced_bottles': total_produced_bottles,
+        'total_inventory': total_inventory,
+        'total_preform_inventory': total_preform_inventory,
+        'total_cap_inventory': total_cap_inventory,
+        'total_bottle_inventory': total_bottle_inventory,
+        'total_shrinkwrapper_inventory': total_shrinkwrapper_inventory,
+        'sales_labels': sales_labels,
+        'sales_data': sales_data,
+        'purchases_data': purchases_data,
+        'low_inventory_items': low_inventory_items,
+        'labels': labels,
+        'data': data
     }
 
-# Query for stock items
-stock_items = Stock.objects.filter(name='Bottle').values(
-'bottle_type', 'color', 'product_type'
-).annotate(
-total_units=Sum('unit')
-).order_by('bottle_type')
-
-stock_count = stock_items.count()
-
-
-stock_items': stock_items,
-        'stock_count': stock_count,
-        'production_summary': production_summary,
-        'total_good_bottle': total_good_bottle,
-        'total_waste_bottle': total_waste_bottle,
-        'total_damages': total_damages,
-        'selected_month': selected_month,
-        'selected_year': selected_year,
-
-
-{% endblock %}
+    return render(request, 'base/home.html', context) -->
