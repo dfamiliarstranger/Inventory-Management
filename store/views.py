@@ -20,6 +20,7 @@ from decimal import Decimal
 from datetime import datetime
 from calendar import monthrange
 import calendar
+from django.core.paginator import Paginator
 ###############     Create your views here    ###############
 
 from django.db.models import Sum
@@ -32,6 +33,19 @@ def home(request):
     current_year = now.year
     today = timezone.now()
     
+    # Sum the total quantity of excesses (INCREASE) for the current month
+    total_excesses_quantity = InventoryTicket.objects.filter(
+        created_at__year=today.year,
+        created_at__month=today.month,
+        reason='INCREASE'
+    ).aggregate(total_excess=Sum('quantity'))['total_excess'] or 0
+
+    # Sum the total quantity of shortages (DECREASE) for the current month
+    total_shortages_quantity = InventoryTicket.objects.filter(
+        created_at__year=today.year,
+        created_at__month=today.month,
+        reason='DECREASE'
+    ).aggregate(total_shortage=Sum('quantity'))['total_shortage'] or 0
 
     # Total sales, purchases, old stock, and other metrics for the current month
     total_sales = Sale.objects.filter(created_at__year=current_year, created_at__month=current_month).aggregate(total_sales_price=Sum('total'))['total_sales_price'] or 0
@@ -46,7 +60,7 @@ def home(request):
     total_cap_inventory = Inventory.objects.filter(product__name='cap').aggregate(total_cap=Sum('unit'))['total_cap'] or 0
     total_bottle_inventory = Inventory.objects.filter(product__name='bottle').aggregate(total_bottle=Sum('unit'))['total_bottle'] or 0
     total_shrinkwrapper_inventory = Inventory.objects.filter(product__name='shrinkwrapper').aggregate(total_shrinkwrapper=Sum('unit'))['total_shrinkwrapper'] or 0
-
+    
 
     today = timezone.now()
     start_of_year = today.replace(month=1, day=1)
@@ -70,6 +84,12 @@ def home(request):
 
     # Create a list of labels for each month of the year
     sales_labels = [calendar.month_name[i] for i in range(1, 13)]
+    
+    # Sum the total price of expenses for the current month
+    total_expenses_price = Expense.objects.filter(
+        created_at__year=today.year,
+        created_at__month=today.month
+    ).aggregate(total_spent=Sum('price'))['total_spent'] or 0
     
     # Create lists of sales and purchases data for each month
     sales_data = [0] * 12
@@ -98,6 +118,20 @@ def home(request):
     total_cap_inventory = Decimal(0)
     total_bottle_inventory = Decimal(0)
     total_shrinkwrapper_inventory = Decimal(0)
+
+
+    # Query for defective preforms and bottles in the current month
+    defective_data = Production.objects.filter(
+        production_date__year=today.year,
+        production_date__month=today.month
+    ).aggregate(
+        total_defective_preforms=Sum('defective_preforms'),
+        total_defective_bottles=Sum('defective_bottles')
+    )
+
+    # Extract the results
+    bad_preforms = defective_data['total_defective_preforms'] or 0
+    bad_bottles = defective_data['total_defective_bottles'] or 0
 
     # Assign totals from query result
     for product in product_totals:
@@ -133,7 +167,13 @@ def home(request):
         'purchases_data': purchases_data,
         'low_inventory_items': low_inventory_items,
         'labels': labels,
-        'data': data
+        'data': data,
+        'today':today,
+        'bad_preforms':bad_preforms,
+        'bad_bottles':bad_bottles,
+        'total_shortages_quantity':total_shortages_quantity,
+        'total_excesses_quantity':total_excesses_quantity,
+        'total_expenses_price':total_expenses_price
     }
 
     return render(request, 'base/home.html', context)
@@ -386,7 +426,13 @@ def create_expense(request):
 
 def expense_list(request):
     expenses = Expense.objects.all()  # Fetch all Expense objects
-    return render(request, 'expenses/expense_list.html', {'expenses': expenses})
+    
+    # Set up pagination (10 expenses per page in this example)
+    paginator = Paginator(expenses, 10)
+    page_number = request.GET.get('page')  # Get the page number from the request
+    page_obj = paginator.get_page(page_number)  # Get the page of expenses
+    
+    return render(request, 'expenses/expense_list.html', {'page_obj': page_obj})
 
 
 def update_expense(request, expense_id):

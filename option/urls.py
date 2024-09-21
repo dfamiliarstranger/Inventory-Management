@@ -30,6 +30,6 @@ urlpatterns = [
     #Staff
     path('staff_create/', views.staff_creation_view, name='staff_creation'),
     path('staff_list/', views.staff_list_view, name='staff_list'),
-    path('staff_reveal/<str:username>/', views.reveal_password_view, name='reveal_password'),
+    # path('staff_reveal/<str:username>/', views.reveal_password_view, name='reveal_password'),
      path('delete_user/<int:pk>/', views.delete_user, name='delete_user'),
 ]

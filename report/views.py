@@ -13,6 +13,8 @@ from decimal import Decimal
 import random
 import string
 
+from django.db.models import Sum
+
 def business_statement(request):
     # Get the date range from the request, convert them to timezone-aware datetimes
     start_date_str = request.GET.get('start_date')
@@ -29,7 +31,7 @@ def business_statement(request):
         end_date = timezone.localtime(timezone.now()).replace(hour=23, minute=59, second=59, microsecond=999999)
     
     # Get all products
-    products = Product.objects.all()
+    products = Product.objects.all().order_by('name')
     
     statement = []
     
@@ -64,8 +66,30 @@ def business_statement(request):
             production_date__range=[start_date, end_date]
         ).aggregate(total_units=Sum('produced_bottles'))['total_units'] or 0
         
+        # Total excesses (INCREASE) within the date range
+        total_excess_units = InventoryTicket.objects.filter(
+            inventory__product=product,
+            created_at__range=[start_date, end_date],
+            reason='INCREASE'
+        ).aggregate(total_units=Sum('quantity'))['total_units'] or 0
+        
+        # Total shortages (DECREASE) within the date range
+        total_shortage_units = InventoryTicket.objects.filter(
+            inventory__product=product,
+            created_at__range=[start_date, end_date],
+            reason='DECREASE'
+        ).aggregate(total_units=Sum('quantity'))['total_units'] or 0
+        
         # Calculate the balance
-        balance_units = total_purchased_units + total_oldstock_units + total_produced_units - total_sold_units - total_used_in_production
+        balance_units = (
+            total_purchased_units
+            + total_oldstock_units
+            + total_produced_units
+            + total_excess_units  # Add excesses
+            - total_sold_units
+            - total_used_in_production
+            - total_shortage_units  # Subtract shortages
+        )
         
         # Get inventory units from the Inventory model
         try:
@@ -85,6 +109,8 @@ def business_statement(request):
             'sold_units': total_sold_units,
             'used_in_production_units': total_used_in_production,
             'produced_units': total_produced_units,
+            'excess_units': total_excess_units,  # Include in the statement
+            'shortage_units': total_shortage_units,  # Include in the statement
             'balance_units': balance_units,
             'inventory_units': inventory_units,
         })
@@ -96,6 +122,7 @@ def business_statement(request):
     }
     
     return render(request, 'business_statement.html', context)
+
 
 
 def business_report_view(request):
@@ -148,8 +175,6 @@ def business_report_view(request):
 
 
 
-
-
 def sales_report(request, month, year):
     month = int(month)
     year = int(year)
@@ -172,9 +197,12 @@ def sales_report(request, month, year):
     for sale in sales_data:
         sale['product'] = product_dict[sale['product']]
 
+    # Sort the sales_data list alphabetically by product name
+    sales_data = sorted(sales_data, key=lambda sale: sale['product'].name)
+
     # Calculate the grand total of all sales units and prices
-    total_units_sold = sales_data.aggregate(total_units_sold=Sum('total_quantity_sold'))['total_units_sold'] or 0
-    total_sales_price = sales_data.aggregate(total_sales_price=Sum('total_price_sold'))['total_sales_price'] or 0
+    total_units_sold = sum(sale['total_quantity_sold'] for sale in sales_data)
+    total_sales_price = sum(sale['total_price_sold'] for sale in sales_data)
 
     context = {
         'month': month,
@@ -185,6 +213,7 @@ def sales_report(request, month, year):
     }
 
     return render(request, 'sales_report.html', context)
+
 
 
 def purchases_report(request, month, year):
@@ -212,9 +241,12 @@ def purchases_report(request, month, year):
     for purchase in purchases_data:
         purchase['product'] = product_dict[purchase['product']]
 
+    # Sort the purchases_data list alphabetically by product name
+    purchases_data = sorted(purchases_data, key=lambda purchase: purchase['product'].name)
+
     # Calculate the grand total of all purchased units and prices
-    total_units_purchased = purchases_data.aggregate(total_units_purchased=Sum('total_quantity_purchased'))['total_units_purchased'] or 0
-    total_purchase_price = purchases_data.aggregate(total_purchase_price=Sum('total_price_purchased'))['total_purchase_price'] or 0
+    total_units_purchased = sum(purchase['total_quantity_purchased'] for purchase in purchases_data)
+    total_purchase_price = sum(purchase['total_price_purchased'] for purchase in purchases_data)
 
     context = {
         'month': month,
@@ -253,6 +285,9 @@ def production_report(request, month, year):
     for data in preform_data:
         data['preform_product'] = preform_product_dict[data['preform_product']]
 
+    # Sort preform_data alphabetically by preform product name
+    preform_data = sorted(preform_data, key=lambda data: data['preform_product'].product.name)
+
     # Aggregate production by produced bottle product, summing up the total produced bottles and defective bottles
     bottle_data = (
         Production.objects.filter(production_date__year=year, production_date__month=month)
@@ -273,6 +308,9 @@ def production_report(request, month, year):
     # Replace product ID with actual Product instance in bottle_data
     for data in bottle_data:
         data['produced_bottle_product'] = bottle_product_dict[data['produced_bottle_product']]
+
+    # Sort bottle_data alphabetically by produced bottle product name
+    bottle_data = sorted(bottle_data, key=lambda data: data['produced_bottle_product'].name)
 
     # Calculate the grand total of all preform quantities and defective preforms
     total_used_preforms = sum(data['total_used_preforms'] for data in preform_data)
@@ -295,8 +333,6 @@ def production_report(request, month, year):
     }
 
     return render(request, 'production_report.html', context)
-
-
 
 
 
@@ -343,7 +379,8 @@ def business_report_detail_view(request, month, year):
          # Initialize the report_data list
         report_data = []
         # Get all products
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('name')  # Sort products alphabetically
+
         
         for product in products:
             # Calculate inventory quantity

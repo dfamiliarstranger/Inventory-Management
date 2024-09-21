@@ -60,7 +60,7 @@
                         <td class="text-wrap">{{ user.is_superuser }}</td>
                         <td class="text-wrap">{{ user.username }}</td>
                         <td class="text-wrap">
-                            <a href="{% url 'reveal_password' username=user.username %}" class="btn btn-info">Reveal</a>
+                            
                             <form action="{% url 'delete_user' pk=user.pk %}" method="post" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger">Revoke</button>

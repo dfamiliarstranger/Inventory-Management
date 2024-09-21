@@ -47,19 +47,14 @@
 			</div>
 		</a>
 		<ul class="side-menu top">
-			<!-- <li class="{% active_class 'home' %}">
+			<li class="{% active_class 'home' %}">
 				<a href="#">
 					<i class='bx bxs-dashboard' ></i>
 					<span class="text">Dashboard</span>
 				</a>
-			</li> -->
-			<!-- <li class="{% active_class 'invoice' %}">
-				<a href="{% url 'invoice' %}">
-					<i class='bx bxs-shopping-bag-alt store' ></i>
-					<span class="text">Invoice</span>
-				</a>
-			</li> -->
-	
+			</li>
+			
+			{% if request.user.is_superuser %}
 			<li class="{% active_class 'product_list' %}">
 				<a href="{% url 'product_list' %}">
 					<i class='bx bxs-box'></i>
@@ -67,7 +62,7 @@
 					<span class="text">Product</span>
 				</a>
 			</li>
-
+			{% endif %}
 			
 			
 			<li class="{% active_class 'inventory_list' %}">
@@ -83,6 +78,7 @@
 				</a>
 			</li>
 
+			{% if request.user.is_superuser %}
 			<li class="{% active_class 'expense_list' %}">
 				<a href="{% url 'expense_list' %}">
 					<i class='bx bxs-shopping-bag-alt store' ></i>
@@ -91,37 +87,33 @@
 					<span class="text">Expense</span>
 				</a>
 			</li>
+			{% endif %}
 
+			{% if request.user.is_superuser %}
 			<li class="{% active_class 'stock_list' %}">
 				<a href="{% url 'stock_list' %}">
 					<i class='bx bxs-archive'></i>
 					<span class="text">Old Stock</span>
 				</a>
 			</li>
+			{% endif %}
+
 			<li class="{% active_class 'sale_list' %}">
 				<a href="{% url 'sale_list' %}">
 					<i class='bx bxs-dollar-circle'></i>
 					<span class="text">Sales</span>
 				</a>
 			</li>
-			<!-- <li class="{% active_class 'color_list' %}">
-				<a href="{% url 'color_list' %}">
-					<i class='bx bxs-group'></i>
-					<span class="text">Color</span>
-				</a>
-			</li>
-			<li class="{% active_class 'product_type_list' %}">
-				<a href="{% url 'product_type_list' %}">
-					<i class='bx bxs-group'></i>
-					<span class="text">Product Type</span>
-				</a>
-			</li> -->
+
+			{% if request.user.is_superuser %}
 			<li class="{% active_class 'supplier_list' %}">
 				<a href="{% url 'supplier_list' %}">
 					<i class='bx bxs-group'></i>
 					<span class="text">Supplier</span>
 				</a>
 			</li>
+			{% endif %}
+
 			<li class="{% active_class 'customer_list' %}">
 				<a href="{% url 'customer_list' %}">
 					<i class='bx bxs-group'></i>

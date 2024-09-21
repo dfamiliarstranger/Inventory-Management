@@ -1,19 +1,39 @@
 {% extends "base.html" %}
+
 {% block body %}
 <div class="container mt-4">
     <h2>Create Staff User</h2>
     <form method="post">
         {% csrf_token %}
+        
         <div class="mb-3">
             <label for="name" class="form-label">Name:</label>
             <input type="text" id="name" name="name" class="form-control" required>
         </div>
-        <div class="form-check">
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Username:</label>
+            <input type="text" id="username" name="username" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password1" class="form-label">Password:</label>
+            <input type="password" id="password1" name="password" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password2" class="form-label">Confirm Password:</label>
+            <input type="password" id="password2" name="password2" class="form-control" required>
+        </div>
+
+        <div class="form-check mb-3">
             <input type="checkbox" id="is_superuser" name="is_superuser" class="form-check-input">
             <label for="is_superuser" class="form-check-label">Superuser Status</label>
         </div>
+
         <button type="submit" class="btn btn-primary mt-3">Create User</button>
     </form>
+    
     <a href="{% url 'staff_list' %}" class="btn btn-secondary mt-3">Back to Staff List</a>
 </div>
 {% endblock %}

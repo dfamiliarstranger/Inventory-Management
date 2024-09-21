@@ -11,6 +11,10 @@
   .progress-bar {
       width: 50%;
   }
+  a{
+    text-decoration: none;
+    list-style-type: none;
+  }
 </style>
 
 <div class="container-fluid">
@@ -18,7 +22,7 @@
   <div class="d-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 text-gray-800">Dashboard</h1>
     <a href="#" class="btn btn-sm btn-primary shadow-sm">
-      <i class="fas fa-download fa-sm text-white-50"></i> Generate Report
+      <i class="fas fa-calendar-alt fa-sm text-white-50"></i> {{ today|date:"F Y" }}
     </a>
   </div>
 
@@ -145,14 +149,14 @@
 
     <!-- Inventory List with Color Cards -->
     <div class="col-lg-6 col-md-12">
-      <h3>Inventory Overview</h3>
+      <h3 style="color: #0D6EFD;">Store Overview</h3>
       <div class="row g-3">
         <!-- Shrinkwrapper Inventory -->
         <div class="col-md-6">
           <div class="card bg-info text-white shadow">
             <div class="card-body">
-              Shrinkwrapper
-              <div class="text-white-50 small">{{ total_shrinkwrapper_inventory|format_with_commas }}</div>
+              {{ total_shrinkwrapper_inventory|format_with_commas }}
+              <div class="text-white-50 small">Shrinkwrapper</div>
             </div>
           </div>
         </div>
@@ -160,8 +164,8 @@
         <div class="col-md-6">
           <div class="card bg-warning text-white shadow">
             <div class="card-body">
-              Bottle
-              <div class="text-white-50 small">{{ total_bottle_inventory|format_with_commas }}</div>
+             {{ total_bottle_inventory|format_with_commas }}
+              <div class="text-white-50 small"> Bottle</div>
             </div>
           </div>
         </div>
@@ -169,20 +173,74 @@
         <div class="col-md-6">
           <div class="card bg-danger text-white shadow">
             <div class="card-body">
-              Cap
-              <div class="text-white-50 small">{{ total_cap_inventory|format_with_commas }}</div>
+              {{ total_cap_inventory|format_with_commas }}
+              <div class="text-white-50 small">Cap</div>
             </div>
           </div>
         </div>
         <!-- Preform Inventory -->
         <div class="col-md-6">
-          <div class="card bg-secondary text-white shadow">
+          <div class="card bg-warning text-white shadow">
             <div class="card-body">
-              Preform
-              <div class="text-white-50 small">{{ total_preform_inventory|format_with_commas }}</div>
+              {{ total_preform_inventory|format_with_commas }}
+              <div class="text-white-50 small">Preform</div>
             </div>
           </div>
         </div>
+
+         <!-- Preform Inventory -->
+         <div class="col-md-6">
+          <div class="card bg-secondary text-white shadow">
+            <div class="card-body">
+              {{ total_excesses_quantity|format_with_commas }}
+              <div class="text-white-50 small">Excesses</div>
+            </div>
+          </div>
+        </div>
+
+
+         <!-- Preform Inventory -->
+         <div class="col-md-6">
+          <div class="card bg-secondary text-white shadow">
+            <div class="card-body">
+              {{ total_shortages_quantity|format_with_commas }}
+              <div class="text-white-50 small">Shortages</div>
+            </div>
+          </div>
+        </div>
+
+
+         <!-- Preform Inventory -->
+         <div class="col-md-6">
+          <div class="card bg-secondary text-white shadow">
+            <div class="card-body">
+              {{ bad_bottles|format_with_commas }}
+              <div class="text-white-50 small">Bad Bottles</div>
+            </div>
+          </div>
+        </div>
+
+
+         <!-- Preform Inventory -->
+         <div class="col-md-6">
+          <div class="card bg-secondary text-white shadow">
+            <div class="card-body">
+              {{ bad_preforms|format_with_commas }}
+              <div class="text-white-50 small">Bad Preform</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preform Inventory -->
+        <div class="col-md-6">
+          <div class="card bg-secondary text-white shadow">
+            <div class="card-body">
+              {{ total_expenses_price|format_with_commas }}
+              <div class="text-white-50 small">Expenses</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

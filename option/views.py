@@ -28,18 +28,26 @@ def delete_user(request, pk):
         return redirect('staff_list')  # Redirect to a list view or another appropriate page
     return redirect('staff_list')
 
+
 def staff_creation_view(request):
     if request.method == 'POST':
         name = request.POST.get('name')
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
         is_superuser = request.POST.get('is_superuser') == 'on'
-        
+
         # Authenticate the superuser
         if request.user.is_superuser:
-            # Generate username and password
-            username = generate_username()
-            password = generate_password(length=8)
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Username already exists. Please choose a different one.')
+                return redirect('staff_creation')  # Redirect back to the form
+            
+            if password != password2:
+                messages.error(request, 'Passwords do not match.')
+                return redirect('staff_creation')  # Redirect back to the form
 
-            # Create the user
+            # Create the user with the provided username and password
             user = User.objects.create_user(username=username, password=password, first_name=name)
             user.is_superuser = is_superuser
             user.save()
@@ -52,23 +60,45 @@ def staff_creation_view(request):
 
     return render(request, 'staff/staff_creation.html')
 
+
+
 def staff_list_view(request):
     users = User.objects.exclude(username=request.user.username)  # Exclude the currently logged-in user
     return render(request, 'staff/staff_list.html', {'users': users})
 
-def reveal_password_view(request, username):
-    user = User.objects.filter(username=username).first()
-    if user and request.method == 'POST':
-        password = request.POST.get('password')
-        if request.user.is_superuser:
-            if check_password(password, user.password):
-                messages.success(request, f'Password for {username}: {user.password}')
-                return redirect('staff_list')
-            else:
-                messages.error(request, 'Incorrect password.')
-        else:
-            messages.error(request, 'You are not authorized to reveal passwords.')
-    return render(request, 'staff/reveal_password.html', {'username': username})
+# from django.contrib.auth.tokens import default_token_generator
+# from django.utils.http import urlsafe_base64_encode
+# from django.utils.encoding import force_bytes
+# from django.core.mail import send_mail
+# from django.template.loader import render_to_string
+# from django.contrib.sites.shortcuts import get_current_site
+# from django.urls import reverse
+
+# def  reveal_password_view(request, username):
+#     user = User.objects.filter(username=username).first()
+#     if user and request.method == 'POST':
+#         if request.user.is_superuser:
+#             # Generate password reset link
+#             token = default_token_generator.make_token(user)
+#             uid = urlsafe_base64_encode(force_bytes(user.pk))
+#             current_site = get_current_site(request)
+#             reset_link = f"{current_site.scheme}://{current_site.get_host()}{reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})}"
+
+#             # Send email with the reset link
+#             subject = "Password Reset Requested"
+#             message = render_to_string('staff/password_reset_email.html', {
+#                 'user': user,
+#                 'reset_link': reset_link,
+#             })
+#             send_mail(subject, message, None, [user.email])
+
+#             messages.success(request, f'Password reset link sent to {user.email}.')
+#             return redirect('staff_list')
+#         else:
+#             messages.error(request, 'You are not authorized to send reset links.')
+#     return render(request, 'staff/reveal_password.html', {'username': username})
+
+
 
 
 def product_type_create(request):
