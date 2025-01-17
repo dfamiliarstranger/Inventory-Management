@@ -30,8 +30,8 @@ DEBUG = True
 
 from decouple import config
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
-# ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+# ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = ['127.0.0.1', 'www.tripplet.com.ng']
 
 
 
