@@ -57,7 +57,6 @@
                         <th scope="col">Unit</th>
                         <th scope="col">Price</th>
                         <th scope="col">Total</th>
-                        <th scope="col">Update</th>
                         <th scope="col">Delete</th>
                     </tr>
                 </thead>
@@ -74,11 +73,7 @@
                         <td class="text-wrap">{{ purchase.unit|format_with_commas }}</td>
                         <td class="text-wrap">{{ purchase.price|format_with_commas }}</td>
                         <td class="text-wrap">{{ purchase.total|format_with_commas }}</td>
-                        <td class="text-wrap">
-                            <a href="{% url 'update_purchase' pk=purchase.pk %}">
-                                <i class='bx bx-edit' style="font-size: 1.5em;"></i>
-                            </a>
-                        </td>
+                       
                         <td>
                             <form action="{% url 'purchase_delete' pk=purchase.pk %}" method="post" style="display:inline;">
                                 {% csrf_token %}

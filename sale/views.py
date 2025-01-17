@@ -90,12 +90,12 @@ def sale_create_view(request):
 
 @login_required
 def sale_list(request):
-    sale = Sale.objects.all().order_by('created_at')
-
+    sale = Sale.objects.all().order_by('-created_at')  # Order by descending
     paginator = Paginator(sale, 10) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'sale/index.html', {'page_obj': page_obj})
+
 
 
 @login_required

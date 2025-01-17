@@ -131,13 +131,13 @@ def purchase_delete(request, pk):
     return redirect(request, 'purchase_list', {'purchase': purchase})
 
 
-##### Inventory   ###
-
+### Inventory   ### Inventory   ### Inventory   ### Inventory   ###     ### Inventory   ### ### Inventory   ### 
 @login_required
 def inventory_list(request):
-    inventory = Inventory.objects.all().order_by('product__name')
+    inventory = Inventory.objects.all().order_by('name')
 
     paginator = Paginator(inventory, 10) 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
     return render(request, 'inventory/index.html', {'page_obj': page_obj})
