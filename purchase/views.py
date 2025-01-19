@@ -134,7 +134,7 @@ def purchase_delete(request, pk):
 ### Inventory   ### Inventory   ### Inventory   ### Inventory   ###     ### Inventory   ### ### Inventory   ### 
 @login_required
 def inventory_list(request):
-    inventory = Inventory.objects.all().order_by('name')
+    inventory = Inventory.objects.all()
 
     paginator = Paginator(inventory, 10) 
     page_number = request.GET.get('page')
