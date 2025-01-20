@@ -425,7 +425,8 @@ def create_expense(request):
     return render(request, 'expenses/create_expense.html')  
 
 def expense_list(request):
-    expenses = Expense.objects.all()  # Fetch all Expense objects
+    expenses = Expense.objects.all().order_by('-created_at')  # Newest first
+
     
     # Set up pagination (10 expenses per page in this example)
     paginator = Paginator(expenses, 10)

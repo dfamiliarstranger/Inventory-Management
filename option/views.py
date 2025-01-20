@@ -269,7 +269,8 @@ def customer_create(request):
 
 
 def customer_list(request):
-    customer = Customer.objects.all()
+    customer = Customer.objects.all().order_by('name')
+
     return render(request, 'customer/index.html', {'customer': customer})
 
 
