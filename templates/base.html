@@ -71,12 +71,15 @@
 					<span class="text">Store</span>
 				</a>
 			</li>
+
+			{% if request.user.is_superuser %}
 			<li class="{% active_class 'purchase_list' %}">
 				<a href="{% url 'purchase_list' %}">
 					<i class='bx bxs-cart'></i>
 					<span class="text">Purchases</span>
 				</a>
 			</li>
+			{% endif %}
 
 			{% if request.user.is_superuser %}
 			<li class="{% active_class 'expense_list' %}">

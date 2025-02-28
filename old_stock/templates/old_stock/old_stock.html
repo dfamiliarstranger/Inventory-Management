@@ -48,7 +48,7 @@
             <th>Quantity </th> 
             <th>Price </th> 
            
-            <th>Delete</th> 
+            <!-- <th>Delete</th>  -->
              
             
           </tr>
@@ -67,14 +67,14 @@
                 <td>{{old_stock.quantity|format_with_commas}}</td>
                 <td>{{old_stock.price|format_with_commas}}</td>
                 
-                <td>
+                <!-- <td>
                     <form action="{% url 'delete_old_stock' pk=old_stock.pk %}" method="post" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" style="border:none; background:none;">
                             <i class='bx bx-trash' style="font-size: 1.5em; color: red;"></i>
                         </button>
                     </form>
-                </td>
+                </td> -->
               </tr>
             {% endfor %}
          

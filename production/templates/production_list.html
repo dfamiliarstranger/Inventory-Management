@@ -63,7 +63,7 @@
               <th scope="col">Bottle Color</th>
               <th scope="col">Produced Bottles</th> 
               <th scope="col">Defective Bottles</th>
-              <th scope="col">Actions</th> 
+              <!-- <th scope="col">Actions</th>  -->
             </tr>
           </thead>
           <tbody>
@@ -79,14 +79,14 @@
                   <td class="text-wrap">{{ production.produced_bottle_product.color }}</td>
                   <td class="text-wrap">{{ production.produced_bottles }}</td>
                   <td class="text-wrap">{{ production.defective_bottles }}</td>
-                  <td class="text-wrap">
+                  <!-- <td class="text-wrap">
                       <form action="{% url 'production_delete' pk=production.pk %}" method="post" style="display:inline;">
                           {% csrf_token %}
                           <button type="submit" style="border:none; background:none;">
                               <i class='bx bx-trash' style="font-size: 1.5em; color: red;"></i>
                           </button>
                       </form>
-                  </td>
+                  </td> -->
                 </tr>
               {% endfor %}
           </tbody>

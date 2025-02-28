@@ -57,7 +57,7 @@
                         <th scope="col">Unit</th>
                         <th scope="col">Price</th>
                         <th scope="col">Total</th>
-                        <th scope="col">Delete</th>
+                        <!-- <th scope="col">Delete</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -74,14 +74,14 @@
                         <td class="text-wrap">{{ purchase.price|format_with_commas }}</td>
                         <td class="text-wrap">{{ purchase.total|format_with_commas }}</td>
                        
-                        <td>
+                        <!-- <td>
                             <form action="{% url 'purchase_delete' pk=purchase.pk %}" method="post" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-link p-0">
                                     <i class='bx bx-trash' style="font-size: 1.5em; color: red;"></i>
                                 </button>
                             </form>
-                        </td>
+                        </td> -->
                     </tr>
                     {% endfor %}
                 </tbody>
