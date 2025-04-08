@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block body %}
+
+<style>
+    .customthead {
+      background-color: rgb(60, 145, 230);
+      color: white; /* Optional: Set text color for better readability */
+    }
+    
+    .centered-table td {
+      text-align: center; /* Center align table data */
+      vertical-align: middle; /* Vertically center table data */
+    }
+  </style>
+  
+  {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
+  {% endif %} 
+  
+  <div class="head-title">
+      <div class="left">
+          <h1>Add Customer Stock</h1>
+          <ul class="breadcrumb">
+            <li>
+              <a href="#">Third Party Production</a>
+            </li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li>
+              <a class="active" href="{% url 'raw_material_entry' %}">Add Customer Stock</a>
+            </li>
+            
+          </ul>
+      </div>
+      
+      <a href="{% url 'third_party' %}" class="btn-download">
+          <i class='bx bx-right-arrow-circle'></i>
+          <span class="text">back</span>
+      </a>
+      
+  </div>
+
+
+  <div id="forms" class="col-md-8 mb-3 mt-5">
+    <form method="POST" action="{% url 'raw_material_entry' %}" class="shadow p-3 form-display">
+        {% csrf_token %}
+        <h4 style="text-align: center;"> Add Customer Stock</h4>
+        
+        <!-- Date Received -->
+        <div class="mb-3">
+            <label for="date_received" class="form-label">Date Received</label>
+            <input type="datetime-local" class="form-control" id="date_received" name="date_received" required>
+        </div>
+        
+        <!-- Customer Selection -->
+        <div class="mb-3">
+            <label for="customer" class="form-label">Customer (Supplier)</label>
+            <select class="form-select" id="customer" name="customer" required>
+                <option value="" disabled selected>Select Customer</option>
+                {% for customer in customers %}
+                    <option value="{{ customer.id }}">{{ customer.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Product Selection -->
+        <div class="mb-3">
+            <label for="product" class="form-label">Product</label>
+            <select class="form-select" id="product" name="product" required>
+                <option value="" disabled selected>Select Product</option>
+                {% for product in preform_products %}
+                    <option value="{{ product.id }}">{{ product.name }} -{{product.type }} - {{ product.size }}{{product.unit}} - {{product.color }} </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Quantity in Bags -->
+        <div class="mb-3">
+            <label for="quantity_bags" class="form-label">Quantity (Bags)</label>
+            <input type="number" class="form-control" id="quantity_bags" name="quantity_in_bags" min="1" required>
+        </div>
+        
+        <!-- Quantity in Units (Auto-filled) -->
+        <div class="mb-3">
+            <label for="quantity_units" class="form-label">Quantity (Units)</label>
+            <input type="number" class="form-control" id="quantity_units" name="quantity_in_units" >
+        </div>
+        
+        <!-- Amount -->
+        <div class="mb-3">
+            <label for="amount" class="form-label">Amount (₦)</label>
+            <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+</div>
+<!-- JavaScript for Dynamic Calculation -->
+
+{% endblock %}

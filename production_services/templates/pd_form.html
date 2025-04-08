@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block body %}
+{% if messages %}
+{% load custom_filters %} 
+    {% for message in messages %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+{% endif %} 
+<div class="head-title">
+    <div class="left">
+        <h1>Add Customer Production Record</h1>
+        <ul class="breadcrumb">
+          <li>
+            <a href="#">Third Party Production</a>
+          </li>
+          <li><i class='bx bx-chevron-right' ></i></li>
+          <li>
+            <a class="active" href="{% url 'third_party_production_form' %}">Add Customer Production Record</a>
+          </li>
+        </ul>
+    </div>
+    
+    <a href="{% url 'third_party' %}" class="btn-download">
+        <i class='bx bx-right-arrow-circle'></i>
+        <span class="text">back</span>
+    </a>
+</div>
+<div class="container mt-5">
+   
+    <div id="forms" class="col-md-6 mb-3 mt-5">
+        
+        <form id="production" method="POST" action="{% url 'third_party_production_form' %}" class="shadow p-3 form-display">
+            {% csrf_token %}
+            <h4 class="p-4 text-center" style="color: rgb(60,145,230);">Add Customer Production</h4>
+        
+            <div class="mb-3">
+                <label for="production_date" class="form-label">Production Date</label>
+                <input type="datetime-local" class="form-control" name="production_date" id="production_date">
+            </div>
+        
+            <div class="mb-3">
+                <label for="preform_product" class="form-label">Preform Product:</label>
+                <select name="preform_product" class="form-select" required>
+                  {% for preform in preforms %}
+                    <option value="{{ preform.id }}">{{ preform.product.name }} - Available: {{ preform.quantity_in_units }}</option>
+                  {% endfor %}
+                </select>
+            </div>
+        
+            <div class="mb-3">
+                <label for="produced_bottle_product" class="form-label">Produced Bottle Product:</label>
+                <select name="produced_bottle_product" class="form-select" required>
+                  {% for bottle in bottles %}
+                    <option value="{{ bottle.id }}">{{ bottle.name }} - {{bottle.size}}{{bottle.unit}}</option>
+                  {% endfor %}
+                </select>
+            </div>
+       
+            <div class="mb-3">
+                <label for="used_materials" class="form-label">Used Preforms</label>
+                <input type="number" class="form-control" name="used_materials" id="used_materials" step="1" placeholder="Number of used preforms">
+            </div>
+        
+            <div class="mb-3">
+                <label for="defective_materials" class="form-label">Defective Preforms</label>
+                <input type="number" class="form-control" name="defective_materials" id="defective_materials" step="1" placeholder="Number of defective preforms">
+            </div>
+        
+            <div class="mb-3">
+                <label for="produced_units" class="form-label">Produced Bottles</label>
+                <input type="number" class="form-control" name="produced_units" id="produced_units" step="1" placeholder="Number of produced bottles">
+            </div>
+        
+            <div class="mb-3">
+                <label for="defective_bottles" class="form-label">Defective Bottles</label>
+                <input type="number" class="form-control" name="defective_bottles" id="defective_bottles" step="1" placeholder="Number of defective bottles">
+            </div>
+        
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Register Production</button>
+            </div>
+        </form>
+        
+        
+        
+    </div>
+</div>
+
+
+{% endblock %}

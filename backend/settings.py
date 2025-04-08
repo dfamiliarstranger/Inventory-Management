@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'option',
     'store',
     'report',
-  
+    'production_services'
 ]
 
 MIDDLEWARE = [

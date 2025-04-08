@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block body %}
-{% load custom_filters %} 
+{% load custom_filters %}
 
 <style>
   .customthead {
     background-color: rgb(60, 145, 230);
     color: white; /* Optional: Set text color for better readability */
   }
-  
+
   .centered-table td {
     text-align: center; /* Center align table data */
     vertical-align: middle; /* Vertically center table data */
@@ -25,71 +25,60 @@
 
 <div class="head-title">
     <div class="left">
-        <h1>Production</h1>
+        <h1>Production History</h1>
         <ul class="breadcrumb">
           <li>
-            <a href="#">Production Record</a>
+            <a href="#">Production History</a>
           </li>
           <li><i class='bx bx-chevron-right'></i></li>
           <li>
-            <a class="active" href="{% url 'production_list' %}">Production</a>
+            <a class="active" href="{% url 'tp_production_history' %}">Production History</a>
           </li>
-          
         </ul>
     </div>
-    
-    <a href="{% url 'production_form' %}" class="btn-download">
+    <a href="{% url 'third_party_production_form' %}" class="btn-download">
         <i class='bx bx-right-arrow-circle'></i>
-        <span class="text">Production</span>
+        <span class="text">Add Production Entry</span>
     </a>
 </div>
 
 <div class="table-data">
     <div class="order">
       <div class="head">
-        <h3>Production History</h3>
+        <h3>Production Raw Material History</h3>
         <i class='bx bx-search'></i>
         <i class='bx bx-filter'></i>
       </div>
       <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover centered-table">
-          <thead class="table-dark">
+          <thead class="table-dark customthead">
             <tr>
-              <th scope="col">Date</th>
-              <th scope="col">Preform Type</th>
-              <th scope="col">Preform Size</th>
-              <th scope="col">Preform Color</th>
-              <th scope="col">Used Preforms</th>
-              <th scope="col">Defective Preform</th> 
-              <th scope="col">Bottle Size</th>
-              <th scope="col">Bottle Color</th>
-              <th scope="col">Produced Bottles</th> 
-              <th scope="col">Defective Bottles</th>
-              <!-- <th scope="col">Actions</th>  -->
-            </tr>
+                <th scope="col">#</th>
+                <th scope="col">Preform Product</th>
+                <th scope="col">Produced Bottle Product</th>
+                <th scope="col">Used Preforms</th>
+                <th scope="col">Defective Preforms</th>
+                <th scope="col">Produced Bottles</th>
+                <th scope="col">Defective Bottles</th>
+                <th scope="col">Production Date</th>
+              </tr>
           </thead>
           <tbody>
               {% for production in page_obj %}
               <tr>
-                  <td class="text-wrap">{{ production.production_date|date:"d/m/y" }}</td>
-                  <td class="text-wrap">{{ production.preform_product.product.type }}</td>
-                  <td class="text-wrap">{{ production.preform_product.product.size }}{{ production.preform_product.product.unit }}</td>
-                  <td class="text-wrap">{{ production.preform_product.product.color }}</td>
-                  <td class="text-wrap">{{ production.used_preforms }}</td>
-                  <td class="text-wrap">{{ production.defective_preforms }}</td>
-                  <td class="text-wrap">{{ production.produced_bottle_product.size }}{{ production.produced_bottle_product.unit }}</td>
-                  <td class="text-wrap">{{ production.produced_bottle_product.color }}</td>
-                  <td class="text-wrap">{{ production.produced_bottles }}</td>
-                  <td class="text-wrap">{{ production.defective_bottles }}</td>
-                  <!-- <td class="text-wrap">
-                      <form action="{% url 'production_delete' pk=production.pk %}" method="post" style="display:inline;">
-                          {% csrf_token %}
-                          <button type="submit" style="border:none; background:none;">
-                              <i class='bx bx-trash' style="font-size: 1.5em; color: red;"></i>
-                          </button>
-                      </form>
-                  </td> -->
-                </tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ production.preform_product.product.name }} - {{ production.preform_product.product.type }} - {{ production.preform_product.product.size }} {{ production.preform_product.product.unit }}</td>
+                <td>{{ production.produced_bottle_product.name }} - {{ production.produced_bottle_product.type }} - {{ production.produced_bottle_product.size }} {{ production.produced_bottle_product.unit }}</td>
+                <td>{{ production.used_preforms }}</td>
+                <td>{{ production.defective_preforms }}</td>
+                <td>{{ production.produced_bottles }}</td>
+                <td>{{ production.defective_bottles }}</td>
+                <td>{{ production.production_date|date:"Y-m-d H:i" }}</td>
+              </tr>
+              {% empty %}
+                    <tr>
+                    <td colspan="8" class="text-center">No production history found.</td>
+                    </tr>
               {% endfor %}
           </tbody>
         </table>
@@ -127,4 +116,5 @@
       </nav>
     </div> 
 </div>
+
 {% endblock %}

@@ -131,6 +131,14 @@
 				</a>
 			</li>
 
+			<li class="{% active_class 'third_party' %}">
+				<a href="{% url 'third_party' %}">
+					<i class='bx bxs-building-house'></i>
+
+					<span class="text">Third Party</span>
+				</a>
+			</li>
+
 		</ul>
 		<ul class="side-menu">
 			{% if request.user.is_superuser %}

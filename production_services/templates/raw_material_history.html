@@ -25,29 +25,29 @@
 
 <div class="head-title">
     <div class="left">
-        <h1>Production</h1>
+        <h1>Customer Stock History</h1>
         <ul class="breadcrumb">
           <li>
-            <a href="#">Production Record</a>
+            <a href="#">Third Party Production</a>
           </li>
           <li><i class='bx bx-chevron-right'></i></li>
           <li>
-            <a class="active" href="{% url 'production_list' %}">Production</a>
+            <a class="active" href="{% url 'raw_material_history' %}">Customer Stock History</a>
           </li>
           
         </ul>
     </div>
-    
-    <a href="{% url 'production_form' %}" class="btn-download">
+   
+    <a href="{% url 'third_party' %}" class="btn-download">
         <i class='bx bx-right-arrow-circle'></i>
-        <span class="text">Production</span>
+        <span class="text"> back</span>
     </a>
 </div>
 
 <div class="table-data">
     <div class="order">
       <div class="head">
-        <h3>Production History</h3>
+        <h3>Stock History</h3>
         <i class='bx bx-search'></i>
         <i class='bx bx-filter'></i>
       </div>
@@ -55,41 +55,34 @@
         <table class="table table-striped table-bordered table-hover centered-table">
           <thead class="table-dark">
             <tr>
-              <th scope="col">Date</th>
-              <th scope="col">Preform Type</th>
-              <th scope="col">Preform Size</th>
-              <th scope="col">Preform Color</th>
-              <th scope="col">Used Preforms</th>
-              <th scope="col">Defective Preform</th> 
-              <th scope="col">Bottle Size</th>
-              <th scope="col">Bottle Color</th>
-              <th scope="col">Produced Bottles</th> 
-              <th scope="col">Defective Bottles</th>
-              <!-- <th scope="col">Actions</th>  -->
-            </tr>
+                <th scope="col">#</th>
+                <th scope="col">Date</th>
+                <th scope="col">Customer</th>
+                <th scope="col">Product</th>
+                <th scope="col">Qty(Bags)</th>
+                <th scope="col">Qty(Units)</th>
+                <th scope="col">Amount</th>
+                
+              </tr>
           </thead>
           <tbody>
               {% for production in page_obj %}
+   
               <tr>
-                  <td class="text-wrap">{{ production.production_date|date:"d/m/y" }}</td>
-                  <td class="text-wrap">{{ production.preform_product.product.type }}</td>
-                  <td class="text-wrap">{{ production.preform_product.product.size }}{{ production.preform_product.product.unit }}</td>
-                  <td class="text-wrap">{{ production.preform_product.product.color }}</td>
-                  <td class="text-wrap">{{ production.used_preforms }}</td>
-                  <td class="text-wrap">{{ production.defective_preforms }}</td>
-                  <td class="text-wrap">{{ production.produced_bottle_product.size }}{{ production.produced_bottle_product.unit }}</td>
-                  <td class="text-wrap">{{ production.produced_bottle_product.color }}</td>
-                  <td class="text-wrap">{{ production.produced_bottles }}</td>
-                  <td class="text-wrap">{{ production.defective_bottles }}</td>
-                  <!-- <td class="text-wrap">
-                      <form action="{% url 'production_delete' pk=production.pk %}" method="post" style="display:inline;">
-                          {% csrf_token %}
-                          <button type="submit" style="border:none; background:none;">
-                              <i class='bx bx-trash' style="font-size: 1.5em; color: red;"></i>
-                          </button>
-                      </form>
-                  </td> -->
-                </tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ production.date_received|date:"Y-m-d" }}</td>
+                <td>{{ production.customer.name }}</td>
+                <td>{{ production.product.name}} {{ product.name }} -{{production.product.type }} - {{ production.product.size }}{{production.product.unit}} - {{production.product.color }}</td>
+                <td>{{ production.quantity_in_bags |format_with_commas }}</td>
+                <td>{{ production.quantity_in_units|format_with_commas }}</td>
+                <td>₦{{ production.amount|format_with_commas }}</td>
+                
+              </tr>
+
+                {% empty %}
+                    <tr>
+                    <td colspan="7" class="text-center">No raw material history found.</td>
+                    </tr>
               {% endfor %}
           </tbody>
         </table>
