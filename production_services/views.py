@@ -81,7 +81,7 @@ def raw_material_history(request):
 
 # 3. Inventory Table
 @login_required
-def inventory_list(request):
+def tp_inventory_list(request):
     inventory_items = PS_Inventory.objects.all().order_by('customer_id')
     paginator = Paginator(inventory_items, 10)
     page_number = request.GET.get('page')
